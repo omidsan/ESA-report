@@ -206,6 +206,7 @@ async function verifyAccess() {
     const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, combined);
     let rawText = new TextDecoder().decode(decrypted);
     rawText = rawText.replace(/:\s*False/g, ': "False"').replace(/:\s*True/g, ': "True"');
+    rawText = rawText.replace(/:\s*NaN/g, ': ""').replace(/:\s*Infinity/g, ': ""');
     window.allRows = JSON.parse(rawText);
     
     document.getElementById('login-screen').style.display = 'none';
