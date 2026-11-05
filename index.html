@@ -377,8 +377,21 @@ const App = (function () {
     const rows = [...state.filteredRows].sort((a, b) => {
       if (!state.sortKey) return 0;
       const va = a[state.sortKey] ?? ''; const vb = b[state.sortKey] ?? '';
+
+      // ستون‌های تاریخ: تبدیل به timestamp
+      if (DATE_FILTER_KEYS.includes(state.sortKey)) {
+        const ta = va ? new Date(va).getTime() : NaN;
+        const tb = vb ? new Date(vb).getTime() : NaN;
+        // مقادیر خالی همیشه آخر بیایند (چه صعودی چه نزولی)
+        if (isNaN(ta) && isNaN(tb)) return 0;
+        if (isNaN(ta)) return 1;
+        if (isNaN(tb)) return -1;
+        return state.sortAsc ? ta - tb : tb - ta;
+      }
+
+      // بقیه ستون‌ها: عددی اگر هر دو عدد باشند، وگرنه رشته‌ای
       const fa = parseFloat(va), fb = parseFloat(vb);
-      if (!isNaN(fa) && !isNaN(fb) && !DATE_FILTER_KEYS.includes(state.sortKey)) return state.sortAsc ? fa - fb : fb - fa;
+      if (!isNaN(fa) && !isNaN(fb)) return state.sortAsc ? fa - fb : fb - fa;
       return state.sortAsc ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
     });
 
