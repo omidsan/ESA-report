@@ -87,6 +87,28 @@ th { z-index: 2; }
 @media print {
   .table-wrap { max-height: none; overflow: visible; }
 }
+.table-header-wrap {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-bottom: none;
+  border-radius: var(--radius) var(--radius) 0 0;
+  background: #f9fafb;
+}
+.table-wrap {
+  max-height: 70vh;
+  overflow-y: auto;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+.table-header-wrap table,
+.table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  table-layout: fixed;   /* مهم: ستون‌ها هم‌عرض می‌شوند */
+}
 </style>
 </head>
 
@@ -159,9 +181,13 @@ th { z-index: 2; }
   </div>
 
   <div class="card">
+    <div class="table-header-wrap">
+      <table id="report-table-head">
+        <thead></thead>
+      </table>
+    </div>
     <div class="table-wrap">
       <table id="report-table">
-        <thead></thead>
         <tbody></tbody>
       </table>
     </div>
