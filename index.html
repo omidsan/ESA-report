@@ -587,20 +587,9 @@
 </head>
 <body>
 
-<!-- Login -->
-<div id="login-screen">
-  <div class="login-box">
-    <h2>🔒 Secure Access</h2>
-    <p>Enter password to view the report</p>
-    <input type="password" id="password-input" placeholder="Password"
-           onkeypress="if(event.key==='Enter') App.checkPassword()">
-    <button onclick="App.checkPassword()">Login</button>
-    <div class="login-error" id="login-error">Incorrect password</div>
-  </div>
-</div>
 
 <!-- Main App -->
-<div class="container" id="main-app" style="display:none;">
+<div class="container" id="main-app">
 
   <!-- Header -->
   <div class="card">
@@ -689,18 +678,25 @@
 </div>
 
 <script>
-async function loadSecureData(password) {
-  const btn = document.querySelector('.login-box button');
-  const origText = btn.textContent;
-  btn.textContent = 'در حال رمزگشایی…';
-  btn.disabled = true;
+async function initApp() {
+  // از کاربر رمز داده‌ها را می‌پرسیم
+  const password = prompt("لطفا رمز عبور گزارش را وارد کنید:");
+  
+  if (!password) {
+    document.body.innerHTML = "<h2 style='text-align:center; margin-top:50px; font-family:sans-serif;'>برای مشاهده گزارش، صفحه را رفرش کنید و رمز را وارد نمایید.</h2>";
+    return;
+  }
+
+  const subtitle = document.getElementById('page-subtitle');
+  subtitle.textContent = 'در حال رمزگشایی داده‌ها…';
 
   try {
-    // دریافت فایل رمزگذاری‌شده از کنار فایل HTML
+    // ۱. دریافت فایل رمزگذاری‌شده
     const resp = await fetch('./data.enc.json');
-    if (!resp.ok) throw new Error('File not found');
+    if (!resp.ok) throw new Error('فایل داده یافت نشد');
     const enc = await resp.json();
     
+    // ۲. رمزگشایی
     const b64 = (s) => Uint8Array.from(atob(s), c => c.charCodeAt(0));
     const salt = b64(enc.salt), iv = b64(enc.iv), tag = b64(enc.tag);
     const cipherText = b64(enc.data);
@@ -719,22 +715,25 @@ async function loadSecureData(password) {
     combined.set(cipherText); combined.set(tag, cipherText.length);
 
     const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, combined);
-    return JSON.parse(new TextDecoder().decode(decrypted));
+    
+    // ۳. تزریق داده‌ها و شروع برنامه
+    window.allRows = JSON.parse(new TextDecoder().decode(decrypted));
+    init(); // تابع اصلی برنامه شما
     
   } catch (e) {
-    console.error(e);
-    alert('رمز عبور اشتباه است یا فایل داده پیدا نشد.');
-    return null;
-  } finally {
-    btn.textContent = origText;
-    btn.disabled = false;
+    console.error("خطای رمزگشایی:", e);
+    alert('رمز عبور اشتباه است یا فایل داده پیدا نشد.\nصفحه رفرش می‌شود...');
+    location.reload(); // رفرش صفحه برای تلاش مجدد
   }
 }
+
+// اجرای خودکار برنامه هنگام لود شدن صفحه
+window.addEventListener('DOMContentLoaded', initApp);
 </script>
 <script>
 const App = (function () {
 
-  const PASSWORD = 'ESA2026';
+  
 
   // Only columns we want to show
   const COLUMNS = [
@@ -847,30 +846,57 @@ const App = (function () {
   }
 
   // ---------- Login ----------
-async function checkPassword() {
-  const pwd = dom.loginInput().value;
+async function initApp() {
+  // از کاربر رمز داده‌ها را می‌پرسیم
+  const password = prompt("لطفا رمز عبور گزارش را وارد کنید:");
   
-  if (pwd === PASSWORD) {
-    // ۱. مخفی کردن صفحه لاگین و نمایش برنامه
-    dom.loginScreen().style.display = 'none';
-    dom.mainApp().style.display = 'block';
+  if (!password) {
+    document.body.innerHTML = "<h2 style='text-align:center; margin-top:50px; font-family:sans-serif;'>برای مشاهده گزارش، صفحه را رفرش کنید و رمز را وارد نمایید.</h2>";
+    return;
+  }
+
+  const subtitle = document.getElementById('page-subtitle');
+  subtitle.textContent = 'در حال رمزگشایی داده‌ها…';
+
+  try {
+    // ۱. دریافت فایل رمزگذاری‌شده
+    const resp = await fetch('./data.enc.json');
+    if (!resp.ok) throw new Error('فایل داده یافت نشد');
+    const enc = await resp.json();
     
-    // ۲. گرفتن داده‌ها با استفاده از همان رمز
-    const rows = await loadSecureData(pwd);
+    // ۲. رمزگشایی
+    const b64 = (s) => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+    const salt = b64(enc.salt), iv = b64(enc.iv), tag = b64(enc.tag);
+    const cipherText = b64(enc.data);
+
+    const enc2 = new TextEncoder();
+    const keyMaterial = await crypto.subtle.importKey(
+      'raw', enc2.encode(password), 'PBKDF2', false, ['deriveKey']
+    );
     
-    if (rows) {
-      window.allRows = rows;
-      init(); // شروع برنامه
-    } else {
-      // اگر رمزگشایی شکست خورد، دوباره صفحه لاگین را نشان بده
-      dom.loginScreen().style.display = 'flex';
-      dom.mainApp().style.display = 'none';
-      dom.loginInput().value = '';
-    }
-  } else {
-    dom.loginError().style.display = 'block';
+    const key = await crypto.subtle.deriveKey(
+      { name: 'PBKDF2', salt, iterations: 300000, hash: 'SHA-256' },
+      keyMaterial, { name: 'AES-GCM', length: 256 }, false, ['decrypt']
+    );
+
+    const combined = new Uint8Array(cipherText.length + tag.length);
+    combined.set(cipherText); combined.set(tag, cipherText.length);
+
+    const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, combined);
+    
+    // ۳. تزریق داده‌ها و شروع برنامه
+    window.allRows = JSON.parse(new TextDecoder().decode(decrypted));
+    init(); // تابع اصلی برنامه شما
+    
+  } catch (e) {
+    console.error("خطای رمزگشایی:", e);
+    alert('رمز عبور اشتباه است یا فایل داده پیدا نشد.\nصفحه رفرش می‌شود...');
+    location.reload(); // رفرش صفحه برای تلاش مجدد
   }
 }
+
+// اجرای خودکار برنامه هنگام لود شدن صفحه
+window.addEventListener('DOMContentLoaded', initApp);
 
   // ---------- Init ----------
   function init() {
@@ -1724,7 +1750,7 @@ async function checkPassword() {
     applyFilters();
   }
 
-  return { checkPassword, sortTable, resetFilters };
+  return { sortTable, resetFilters };
 
 })();
 </script>
