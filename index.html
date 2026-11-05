@@ -4,18 +4,26 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sales Inquiry Report — Ervin Shimi Azma</title>
-
 <style>
-  :root {
-    --bg: #f7f8fa; --surface: #ffffff; --border: #e5e7eb; --text: #1f2937;
-    --text-muted: #6b7280; --primary: #2563eb; --primary-hover: #1d4ed8;
-    --success: #16a34a; --warning: #d97706; --danger: #dc2626;
-    --radius: 6px; --font: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
-  }
+  /* استایل‌های اصلی */
+  :root { --bg: #f7f8fa; --surface: #ffffff; --border: #e5e7eb; --text: #1f2937; --text-muted: #6b7280; --primary: #2563eb; --primary-hover: #1d4ed8; --danger: #dc2626; --font: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.45; padding: 20px 16px; min-height: 100vh; }
-  .container { max-width: 100%; margin: 0 auto; }
-  .card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 12px 14px; margin-bottom: 10px; }
+  
+  /* صفحه لاگین (اولش دیده می‌شود) */
+  #login-screen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 16px; }
+  .login-box { background: var(--surface); border-radius: 6px; border: 1px solid var(--border); padding: 32px 28px; max-width: 340px; width: 100%; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+  .login-box h2 { font-size: 1.2rem; margin-bottom: 8px; color: var(--text); }
+  .login-box p { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px; }
+  .login-box input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 4px; font-size: 1rem; margin-bottom: 12px; outline: none; text-align: center; }
+  .login-box input:focus { border-color: var(--primary); }
+  .login-box button { width: 100%; padding: 10px; background: var(--primary); color: #fff; border: none; border-radius: 4px; font-size: 0.95rem; font-weight: 600; cursor: pointer; }
+  .login-box button:hover { background: var(--primary-hover); }
+  .login-error { color: var(--danger); font-size: 0.85rem; margin-top: 10px; display: none; font-weight: 600; }
+
+  /* محتوای اصلی (اولش مخفی است) */
+  #main-app { display: none; max-width: 100%; margin: 0 auto; }
+  .card { background: var(--surface); border-radius: 6px; border: 1px solid var(--border); padding: 12px 14px; margin-bottom: 10px; }
   .page-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 2px; }
   .page-subtitle { font-size: 0.85rem; color: var(--text-muted); }
   
@@ -53,7 +61,7 @@
   .btn-primary { background: var(--primary); color: #fff; }
   .btn-secondary { background: #e5e7eb; color: var(--text); }
 
-  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); }
+  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 6px; }
   table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
   th, td { padding: 8px 10px; text-align: left; white-space: nowrap; border-bottom: 1px solid var(--border); }
   th { background: #f9fafb; color: var(--text-muted); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; position: sticky; top: 0; cursor: pointer; user-select: none; }
@@ -61,14 +69,14 @@
   tbody tr:hover { background: #f9fafb; }
   tbody tr:last-child td { border-bottom: none; }
   
-  .status-ordered { color: var(--success); font-weight: 600; }
-  .status-canceled, .status-rejected { color: var(--danger); }
-  .status-lost, .status-hold { color: var(--warning); }
+  .status-ordered { color: #16a34a; font-weight: 600; }
+  .status-canceled, .status-rejected { color: #dc2626; }
+  .status-lost, .status-hold { color: #d97706; }
   
   .date-filter-btn { display: inline-block; margin-left: 4px; padding: 0 3px; font-size: 0.7rem; color: var(--text-muted); cursor: pointer; border: 1px solid transparent; border-radius: 3px; line-height: 1; vertical-align: middle; }
   .date-filter-btn.active { color: #fff; background: var(--primary); border-color: var(--primary); }
   
-  .date-popup { position: absolute; z-index: 200; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); font-size: 0.8rem; min-width: 200px; top: 100%; right: 0; margin-top: 4px; }
+  .date-popup { position: absolute; z-index: 200; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 10px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); font-size: 0.8rem; min-width: 200px; top: 100%; right: 0; margin-top: 4px; }
   .date-popup label { display: block; font-size: 0.7rem; color: var(--text-muted); font-weight: 600; margin-bottom: 2px; }
   .date-popup input[type="date"] { width: 100%; padding: 4px 6px; border: 1px solid var(--border); border-radius: 4px; font-size: 0.78rem; margin-bottom: 6px; outline: none; font-family: var(--font); }
   .date-popup .popup-actions { display: flex; gap: 6px; margin-top: 4px; }
@@ -78,7 +86,7 @@
   
   .empty-state { text-align: center; padding: 32px 20px; color: var(--text-muted); font-size: 0.9rem; }
 
-  .quick-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 5px 10px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; }
+  .quick-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 5px 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 8px; }
   .quick-title { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-right: 4px; }
   .quick-btn { padding: 4px 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 12px; font-size: 0.72rem; font-weight: 600; cursor: pointer; }
   .quick-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
@@ -88,10 +96,22 @@
 </head>
 <body>
 
-<div class="container" id="main-app">
+<!-- صفحه لاگین -->
+<div id="login-screen">
+  <div class="login-box">
+    <h2>🔒 Secure Access</h2>
+    <p>Enter password to view the report</p>
+    <input type="password" id="password-input" placeholder="Password" onkeypress="if(event.key==='Enter') checkPassword()">
+    <button onclick="checkPassword()">Login</button>
+    <div class="login-error" id="login-error">Incorrect password</div>
+  </div>
+</div>
+
+<!-- برنامه اصلی -->
+<div id="main-app">
   <div class="card">
     <div class="page-title">Sales Inquiry Report</div>
-    <div class="page-subtitle" id="page-subtitle">در حال بارگذاری داده‌ها…</div>
+    <div class="page-subtitle" id="page-subtitle">Loading data…</div>
   </div>
 
   <div class="card no-print" id="filter-card">
@@ -141,6 +161,61 @@
   </div>
 </div>
 
+<!-- اسکریپت رمزگشایی -->
+<script>
+// ⚠️ رمز عبور اینجاست (1235)
+const CORRECT_PASSWORD = '1235'; 
+
+async function checkPassword() {
+  const pwd = document.getElementById('password-input').value;
+  const errorDiv = document.getElementById('login-error');
+  
+  if (pwd !== CORRECT_PASSWORD) {
+    errorDiv.style.display = 'block';
+    return;
+  }
+
+  errorDiv.style.display = 'none';
+  const btn = document.querySelector('.login-box button');
+  const origText = btn.textContent;
+  btn.textContent = 'Decrypting…';
+  btn.disabled = true;
+
+  try {
+    const resp = await fetch('./data.enc.json');
+    if (!resp.ok) throw new Error('Data file not found');
+    const enc = await resp.json();
+    
+    const b64 = (s) => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+    const salt = b64(enc.salt), iv = b64(enc.iv), tag = b64(enc.tag), cipherText = b64(enc.data);
+
+    const enc2 = new TextEncoder();
+    const keyMaterial = await crypto.subtle.importKey('raw', enc2.encode(pwd), 'PBKDF2', false, ['deriveKey']);
+    const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 300000, hash: 'SHA-256' }, keyMaterial, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+
+    const combined = new Uint8Array(cipherText.length + tag.length);
+    combined.set(cipherText); combined.set(tag, cipherText.length);
+
+    const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, combined);
+    window.allRows = JSON.parse(new TextDecoder().decode(decrypted));
+    
+    // مخفی کردن لاگین و نمایش برنامه
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('main-app').style.display = 'block';
+    
+    App.init();
+    
+  } catch (e) {
+    console.error(e);
+    errorDiv.textContent = 'Error loading data.';
+    errorDiv.style.display = 'block';
+  } finally {
+    btn.textContent = origText;
+    btn.disabled = false;
+  }
+}
+</script>
+
 <!-- اسکریپت اصلی برنامه -->
 <script>
 const App = (function () {
@@ -175,11 +250,7 @@ const App = (function () {
   };
 
   const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  function formatDate(value) {
-    if (!value) return '';
-    let d = new Date(value); if (isNaN(d.getTime())) return String(value);
-    return `${String(d.getDate()).padStart(2, '0')}-${MONTHS[d.getMonth()]}-${String(d.getFullYear()).slice(-2)}`;
-  }
+  function formatDate(value) { if (!value) return ''; let d = new Date(value); if (isNaN(d.getTime())) return String(value); return `${String(d.getDate()).padStart(2, '0')}-${MONTHS[d.getMonth()]}-${String(d.getFullYear()).slice(-2)}`; }
   function formatNumber(n) { if (!n) return ''; const num = parseFloat(String(n).replace(/,/g, '')); return isNaN(num) ? n : num.toLocaleString('en-US'); }
   function formatPayment(v) { if (v === undefined || v === '') return ''; const num = parseFloat(v); return isNaN(num) ? v : Math.round(num * 100) + '%'; }
   function formatOrderSent(v) { if (!v) return ''; const m = String(v).match(/\(([^)]+)\)/); return m ? m[1].trim() : String(v); }
@@ -189,7 +260,6 @@ const App = (function () {
 
   function init() {
     if (!window.allRows) { dom.subtitle().textContent = 'Error: Data not loaded.'; return; }
-    
     state.rows = window.allRows.map(r => {
       let pi = ''; const piC = (r['PI-C'] || '').trim(); const piT = (r['PI-T'] || '').trim();
       if (piC && piT) pi = piC + ' / ' + piT; else if (piC) pi = piC; else if (piT) pi = piT;
@@ -198,7 +268,6 @@ const App = (function () {
       if (rawInq.includes(' | ')) { const parts = rawInq.split(' | '); inqNo = parts[0].trim(); brand = parts.slice(1).join(' | ').trim(); }
       return { ...r, PI: pi, 'Inquiry No': inqNo, Brand: brand };
     });
-
     dom.subtitle().textContent = `Total records: ${state.rows.length} · Last updated: ${new Date().toLocaleString('en-US')}`;
     populateDropdowns(); bindFilterEvents(); updateOrderDateVisibility(); applyFilters();
   }
@@ -253,15 +322,12 @@ const App = (function () {
     if (f.currency && getCleanCurrency(r['Price Unit']) !== f.currency) return false;
     if (f.paymentType === 'domestic' && isForeignCurrency(r['Price Unit'])) return false;
     if (f.paymentType === 'foreign' && !isForeignCurrency(r['Price Unit'])) return false;
-
     if (state.orderFrom || state.orderTo) {
-      const raw = r['Date-Ordered']; if (!raw) return false;
-      const d = new Date(raw); if (isNaN(d.getTime())) return false;
+      const raw = r['Date-Ordered']; if (!raw) return false; const d = new Date(raw); if (isNaN(d.getTime())) return false;
       const dDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
       if (state.orderFrom && dDay < new Date(state.orderFrom + 'T00:00:00')) return false;
       if (state.orderTo && dDay > new Date(state.orderTo + 'T00:00:00')) return false;
     }
-
     if (state.quickPreset) {
       const status = String(r.Status || '').toLowerCase(); const payment = parseFloat(r['Payment Received']); const hasPayment = !isNaN(payment);
       const orderSent = String(r['The order was sent'] || '').toLowerCase(); const isComplete = orderSent.includes('complete'); const isPartial = orderSent.includes('partial'); const hasInvoice = !!r['sent invoice'];
@@ -274,7 +340,6 @@ const App = (function () {
         case 'awaitingPayment': if (!hasInvoice || (hasPayment && payment >= 1)) return false; break;
       }
     }
-
     for (const key in state.dateFilters) {
       const range = state.dateFilters[key]; if (!range) continue;
       const from = range.from ? new Date(range.from + 'T00:00:00') : null; const to = range.to ? new Date(range.to + 'T00:00:00') : null;
@@ -283,7 +348,6 @@ const App = (function () {
       const dDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
       if (from && dDay < from) return false; if (to && dDay > to) return false;
     }
-
     if (f.globalSearch) { const haystack = Object.keys(r).map(k => String(r[k] ?? '')).join(' ').toLowerCase(); if (!haystack.includes(f.globalSearch)) return false; }
     return true;
   }
@@ -403,51 +467,6 @@ const App = (function () {
 
   return { init, sortTable, resetFilters };
 })();
-</script>
-
-<!-- اسکریپت رمزگشایی (باید بعد از App باشد) -->
-<!-- اسکریپت رمزگشایی -->
-<script>
-async function initApp() {
-  // این خط رمز را از کاربر می‌پرسد
-  const password = prompt("لطفا رمز عبور گزارش را وارد کنید:");
-  
-  if (!password) {
-    document.body.innerHTML = "<h2 style='text-align:center; margin-top:50px; font-family:sans-serif;'>برای مشاهده گزارش، صفحه را رفرش کنید و رمز را وارد نمایید.</h2>";
-    return;
-  }
-
-  const subtitle = document.getElementById('page-subtitle');
-  subtitle.textContent = 'در حال بارگذاری داده‌ها…';
-
-  try {
-    const resp = await fetch('./data.enc.json');
-    if (!resp.ok) throw new Error('فایل داده یافت نشد');
-    const enc = await resp.json();
-    
-    const b64 = (s) => Uint8Array.from(atob(s), c => c.charCodeAt(0));
-    const salt = b64(enc.salt), iv = b64(enc.iv), tag = b64(enc.tag), cipherText = b64(enc.data);
-
-    const enc2 = new TextEncoder();
-    const keyMaterial = await crypto.subtle.importKey('raw', enc2.encode(password), 'PBKDF2', false, ['deriveKey']);
-    const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 300000, hash: 'SHA-256' }, keyMaterial, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
-
-    const combined = new Uint8Array(cipherText.length + tag.length);
-    combined.set(cipherText); combined.set(tag, cipherText.length);
-
-    const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, combined);
-    
-    window.allRows = JSON.parse(new TextDecoder().decode(decrypted));
-    App.init();
-    
-  } catch (e) {
-    console.error("خطای رمزگشایی:", e);
-    alert('رمز عبور اشتباه است!');
-    document.body.innerHTML = "<h2 style='text-align:center; margin-top:50px; font-family:sans-serif;'>رمز اشتباه بود. صفحه را رفرش کنید و دوباره تلاش کنید.</h2>";
-  }
-}
-
-window.addEventListener('DOMContentLoaded', initApp);
 </script>
 </body>
 </html>
