@@ -179,9 +179,9 @@ const App = (function () {
     if (!window.allRows) { dom.subtitle().textContent = 'Error: Data not loaded.'; return; }
     
     state.rows = window.allRows.map(r => {
-      let pi = ''; const piC = (r['PI-C'] || '').trim(); const piT = (r['PI-T'] || '').trim();
+      let pi = ''; const piC = String(r['PI-C'] ?? '').trim(); const piT = String(r['PI-T'] ?? '').trim();
       if (piC && piT) pi = piC + ' / ' + piT; else if (piC) pi = piC; else if (piT) pi = piT;
-      let rawInq = String(r['Inquiry No'] || '').replace(/\n/g, ' ');
+      let rawInq = String(r['Inquiry No'] ?? '').replace(/\n/g, ' ');
       let inqNo = rawInq; let brand = '';
       if (rawInq.includes(' | ')) { const parts = rawInq.split(' | '); inqNo = parts[0].trim(); brand = parts.slice(1).join(' | ').trim(); }
       return { ...r, PI: pi, 'Inquiry No': inqNo, Brand: brand };
