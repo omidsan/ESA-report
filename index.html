@@ -67,6 +67,12 @@
   .quick-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
   .quick-actions { margin-left: auto; display: flex; gap: 4px; }
   .quick-actions .btn { padding: 4px 10px; font-size: 0.72rem; }
+.main-row { cursor: pointer; }
+.detail-row td { border-bottom: 1px solid var(--border); }
+@media print {
+  .detail-row { display: none !important; }
+  .expand-btn { display: none !important; }
+}
 </style>
 </head>
 
@@ -380,20 +386,58 @@ const App = (function () {
 
     if (!rows.length) { dom.tableBody().innerHTML = `<tr><td colspan="${COLUMNS.length}" class="empty-state">No records found.</td></tr>`; return; }
 
-    dom.tableBody().innerHTML = rows.map((r, idx) => '<tr>' + COLUMNS.map(c => {
-      if (c.key === '__row__') return `<td style="color:#9ca3af;text-align:right;">${idx + 1}</td>`;
-      let val = r[c.key] ?? '';
-      if (DATE_FILTER_KEYS.includes(c.key)) val = formatDate(val);
-      else if (c.key === 'The order was sent') val = formatOrderSent(val);
-      else if (c.key === 'Payment Received') val = formatPayment(val);
-      else if (c.key === 'Price') val = formatNumber(val);
-      
-      if (c.key === 'Status') {
-        if (!val) val = 'Pending';
-        return `<td class="status-${String(val).toLowerCase().replace(/\s+/g, '')}">${val}</td>`;
-      }
-      return `<td>${val}</td>`;
-    }).join('') + '</tr>').join('');
+    dom.tableBody().innerHTML = rows.map((r, idx) => {
+      const mainRow = '<tr class="main-row" data-idx="' + idx + '">' + COLUMNS.map(c => {
+        if (c.key === '__row__') return `<td style="color:#9ca3af;text-align:right;white-space:nowrap;"><span class="expand-btn" data-idx="${idx}" style="display:inline-block;width:14px;cursor:pointer;color:#2563eb;user-select:none;">▶</span> ${idx + 1}</td>`;
+        let val = r[c.key] ?? '';
+        if (DATE_FILTER_KEYS.includes(c.key)) val = formatDate(val);
+        else if (c.key === 'The order was sent') val = formatOrderSent(val);
+        else if (c.key === 'Payment Received') val = formatPayment(val);
+        else if (c.key === 'Price') val = formatNumber(val);
+        
+        if (c.key === 'Status') {
+          if (!val) val = 'Pending';
+          return `<td class="status-${String(val).toLowerCase().replace(/\s+/g, '')}">${val}</td>`;
+        }
+        return `<td>${val}</td>`;
+      }).join('') + '</tr>';
+
+      const detailRow = '<tr class="detail-row" data-idx="' + idx + '" style="display:none;background:#f9fafb;">' +
+        '<td colspan="' + COLUMNS.length + '" style="padding:8px 12px;">' +
+          '<div style="display:flex;flex-wrap:wrap;gap:20px;font-size:0.78rem;">' +
+            '<div><div style="font-size:0.65rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.03em;">Last Internal Action</div><div>' + (r['Last Action'] || '—') + '</div></div>' +
+            '<div><div style="font-size:0.65rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.03em;">Last Offer to Customer</div><div>' + (r['Actions Final sent Offer'] || '—') + '</div></div>' +
+            '<div><div style="font-size:0.65rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.03em;">Last Action Date</div><div>' + (r['Date AF'] ? formatDate(r['Date AF']) : '—') + '</div></div>' +
+          '</div>'
+        '</td>' +
+      '</tr>';
+
+      return mainRow + detailRow;
+    }).join('');
+
+    // بایند کلیک دکمه‌های باز/بسته
+    dom.tableBody().querySelectorAll('.expand-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const idx = btn.getAttribute('data-idx');
+        const detail = dom.tableBody().querySelector('.detail-row[data-idx="' + idx + '"]');
+        // بستن همه زیرشاخه‌های دیگر
+        dom.tableBody().querySelectorAll('.detail-row').forEach(d => {
+          if (d !== detail) { d.style.display = 'none'; }
+        });
+        dom.tableBody().querySelectorAll('.expand-btn').forEach(b => {
+          if (b !== btn) b.textContent = '▶';
+        });
+        // باز/بسته کردن این یکی
+        if (detail.style.display === 'none') {
+          detail.style.display = '';
+          btn.textContent = '▼';
+        } else {
+          detail.style.display = 'none';
+          btn.textContent = '▶';
+        }
+      });
+    });
 
     document.querySelectorAll('.quick-btn').forEach(btn => btn.classList.toggle('active', btn.getAttribute('data-preset') === state.quickPreset));
     updateOrderDateVisibility();
