@@ -396,7 +396,7 @@ const App = (function () {
 <!-- اسکریپت رمزگشایی -->
 <script>
 async function tryDecrypt(password) {
-  const resp = await fetch('./data.enc.json');
+  const resp = await fetch('./data.enc.json?v=' + Date.now());
   if (!resp.ok) throw new Error('data not found');
   const enc = await resp.json();
   const b64 = (s) => Uint8Array.from(atob(s), c => c.charCodeAt(0));
