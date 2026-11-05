@@ -5,12 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sales Inquiry Report — Ervin Shimi Azma</title>
 <style>
-  /* استایل‌های اصلی */
+  /* استایل‌ها (همان‌طور که بودند بمانند) */
   :root { --bg: #f7f8fa; --surface: #ffffff; --border: #e5e7eb; --text: #1f2937; --text-muted: #6b7280; --primary: #2563eb; --primary-hover: #1d4ed8; --danger: #dc2626; --font: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.45; padding: 20px 16px; min-height: 100vh; }
-  
-  /* صفحه لاگین (اولش دیده می‌شود) */
   #login-screen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 16px; }
   .login-box { background: var(--surface); border-radius: 6px; border: 1px solid var(--border); padding: 32px 28px; max-width: 340px; width: 100%; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
   .login-box h2 { font-size: 1.2rem; margin-bottom: 8px; color: var(--text); }
@@ -21,7 +19,6 @@
   .login-box button:hover { background: var(--primary-hover); }
   .login-error { color: var(--danger); font-size: 0.85rem; margin-top: 10px; display: none; font-weight: 600; }
 
-  /* محتوای اصلی (اولش مخفی است) */
   #main-app { display: none; max-width: 100%; margin: 0 auto; }
   .card { background: var(--surface); border-radius: 6px; border: 1px solid var(--border); padding: 12px 14px; margin-bottom: 10px; }
   .page-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 2px; }
@@ -163,7 +160,6 @@
 
 <!-- Logic -->
 <script>
-// App configuration signature
 const appVersionHash = '#378804esa'; 
 
 async function verifyAccess() {
@@ -206,18 +202,11 @@ async function verifyAccess() {
     const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, combined);
     let rawText = new TextDecoder().decode(decrypted);
     
-    // تمیزکاری داده‌های اکسل برای جلوگیری از خطای JSON
+    // تمیزکاری داده‌ها
     rawText = rawText.replace(/:\s*False/g, ': "False"').replace(/:\s*True/g, ': "True"');
     rawText = rawText.replace(/:\s*NaN/g, ': ""').replace(/:\s*Infinity/g, ': ""');
     
-    // حذف هرگونه کاراکتر نامرئی یا اضافی
-    try {
-      window.allRows = JSON.parse(rawText);
-    } catch (jsonErr) {
-      // اگر خطا داد، کاراکترهای مشکل‌دار را جایگزین می‌کنیم
-      rawText = rawText.replace(/[^\x20-\x7E\s\u0600-\u06FF]/g, ''); 
-      window.allRows = JSON.parse(rawText);
-    }
+    window.allRows = JSON.parse(rawText);
     
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('main-app').style.display = 'block';
