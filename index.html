@@ -45,12 +45,11 @@
   .btn-primary { background: var(--primary); color: #fff; }
   .btn-secondary { background: #e5e7eb; color: var(--text); }
   .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); }
-  table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.82rem; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
   th, td { padding: 8px 10px; text-align: left; white-space: nowrap; border-bottom: 1px solid var(--border); }
-  th { background: #f9fafb; color: var(--text-muted); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; position: sticky; top: 0; cursor: pointer; user-select: none; z-index: 2; }
-
+  th { background: #f9fafb; color: var(--text-muted); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; position: sticky; top: 0; cursor: pointer; user-select: none; }
+  th { z-index: 2; }
   th { position: relative; padding: 6px 10px; }
-  th { position: sticky; top: 0; z-index: 2; }
   tbody tr:hover { background: #f9fafb; }
   tbody tr:last-child td { border-bottom: none; }
   .status-ordered { color: var(--success); font-weight: 600; }
@@ -87,28 +86,6 @@
 th { z-index: 2; }
 @media print {
   .table-wrap { max-height: none; overflow: visible; }
-}
-.table-header-wrap {
-  overflow: hidden;
-  border: 1px solid var(--border);
-  border-bottom: none;
-  border-radius: var(--radius) var(--radius) 0 0;
-  background: #f9fafb;
-}
-.table-wrap {
-  max-height: 70vh;
-  overflow-y: auto;
-  overflow-x: auto;
-  border: 1px solid var(--border);
-  border-top: none;
-  border-radius: 0 0 var(--radius) var(--radius);
-}
-.table-header-wrap table,
-.table-wrap table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.82rem;
-  table-layout: fixed;   /* مهم: ستون‌ها هم‌عرض می‌شوند */
 }
 </style>
 </head>
@@ -182,13 +159,9 @@ th { z-index: 2; }
   </div>
 
   <div class="card">
-    <div class="table-header-wrap">
-      <table id="report-table-head">
-        <thead></thead>
-      </table>
-    </div>
     <div class="table-wrap">
       <table id="report-table">
+        <thead></thead>
         <tbody></tbody>
       </table>
     </div>
