@@ -505,17 +505,12 @@
 </div>
 
 <!-- Logic for Data Decryption -->
+<!-- Logic for Data Decryption -->
 <script>
 async function initApp() {
-  const password = prompt("لطفا رمز عبور گزارش را وارد کنید:");
-  
-  if (!password) {
-    document.body.innerHTML = "<h2 style='text-align:center; margin-top:50px; font-family:sans-serif;'>برای مشاهده گزارش، صفحه را رفرش کنید و رمز را وارد نمایید.</h2>";
-    return;
-  }
-
+  const password = '1235'; // رمز مستقیماً اینجاست
   const subtitle = document.getElementById('page-subtitle');
-  subtitle.textContent = 'در حال رمزگشایی داده‌ها…';
+  subtitle.textContent = 'در حال بارگذاری داده‌ها…';
 
   try {
     const resp = await fetch('./data.enc.json');
@@ -546,8 +541,7 @@ async function initApp() {
     
   } catch (e) {
     console.error("خطای رمزگشایی:", e);
-    alert('رمز عبور اشتباه است یا فایل داده پیدا نشد.\nصفحه رفرش می‌شود...');
-    location.reload(); 
+    subtitle.innerHTML = "<span style='color:red;'>خطا در بارگذاری داده‌ها. لطفا به پشتیبان اطلاع دهید.</span>";
   }
 }
 
