@@ -408,12 +408,13 @@ const App = (function () {
 <!-- اسکریپت رمزگشایی (باید بعد از App باشد) -->
 <script>
 async function initApp() {
-  const password = '1235'; // رمز مستقیماً اینجاست
+  const password = '1235';
   const subtitle = document.getElementById('page-subtitle');
   subtitle.textContent = 'در حال بارگذاری داده‌ها…';
 
   try {
-    const resp = await fetch('./data.enc.json');
+    // ✅ cache-busting: همیشه نسخه تازه
+    const resp = await fetch('./data.enc.json?t=' + Date.now(), { cache: 'no-store' });
     if (!resp.ok) throw new Error('فایل داده یافت نشد');
     const enc = await resp.json();
     
@@ -422,7 +423,10 @@ async function initApp() {
 
     const enc2 = new TextEncoder();
     const keyMaterial = await crypto.subtle.importKey('raw', enc2.encode(password), 'PBKDF2', false, ['deriveKey']);
-    const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 300000, hash: 'SHA-256' }, keyMaterial, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+    const key = await crypto.subtle.deriveKey(
+      { name: 'PBKDF2', salt, iterations: 300000, hash: 'SHA-256' },
+      keyMaterial, { name: 'AES-GCM', length: 256 }, false, ['decrypt']
+    );
 
     const combined = new Uint8Array(cipherText.length + tag.length);
     combined.set(cipherText); combined.set(tag, cipherText.length);
@@ -431,7 +435,6 @@ async function initApp() {
     
     window.allRows = JSON.parse(new TextDecoder().decode(decrypted));
     
-    // حالا که App ساخته شده، تابع init را صدا می‌زنیم
     App.init();
     
   } catch (e) {
