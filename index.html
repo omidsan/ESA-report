@@ -924,4 +924,296 @@ const App = (function () {
     }
     if (f.terms && r['Terms of Delivery'] !== f.terms) return false;
     if (f.currency && getCleanCurrency(r['Price Unit']) !== f.currency) return false;
-    if (f
+    if (f.paymentType === 'domestic' && isForeignCurrency(r['Price Unit'])) return false;
+    if (f.paymentType === 'foreign' && !isForeignCurrency(r['Price Unit'])) return false;
+
+    if (state.orderFrom || state.orderTo) {
+      const raw = r['Date-Ordered'];
+      if (!raw) return false;
+      const d = new Date(raw);
+      if (isNaN(d.getTime())) return false;
+      const dDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      if (state.orderFrom && dDay < new Date(state.orderFrom + 'T00:00:00')) return false;
+      if (state.orderTo && dDay > new Date(state.orderTo + 'T00:00:00')) return false;
+    }
+
+    if (state.quickPreset) {
+      const status = String(r.Status || '').toLowerCase();
+      const payment = parseFloat(r['Payment Received']);
+      const hasPayment = !isNaN(payment);
+      const orderSent = String(r['The order was sent'] || '').toLowerCase();
+      const isComplete = orderSent.includes('complete');
+      const isPartial = orderSent.includes('partial');
+      const hasInvoice = !!r['sent invoice'];
+
+      switch (state.quickPreset) {
+        case 'openOrders':
+          if (status !== 'ordered' || (hasPayment && payment >= 1)) return false;
+          break;
+        case 'completedOrders':
+          if (!(hasPayment && payment >= 1)) return false;
+          break;
+        case 'overdueOrders':
+          if (status !== 'ordered' || isComplete) return false;
+          const raw = r['Date-Ordered'];
+          if (!raw) return false;
+          const d = new Date(raw);
+          if (isNaN(d.getTime()) || ((Date.now() - d.getTime()) / (1000 * 60 * 60 * 24)) < 180) return false;
+          break;
+        case 'awaitingShipment':
+          if (status !== 'ordered' || isComplete) return false;
+          break;
+        case 'awaitingInvoice':
+          if ((!isComplete && !isPartial) || hasInvoice) return false;
+          break;
+        case 'awaitingPayment':
+          if (!hasInvoice || (hasPayment && payment >= 1)) return false;
+          break;
+      }
+    }
+
+    for (const key in state.dateFilters) {
+      const range = state.dateFilters[key];
+      if (!range) continue;
+      const from = parseDateInput(range.from);
+      const to   = parseDateInput(range.to);
+      const raw = r[key];
+      if (!raw) { if (from || to) return false; continue; }
+      const d = new Date(raw);
+      if (isNaN(d.getTime())) { if (from || to) return false; continue; }
+      const dDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      if (from && dDay < from) return false;
+      if (to   && dDay > to)   return false;
+    }
+
+    if (f.globalSearch) {
+      const haystack = Object.keys(r).map(k => String(r[k] ?? '')).join(' ').toLowerCase();
+      if (!haystack.includes(f.globalSearch)) return false;
+    }
+    return true;
+  }
+
+  function applyFilters() {
+    const f = readFilters();
+    state.filteredRows = state.rows.filter(r => rowMatches(r, f));
+    renderActiveFilters(f);
+    renderFilteredStats();
+    render();
+  }
+
+  function getFilterElement(key) {
+    const map = {
+      customer: dom.filters.customer, product: dom.filters.product, status: dom.filters.status,
+      currency: dom.filters.currency, paymentType: dom.filters.paymentType, terms: dom.filters.terms,
+      globalSearch: dom.filters.globalSearch
+    };
+    const fn = map[key]; return fn ? fn() : null;
+  }
+
+  function clearOneFilter(key) {
+    const el = getFilterElement(key);
+    if (el) { el.value = ''; if (el.tagName === 'SELECT') el.selectedIndex = 0; }
+    applyFilters();
+  }
+
+  function renderActiveFilters(f) {
+    const sWrap = dom.searchChipWrap(); sWrap.innerHTML = '';
+    if (f.globalSearch) {
+      const chip = document.createElement('span'); chip.className = 'search-chip';
+      chip.innerHTML = `<span class="chip-key">Search</span><span>${f.globalSearch}</span>`;
+      const xBtn = document.createElement('button'); xBtn.type = 'button'; xBtn.innerHTML = '&times;';
+      xBtn.style.cssText = 'background:none;border:none;color:inherit;cursor:pointer;font-size:1.1rem;line-height:1;padding:0 0 0 4px;';
+      xBtn.addEventListener('click', () => clearOneFilter('globalSearch'));
+      chip.appendChild(xBtn); sWrap.appendChild(chip);
+    }
+
+    const wrap = dom.activeFilters(); wrap.innerHTML = '';
+    const chipLabels = { customer: 'Customer', product: 'Product', status: 'Status', currency: 'Currency', paymentType: 'Payment Type', terms: 'Terms' };
+    Object.keys(chipLabels).forEach(k => {
+      if (f[k]) {
+        const chip = document.createElement('span'); chip.className = 'filter-chip';
+        chip.innerHTML = `<span class="chip-key">${chipLabels[k]}:</span> ${f[k]}`;
+        const xBtn = document.createElement('button'); xBtn.type = 'button'; xBtn.innerHTML = '&times;';
+        xBtn.addEventListener('click', () => clearOneFilter(k));
+        chip.appendChild(xBtn); wrap.appendChild(chip);
+      }
+    });
+
+    const dateLabels = { 'Date Of Inquiry Customer': 'INQ Date', 'Date-Ordered': 'Order Date', 'date sent': 'Ship Date', 'sent invoice': 'Invoice', 'Date Payment Received': 'Payment Date' };
+    Object.keys(state.dateFilters).forEach(key => {
+      const range = state.dateFilters[key];
+      if (!range || (!range.from && !range.to)) return;
+      const chip = document.createElement('span'); chip.className = 'filter-chip';
+      chip.innerHTML = `<span class="chip-key">${dateLabels[key] || key}:</span> ${range.from || '…'} → ${range.to || '…'}`;
+      const xBtn = document.createElement('button'); xBtn.type = 'button'; xBtn.innerHTML = '&times;';
+      xBtn.addEventListener('click', () => { delete state.dateFilters[key]; applyFilters(); });
+      chip.appendChild(xBtn); wrap.appendChild(chip);
+    });
+
+    if (state.quickPreset) {
+      const presetLabels = { openOrders: 'Open Orders', completedOrders: 'Completed Orders', overdueOrders: 'Delayed Orders', awaitingShipment: 'Awaiting Shipment', awaitingInvoice: 'Awaiting Invoice', awaitingPayment: 'Awaiting Payment' };
+      const chip = document.createElement('span'); chip.className = 'filter-chip';
+      chip.style.cssText = 'background:#dbeafe;border-color:#93c5fd;color:#1e40af;';
+      chip.innerHTML = `<span class="chip-key" style="color:#3b82f6;">Preset:</span> ${presetLabels[state.quickPreset] || state.quickPreset}`;
+      const xBtn = document.createElement('button'); xBtn.type = 'button'; xBtn.innerHTML = '&times;';
+      xBtn.addEventListener('click', () => { state.quickPreset = ''; applyFilters(); });
+      chip.appendChild(xBtn); wrap.appendChild(chip);
+    }
+
+    if (state.orderFrom || state.orderTo) {
+      const chip = document.createElement('span'); chip.className = 'filter-chip';
+      chip.innerHTML = `<span class="chip-key">Order Date:</span> ${state.orderFrom || '…'} → ${state.orderTo || '…'}`;
+      const xBtn = document.createElement('button'); xBtn.type = 'button'; xBtn.innerHTML = '&times;';
+      xBtn.addEventListener('click', () => {
+        state.orderFrom = ''; state.orderTo = '';
+        if (dom.filters.orderFrom()) dom.filters.orderFrom().value = '';
+        if (dom.filters.orderTo()) dom.filters.orderTo().value = '';
+        applyFilters();
+      });
+      chip.appendChild(xBtn); wrap.appendChild(chip);
+    }
+  }
+
+  function renderFilteredStats() {
+    const rows = state.filteredRows;
+    const total = rows.length;
+    const ordered = rows.filter(r => String(r.Status || '').toLowerCase() === 'ordered').length;
+
+    const uniqueWithC = new Set();
+    const uniqueOrderedWithC = new Set();
+
+    rows.forEach(r => {
+      const action = String(r['Actions Final sent Offer'] || '');
+      const hasC = action.includes('C') && !action.includes('c');
+      if (!hasC) return;
+      const key = (r.Customer || '') + '|' + (r['Inquiry No'] || '');
+      uniqueWithC.add(key);
+      if (String(r.Status || '').toLowerCase() === 'ordered') uniqueOrderedWithC.add(key);
+    });
+
+    const rate = uniqueWithC.size ? ((uniqueOrderedWithC.size / uniqueWithC.size) * 100).toFixed(1) : '0.0';
+
+    dom.filteredStats().innerHTML =
+      `<span>Filtered: <b>${total}</b></span>` +
+      `<span>Ordered: <b>${ordered}</b></span>` +
+      `<span>Success: <b>${rate}%</b></span>`;
+  }
+
+  const DATE_SORT_KEYS = new Set(['Date Of Inquiry Customer', 'Date-Ordered', 'date sent', 'sent invoice', 'Date Payment Received']);
+
+  function parseDateValue(v) {
+    if (v === null || v === undefined || v === '') return NaN;
+    if (v instanceof Date) return v.getTime();
+    const d = new Date(v);
+    return isNaN(d.getTime()) ? NaN : d.getTime();
+  }
+
+  function parseShipmentStatus(v) {
+    if (v === null || v === undefined || v === '') return 0;
+    const s = String(v).toLowerCase().trim();
+    if (s.includes('complete')) return 3;
+    if (s.includes('partial')) return 2;
+    if (s.includes('not sent')) return 1;
+    return 0;
+  }
+
+  function sortRows(rows) {
+    if (!state.sortKey) return rows;
+    const key = state.sortKey;
+    const isDate = DATE_SORT_KEYS.has(key);
+    const isShipmentStatus = key === 'The order was sent';
+
+    return [...rows].sort((a, b) => {
+      const va = a[key] ?? ''; const vb = b[key] ?? '';
+      if (isDate) {
+        const na = parseDateValue(va); const nb = parseDateValue(vb);
+        const vaEmpty = isNaN(na), vbEmpty = isNaN(nb);
+        if (vaEmpty && vbEmpty) return 0;
+        if (vaEmpty) return 1;
+        if (vbEmpty) return -1;
+        return state.sortAsc ? na - nb : nb - na;
+      }
+      if (isShipmentStatus) {
+        const na = parseShipmentStatus(va); const nb = parseShipmentStatus(vb);
+        return state.sortAsc ? na - nb : nb - na;
+      }
+      const fa = parseFloat(va), fb = parseFloat(vb);
+      if (!isNaN(fa) && !isNaN(fb)) return state.sortAsc ? fa - fb : fb - fa;
+      return state.sortAsc ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
+    });
+  }
+
+  function sortTable(key) {
+    if (state.sortKey === key) state.sortAsc = !state.sortAsc;
+    else { state.sortKey = key; state.sortAsc = true; }
+    render();
+  }
+
+  function render() {
+    renderFilteredStats();
+    const rows = sortRows(state.filteredRows);
+    const isOrderedFilter = (dom.filters.status().value || '').trim().toLowerCase() === 'ordered';
+
+    dom.tableHead().innerHTML = '<tr>' + COLUMNS.map(c => {
+      const icon = state.sortKey === c.key ? (state.sortAsc ? ' ▲' : ' ▼') : '';
+      let label = c.label;
+      if (c.key === 'Date-Ordered' && isOrderedFilter) label = 'PO Date';
+      const isDateCol = DATE_FILTER_KEYS.includes(c.key);
+      const hasRange = state.dateFilters[c.key] && (state.dateFilters[c.key].from || state.dateFilters[c.key].to);
+      const filterBtn = isDateCol ? `<span class="date-filter-btn${hasRange ? ' active' : ''}" data-date-key="${c.key}" title="Filter by date range">▾</span>` : '';
+      return `<th onclick="App.sortTable('${c.key}')">${label}${icon}${filterBtn}</th>`;
+    }).join('') + '</tr>';
+
+    dom.tableHead().querySelectorAll('.date-filter-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openDatePopup(btn.getAttribute('data-date-key'), btn.parentElement);
+      });
+    });
+
+    if (!rows.length) {
+      dom.tableBody().innerHTML = `<tr><td colspan="${COLUMNS.length}" class="empty-state">No records match the current filters.</td></tr>`;
+      return;
+    }
+
+    dom.tableBody().innerHTML = rows.map((r, idx) => {
+      return '<tr>' + COLUMNS.map(c => {
+        if (c.key === '__row__') return `<td style="color:#9ca3af;text-align:right;">${idx + 1}</td>`;
+        let val = r[c.key] ?? '';
+        if (['Date Of Inquiry Customer','Date-Ordered','date sent','sent invoice','Date Payment Received'].includes(c.key)) val = formatDate(val);
+        if (c.key === 'The order was sent') val = formatOrderSent(val);
+        if (c.key === 'Payment Received') val = formatPayment(val);
+        if (c.key === 'Price') val = formatNumber(val);
+        if (c.key === 'Status') {
+          if (!val) val = 'Pending';
+          return `<td class="status-${String(val).toLowerCase().replace(/\s+/g, '')}">${val}</td>`;
+        }
+        return `<td>${val}</td>`;
+      }).join('') + '</tr>';
+    }).join('');
+
+    attachColumnResizers();
+    applySavedWidths();
+
+    document.querySelectorAll('.quick-btn').forEach(btn => {
+      if (btn.getAttribute('data-preset') === state.quickPreset) btn.classList.add('active');
+      else btn.classList.remove('active');
+    });
+    updateOrderDateVisibility();
+  }
+
+  function resetFilters() {
+    Object.values(dom.filters).forEach(fn => {
+      const el = fn();
+      if (el) { el.value = ''; if (el.tagName === 'SELECT') el.selectedIndex = 0; }
+    });
+    state.dateFilters = {}; state.quickPreset = ''; state.orderFrom = ''; state.orderTo = '';
+    state.sortKey = ''; state.sortAsc = true;
+    updateOrderDateVisibility(); applyFilters();
+  }
+
+  return { sortTable, resetFilters };
+})();
+</script>
+</body>
+</html>
