@@ -76,6 +76,7 @@
   .detail-row { display: none !important; }
   .expand-btn { display: none !important; }
 }
+.status-in-progress { color: #2563eb; font-weight: 600; }
 </style>
 </head>
 
@@ -401,8 +402,12 @@ const App = (function () {
         else if (c.key === 'Price') val = formatNumber(val);
         
         if (c.key === 'Status') {
-          if (!val) val = 'Pending';
-          return `<td class="status-${String(val).toLowerCase().replace(/\s+/g, '')}">${val}</td>`;
+          if (!val) {
+            const hasOffer = String(r['Actions Final sent Offer'] ?? '').trim() !== '';
+            val = hasOffer ? 'Pending' : 'In Progress';
+          }
+          const cls = String(val).toLowerCase().replace(/\s+/g, '-');
+          return `<td class="status-${cls}">${val}</td>`;
         }
         return `<td>${val}</td>`;
       }).join('') + '</tr>';
