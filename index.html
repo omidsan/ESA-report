@@ -44,16 +44,17 @@
   .btn { padding: 6px 14px; border: none; border-radius: 4px; font-size: 0.78rem; font-weight: 600; cursor: pointer; }
   .btn-primary { background: var(--primary); color: #fff; }
   .btn-secondary { background: #e5e7eb; color: var(--text); }
-  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); }
+  .table-wrap { max-height: 600px; overflow-y: auto; overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); }
   table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
   th, td { padding: 8px 10px; text-align: left; white-space: nowrap; border-bottom: 1px solid var(--border); }
-  th { background: #f9fafb; color: var(--text-muted); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; position: sticky; top: 0; cursor: pointer; user-select: none; }
+  th { background: #f9fafb; color: var(--text-muted); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; position: sticky; top: 0; cursor: pointer; user-select: none; z-index: 2; }
   th { position: relative; padding: 6px 10px; }
   tbody tr:hover { background: #f9fafb; }
   tbody tr:last-child td { border-bottom: none; }
   .status-ordered { color: var(--success); font-weight: 600; }
   .status-canceled, .status-rejected { color: var(--danger); }
   .status-lost, .status-hold { color: var(--warning); }
+  .status-in-progress { color: var(--primary); font-weight: 600; }
   .date-filter-btn { display: inline-block; margin-left: 4px; padding: 0 3px; font-size: 0.7rem; color: var(--text-muted); cursor: pointer; border: 1px solid transparent; border-radius: 3px; line-height: 1; vertical-align: middle; }
   .date-filter-btn.active { color: #fff; background: var(--primary); border-color: var(--primary); }
   .date-popup { position: absolute; z-index: 200; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); font-size: 0.8rem; min-width: 200px; top: 100%; right: 0; margin-top: 4px; }
@@ -70,26 +71,17 @@
   .quick-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
   .quick-actions { margin-left: auto; display: flex; gap: 4px; }
   .quick-actions .btn { padding: 4px 10px; font-size: 0.72rem; }
-.main-row { cursor: pointer; }
-.detail-row td { border-bottom: 1px solid var(--border); }
-@media print {
-  .detail-row { display: none !important; }
-  .expand-btn { display: none !important; }
-}
-.status-in-progress { color: #2563eb; font-weight: 600; }
-.table-wrap {
-  max-height: 600px;
-  overflow-y: auto;
-  overflow-x: auto;
-}
-th { z-index: 2; }
-@media print {
-  .table-wrap { max-height: none; overflow: visible; }
-}
+  .main-row { cursor: pointer; }
+  .detail-row td { border-bottom: 1px solid var(--border); }
+  @media print {
+    .table-wrap { max-height: none; overflow: visible; }
+    .detail-row { display: none !important; }
+    .expand-btn { display: none !important; }
+  }
 </style>
 </head>
-
 <body>
+
 <div id="login-overlay" style="position:fixed;inset:0;background:#f7f8fa;display:flex;align-items:center;justify-content:center;z-index:9999;">
   <div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:24px;width:320px;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,0.06);">
     <div style="font-weight:700;font-size:1.1rem;margin-bottom:4px;">Sales Inquiry Report</div>
@@ -114,10 +106,11 @@ th { z-index: 2; }
     </div>
   </div>
 </div>
+
 <div class="container" id="main-app">
   <div class="card">
     <div class="page-title">Sales Inquiry Report</div>
-    <div class="page-subtitle" id="page-subtitle">در حال بارگذاری داده‌ها…</div>
+    <div class="page-subtitle" id="page-subtitle">Loading data…</div>
   </div>
 
   <div class="card no-print" id="filter-card">
@@ -272,11 +265,8 @@ const App = (function () {
     if (f.customer && r.Customer !== f.customer) return false;
     if (f.product && r.Product !== f.product) return false;
     if (f.status === 'In Progress') {
-      const hasOffer = String(r['Actions Final sent Offer'] ?? '').trim() !== '';
-      if ((r.Status || '') !== '' || hasOffer) return false;
-    } else if (f.status === 'Pending') {
-      const hasOffer = String(r['Actions Final sent Offer'] ?? '').trim() !== '';
-      if ((r.Status || '') !== '' || !hasOffer) return false;
+      if (String(r['Actions Final sent Offer'] ?? '').trim() !== '') return false;
+      if (String(r.Status ?? '').trim() !== '') return false;
     } else if (f.status && (r.Status || 'Pending') !== f.status) return false;
     if (f.terms && r['Terms of Delivery'] !== f.terms) return false;
     if (f.currency && getCleanCurrency(r['Price Unit']) !== f.currency) return false;
@@ -387,18 +377,15 @@ const App = (function () {
       if (!state.sortKey) return 0;
       const va = a[state.sortKey] ?? ''; const vb = b[state.sortKey] ?? '';
 
-      // ستون‌های تاریخ: تبدیل به timestamp
       if (DATE_FILTER_KEYS.includes(state.sortKey)) {
         const ta = va ? new Date(va).getTime() : NaN;
         const tb = vb ? new Date(vb).getTime() : NaN;
-        // مقادیر خالی همیشه آخر بیایند (چه صعودی چه نزولی)
         if (isNaN(ta) && isNaN(tb)) return 0;
         if (isNaN(ta)) return 1;
         if (isNaN(tb)) return -1;
         return state.sortAsc ? ta - tb : tb - ta;
       }
 
-      // بقیه ستون‌ها: عددی اگر هر دو عدد باشند، وگرنه رشته‌ای
       const fa = parseFloat(va), fb = parseFloat(vb);
       if (!isNaN(fa) && !isNaN(fb)) return state.sortAsc ? fa - fb : fb - fa;
       return state.sortAsc ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
@@ -426,7 +413,7 @@ const App = (function () {
         else if (c.key === 'The order was sent') val = formatOrderSent(val);
         else if (c.key === 'Payment Received') val = formatPayment(val);
         else if (c.key === 'Price') val = formatNumber(val);
-        
+
         if (c.key === 'Status') {
           if (!val) {
             const hasOffer = String(r['Actions Final sent Offer'] ?? '').trim() !== '';
@@ -450,20 +437,17 @@ const App = (function () {
       return mainRow + detailRow;
     }).join('');
 
-    // بایند کلیک دکمه‌های باز/بسته
     dom.tableBody().querySelectorAll('.expand-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         const idx = btn.getAttribute('data-idx');
         const detail = dom.tableBody().querySelector('.detail-row[data-idx="' + idx + '"]');
-        // بستن همه زیرشاخه‌های دیگر
         dom.tableBody().querySelectorAll('.detail-row').forEach(d => {
           if (d !== detail) { d.style.display = 'none'; }
         });
         dom.tableBody().querySelectorAll('.expand-btn').forEach(b => {
           if (b !== btn) b.textContent = '▶';
         });
-        // باز/بسته کردن این یکی
         if (detail.style.display === 'none') {
           detail.style.display = '';
           btn.textContent = '▼';
@@ -521,7 +505,6 @@ async function initApp() {
   const err = document.getElementById('login-error');
   const show = document.getElementById('login-show');
 
-  // چک‌باکس نمایش رمز
   show.addEventListener('change', () => {
     input.type = show.checked ? 'text' : 'password';
     input.focus();
