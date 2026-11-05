@@ -207,7 +207,14 @@ async function verifyAccess() {
     rawText = rawText.replace(/:\s*NaN/g, ': ""').replace(/:\s*Infinity/g, ': ""');
     rawText = rawText.replace(/:\s*0+([0-9]+)/g, ': "$1"');
     
-    window.allRows = JSON.parse(rawText);
+    // ترفند نهایی: اگر JSON خراب بود، ساختار را دستی تعمیر می‌کنیم
+    try {
+        window.allRows = JSON.parse(rawText);
+    } catch (err) {
+        // این خط، کوتیشن‌های جاافتاده دور اعداد را اضافه می‌کند
+        let fixedText = rawText.replace(/([:,]\s*)([0-9]+)(\s*[,}])/g, '$1"$2"$3');
+        window.allRows = JSON.parse(fixedText);
+    }
     
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('main-app').style.display = 'block';
