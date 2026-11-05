@@ -205,9 +205,19 @@ async function verifyAccess() {
 
     const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, combined);
     let rawText = new TextDecoder().decode(decrypted);
+    
+    // تمیزکاری داده‌های اکسل برای جلوگیری از خطای JSON
     rawText = rawText.replace(/:\s*False/g, ': "False"').replace(/:\s*True/g, ': "True"');
     rawText = rawText.replace(/:\s*NaN/g, ': ""').replace(/:\s*Infinity/g, ': ""');
-    window.allRows = JSON.parse(rawText);
+    
+    // حذف هرگونه کاراکتر نامرئی یا اضافی
+    try {
+      window.allRows = JSON.parse(rawText);
+    } catch (jsonErr) {
+      // اگر خطا داد، کاراکترهای مشکل‌دار را جایگزین می‌کنیم
+      rawText = rawText.replace(/[^\x20-\x7E\s\u0600-\u06FF]/g, ''); 
+      window.allRows = JSON.parse(rawText);
+    }
     
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('main-app').style.display = 'block';
