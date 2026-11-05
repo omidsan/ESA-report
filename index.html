@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Sales Inquiry Report — Ervin Shimi Azma</title>
 <style>
   :root { --bg: #f7f8fa; --surface: #ffffff; --border: #e5e7eb; --text: #1f2937; --text-muted: #6b7280; --primary: #2563eb; --primary-hover: #1d4ed8; --success: #16a34a; --warning: #d97706; --danger: #dc2626; --radius: 6px; --font: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif; }
@@ -216,7 +219,7 @@ const App = (function () {
   function populateDropdowns() {
     uniqueSorted(state.rows, 'Customer').forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; dom.filters.customer().appendChild(o); });
     uniqueSorted(state.rows, 'Product').forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; dom.filters.product().appendChild(o); });
-    const statusSet = new Set(uniqueSorted(state.rows, 'Status')); statusSet.add('Pending');
+    const statusSet = new Set(uniqueSorted(state.rows, 'Status')); statusSet.add('Pending'); statusSet.add('In Progress');
     Array.from(statusSet).sort().forEach(s => { const o = document.createElement('option'); o.value = s; o.textContent = s; dom.filters.status().appendChild(o); });
     const currencySet = new Set(); state.rows.forEach(r => { const c = getCleanCurrency(r['Price Unit']); if (c) currencySet.add(c); });
     Array.from(currencySet).sort().forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; dom.filters.currency().appendChild(o); });
@@ -258,7 +261,9 @@ const App = (function () {
   function rowMatches(r, f) {
     if (f.customer && r.Customer !== f.customer) return false;
     if (f.product && r.Product !== f.product) return false;
-    if (f.status && (r.Status || 'Pending') !== f.status) return false;
+    if (f.status === 'In Progress') {
+      if (String(r['Actions Final sent Offer'] ?? '').trim() !== '') return false;
+    } else if (f.status && (r.Status || 'Pending') !== f.status) return false;
     if (f.terms && r['Terms of Delivery'] !== f.terms) return false;
     if (f.currency && getCleanCurrency(r['Price Unit']) !== f.currency) return false;
     if (f.paymentType === 'domestic' && isForeignCurrency(r['Price Unit'])) return false;
