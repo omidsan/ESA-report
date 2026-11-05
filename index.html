@@ -69,6 +69,14 @@
   .quick-actions .btn { padding: 4px 10px; font-size: 0.72rem; }
 </style>
 </head>
+<div id="login-overlay" style="position:fixed;inset:0;background:#f7f8fa;display:flex;align-items:center;justify-content:center;z-index:9999;">
+  <div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:24px;width:300px;text-align:center;">
+    <div style="font-weight:700;margin-bottom:12px;">ورود</div>
+    <input type="password" id="login-password" placeholder="رمز عبور" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:4px;margin-bottom:10px;font-family:inherit;">
+    <button id="login-btn" style="width:100%;padding:8px;background:#2563eb;color:#fff;border:none;border-radius:4px;font-weight:600;cursor:pointer;">ورود</button>
+    <div id="login-error" style="color:#dc2626;font-size:0.8rem;margin-top:8px;display:none;">رمز اشتباه است.</div>
+  </div>
+</div>
 <body>
 
 <div class="container" id="main-app">
@@ -387,35 +395,54 @@ const App = (function () {
 
 <!-- اسکریپت رمزگشایی -->
 <script>
+async function tryDecrypt(password) {
+  const resp = await fetch('./data.enc.json');
+  if (!resp.ok) throw new Error('data not found');
+  const enc = await resp.json();
+  const b64 = (s) => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']
+  );
+  const key = await crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt: b64(enc.salt), iterations: 300000, hash: 'SHA-256' },
+    keyMaterial, { name: 'AES-GCM', length: 256 }, false, ['decrypt']
+  );
+
+  const cipherText = b64(enc.data), tag = b64(enc.tag);
+  const combined = new Uint8Array(cipherText.length + tag.length);
+  combined.set(cipherText); combined.set(tag, cipherText.length);
+
+  const decrypted = await crypto.subtle.decrypt(
+    { name: 'AES-GCM', iv: b64(enc.iv) }, key, combined
+  );
+  return JSON.parse(new TextDecoder().decode(decrypted));
+}
+
 async function initApp() {
-  const password = '1235'; 
-  const subtitle = document.getElementById('page-subtitle');
-  subtitle.textContent = 'در حال بارگذاری داده‌ها…';
+  const overlay = document.getElementById('login-overlay');
+  const input = document.getElementById('login-password');
+  const btn = document.getElementById('login-btn');
+  const err = document.getElementById('login-error');
 
-  try {
-    const resp = await fetch('./data.enc.json');
-    if (!resp.ok) throw new Error('فایل داده یافت نشد');
-    const enc = await resp.json();
-    
-    const b64 = (s) => Uint8Array.from(atob(s), c => c.charCodeAt(0));
-    const salt = b64(enc.salt), iv = b64(enc.iv), tag = b64(enc.tag), cipherText = b64(enc.data);
-
-    const enc2 = new TextEncoder();
-    const keyMaterial = await crypto.subtle.importKey('raw', enc2.encode(password), 'PBKDF2', false, ['deriveKey']);
-    const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 300000, hash: 'SHA-256' }, keyMaterial, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
-
-    const combined = new Uint8Array(cipherText.length + tag.length);
-    combined.set(cipherText); combined.set(tag, cipherText.length);
-
-    const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, combined);
-    
-    window.allRows = JSON.parse(new TextDecoder().decode(decrypted));
-    App.init();
-    
-  } catch (e) {
-    console.error("خطای رمزگشایی:", e);
-    subtitle.innerHTML = "<span style='color:red;'>خطا در بارگذاری داده‌ها. لطفا به پشتیبان اطلاع دهید.</span>";
+  async function attempt() {
+    err.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = 'در حال بررسی...';
+    try {
+      window.allRows = await tryDecrypt(input.value);
+      overlay.remove();
+      App.init();
+    } catch (e) {
+      err.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'ورود';
+    }
   }
+
+  btn.addEventListener('click', attempt);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') attempt(); });
+  input.focus();
 }
 
 window.addEventListener('DOMContentLoaded', initApp);
