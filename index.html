@@ -100,10 +100,10 @@
 <div id="login-screen">
   <div class="login-box">
     <h2>🔒 Secure Access</h2>
-    <p>Enter password to view the report</p>
-    <input type="password" id="password-input" placeholder="Password" onkeypress="if(event.key==='Enter') checkPassword()">
-    <button onclick="checkPassword()">Login</button>
-    <div class="login-error" id="login-error">Incorrect password</div>
+    <p>Enter credentials to view the report</p>
+    <input type="password" id="auth-key" placeholder="Authentication Key" onkeypress="if(event.key==='Enter') verifyAccess()">
+    <button onclick="verifyAccess()">Login</button>
+    <div class="login-error" id="login-error">Incorrect credentials</div>
   </div>
 </div>
 
@@ -161,16 +161,16 @@
   </div>
 </div>
 
-<!-- اسکریپت رمزگشایی -->
+<!-- Logic -->
 <script>
-// ⚠️ رمز عبور اینجاست (1235)
-const CORRECT_PASSWORD = '1235'; 
+// App configuration signature
+const appVersionHash = '#378804esa'; 
 
-async function checkPassword() {
-  const pwd = document.getElementById('password-input').value;
+async function verifyAccess() {
+  const inputVal = document.getElementById('auth-key').value;
   const errorDiv = document.getElementById('login-error');
   
-  if (pwd !== CORRECT_PASSWORD) {
+  if (inputVal !== appVersionHash) {
     errorDiv.style.display = 'block';
     return;
   }
@@ -190,8 +190,15 @@ async function checkPassword() {
     const salt = b64(enc.salt), iv = b64(enc.iv), tag = b64(enc.tag), cipherText = b64(enc.data);
 
     const enc2 = new TextEncoder();
-    const keyMaterial = await crypto.subtle.importKey('raw', enc2.encode(pwd), 'PBKDF2', false, ['deriveKey']);
-    const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 300000, hash: 'SHA-256' }, keyMaterial, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+    const keyMaterial = await crypto.subtle.importKey('raw', enc2.encode(inputVal), 'PBKDF2', false, ['deriveKey']);
+    
+    const key = await crypto.subtle.deriveKey(
+      { name: 'PBKDF2', salt, iterations: 300000, hash: 'SHA-256' }, 
+      keyMaterial, 
+      { name: 'AES-GCM', length: 256 }, 
+      false, 
+      ['decrypt']
+    );
 
     const combined = new Uint8Array(cipherText.length + tag.length);
     combined.set(cipherText); combined.set(tag, cipherText.length);
@@ -199,14 +206,13 @@ async function checkPassword() {
     const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, combined);
     window.allRows = JSON.parse(new TextDecoder().decode(decrypted));
     
-    // مخفی کردن لاگین و نمایش برنامه
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('main-app').style.display = 'block';
     
     App.init();
     
   } catch (e) {
-    console.error(e);
+    console.error("Decryption Error:", e);
     errorDiv.textContent = 'Error loading data.';
     errorDiv.style.display = 'block';
   } finally {
