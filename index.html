@@ -7,493 +7,130 @@
 
 <style>
   :root {
-    --bg: #f7f8fa;
-    --surface: #ffffff;
-    --border: #e5e7eb;
-    --text: #1f2937;
-    --text-muted: #6b7280;
-    --primary: #2563eb;
-    --primary-hover: #1d4ed8;
-    --success: #16a34a;
-    --warning: #d97706;
-    --danger: #dc2626;
-    --radius: 6px;
-    --font: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
+    --bg: #f7f8fa; --surface: #ffffff; --border: #e5e7eb; --text: #1f2937;
+    --text-muted: #6b7280; --primary: #2563eb; --primary-hover: #1d4ed8;
+    --success: #16a34a; --warning: #d97706; --danger: #dc2626;
+    --radius: 6px; --font: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: var(--font);
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.45;
-    padding: 20px 16px;
-    min-height: 100vh;
-  }
-
+  body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.45; padding: 20px 16px; min-height: 100vh; }
   .container { max-width: 100%; margin: 0 auto; }
-  .card {
-    background: var(--surface);
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
-    padding: 12px 14px;
-    margin-bottom: 10px;
-  }
-  .page-title {
-    font-size: 1.3rem;
-    font-weight: 700;
-    margin-bottom: 2px;
-  }
-  .page-subtitle {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-  }
-
-  /* Stats */
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-    gap: 8px;
-    margin-bottom: 10px;
-  }
-  .stat-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 8px 10px;
-  }
-  .stat-label {
-    font-size: 0.65rem;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    color: var(--text-muted);
-    font-weight: 600;
-    margin-bottom: 2px;
-  }
-  .stat-value {
-    font-size: 1.1rem;
-    font-weight: 700;
-    line-height: 1.2;
-  }
-  .stat-value.success { color: var(--success); }
-  .stat-value.danger { color: var(--danger); }
-  .stat-value.warning { color: var(--warning); }
-
-  .filtered-stats {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px 16px;
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    padding: 6px 0 0;
-    border-top: 1px dashed var(--border);
-    margin-top: 6px;
-  }
-  .filtered-stats b { color: var(--text); }
-
-  .filters-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    align-items: center;
-  }
-  .filter-group {
-    flex: 0 1 130px;
-    min-width: 100px;
-  }
-  .filter-group:first-child {
-    flex: 0 1 200px;
-    min-width: 150px;
-  }
-  .filter-group select,
-  .filter-group input {
-    width: 100%;
-    padding: 5px 8px;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    font-size: 0.8rem;
-    background: var(--surface);
-    color: var(--text);
-    outline: none;
-  }
-  .filter-group select:focus,
-  .filter-group input:focus { border-color: var(--primary); }
-
-  .filter-group-label {
-    font-size: 0.65rem;
-    font-weight: 600;
-    color: var(--text-muted);
-    margin-right: 4px;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-  }
-  .filter-group-date {
-    display: flex;
-    align-items: center;
-    flex: 0 1 auto;
-    gap: 4px;
-    padding: 2px 6px;
-    background: #fef9f3;
-    border: 1px solid #fde8cc;
-    border-radius: 4px;
-  }
+  .card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 12px 14px; margin-bottom: 10px; }
+  .page-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 2px; }
+  .page-subtitle { font-size: 0.85rem; color: var(--text-muted); }
+  
+  .filters-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .filter-group { flex: 0 1 130px; min-width: 100px; }
+  .filter-group:first-child { flex: 0 1 200px; min-width: 150px; }
+  .filter-group select, .filter-group input { width: 100%; padding: 5px 8px; border: 1px solid var(--border); border-radius: 4px; font-size: 0.8rem; background: var(--surface); color: var(--text); outline: none; }
+  .filter-group select:focus, .filter-group input:focus { border-color: var(--primary); }
+  .filter-group-label { font-size: 0.65rem; font-weight: 600; color: var(--text-muted); margin-right: 4px; text-transform: uppercase; letter-spacing: 0.03em; }
+  .filter-group-date { display: flex; align-items: center; flex: 0 1 auto; gap: 4px; padding: 2px 6px; background: #fef9f3; border: 1px solid #fde8cc; border-radius: 4px; }
   .filter-group-date.hidden { display: none; }
   .filter-group-date .filter-group-label { color: #b45309; }
-  .date-range-inline {
-    display: flex;
-    gap: 4px;
-  }
-  .date-range-inline input {
-    padding: 4px 6px;
-    border: 1px solid #fde8cc;
-    border-radius: 3px;
-    font-size: 0.75rem;
-    outline: none;
-    font-family: var(--font);
-    width: 110px;
-    background: #fff;
-  }
+  .date-range-inline { display: flex; gap: 4px; }
+  .date-range-inline input { padding: 4px 6px; border: 1px solid #fde8cc; border-radius: 3px; font-size: 0.75rem; outline: none; font-family: var(--font); width: 110px; background: #fff; }
   .date-range-inline input:focus { border-color: #d97706; }
+  .filter-group-search { flex: 1 1 3000px; min-width: 200px; max-width: 500px; margin: 0 auto; }
+  .filter-group-search .search-input { width: 100%; padding: 5px 10px; border: 1px solid #dbeafe; border-radius: 4px; font-size: 0.8rem; background: #f8fbff; color: var(--text); outline: none; text-align: left; }
+  .filter-group-search .search-input:focus { border-color: var(--primary); background: #fff; }
 
-  .filter-group-search {
-    flex: 1 1 3000px;
-    min-width: 200px;
-    max-width: 500px;
-    margin: 0 auto;
-  }
-  .filter-group-search .search-input {
-    width: 100%;
-    padding: 5px 10px;
-    border: 1px solid #dbeafe;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    background: #f8fbff;
-    color: var(--text);
-    outline: none;
-    text-align: left;
-  }
-  .filter-group-search .search-input::placeholder { color: #93b4d8; }
-  .filter-group-search .search-input:focus {
-    border-color: var(--primary);
-    background: #fff;
-  }
-
-  .active-filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    padding: 6px 0 0;
-  }
+  .active-filters { display: flex; flex-wrap: wrap; gap: 4px; padding: 6px 0 0; }
   .active-filters:empty { display: none; }
-  .filter-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    background: #eef2ff;
-    color: #3730a3;
-    border: 1px solid #c7d2fe;
-    border-radius: 10px;
-    padding: 2px 8px;
-    font-size: 0.7rem;
-    font-weight: 500;
-  }
+  .filter-chip { display: inline-flex; align-items: center; gap: 4px; background: #eef2ff; color: #3730a3; border: 1px solid #c7d2fe; border-radius: 10px; padding: 2px 8px; font-size: 0.7rem; font-weight: 500; }
   .filter-chip .chip-key { color: #6366f1; font-weight: 600; }
-  .filter-chip button {
-    background: none;
-    border: none;
-    color: #6366f1;
-    cursor: pointer;
-    font-size: 0.8rem;
-    line-height: 1;
-    padding: 0;
-  }
-  .filter-chip button:hover { color: var(--danger); }
-
-  .search-chip-wrap {
-    display: flex;
-    justify-content: center;
-    padding: 4px 0 0;
-  }
+  .filter-chip button { background: none; border: none; color: #6366f1; cursor: pointer; font-size: 0.8rem; line-height: 1; padding: 0; }
+  
+  .search-chip-wrap { display: flex; justify-content: center; padding: 4px 0 0; }
   .search-chip-wrap:empty { display: none; }
-  .search-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: #eff6ff;
-    color: #1d4ed8;
-    border: 1px solid #bfdbfe;
-    border-radius: 10px;
-    padding: 3px 10px;
-    font-size: 0.75rem;
-    font-weight: 600;
-  }
-  .search-chip .chip-key {
-    color: #3b82f6;
-    font-size: 0.65rem;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
+  .search-chip { display: inline-flex; align-items: center; gap: 6px; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; border-radius: 10px; padding: 3px 10px; font-size: 0.75rem; font-weight: 600; }
+  .search-chip .chip-key { color: #3b82f6; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.04em; }
 
-  .btn {
-    padding: 6px 14px;
-    border: none;
-    border-radius: 4px;
-    font-size: 0.78rem;
-    font-weight: 600;
-    cursor: pointer;
-  }
+  .filtered-stats { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 0.75rem; color: var(--text-muted); padding: 6px 0 0; border-top: 1px dashed var(--border); margin-top: 6px; }
+  .filtered-stats b { color: var(--text); }
+
+  .btn { padding: 6px 14px; border: none; border-radius: 4px; font-size: 0.78rem; font-weight: 600; cursor: pointer; }
   .btn-primary { background: var(--primary); color: #fff; }
-  .btn-primary:hover { background: var(--primary-hover); }
   .btn-secondary { background: #e5e7eb; color: var(--text); }
-  .btn-secondary:hover { background: #d1d5db; }
 
-  .table-wrap {
-    overflow-x: auto;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-  }
+  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); }
   table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
-  th, td {
-    padding: 8px 10px;
-    text-align: left;
-    white-space: nowrap;
-    border-bottom: 1px solid var(--border);
-  }
-  th {
-    background: #f9fafb;
-    color: var(--text-muted);
-    font-weight: 600;
-    font-size: 0.72rem;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    position: sticky;
-    top: 0;
-    cursor: pointer;
-    user-select: none;
-  }
-  th { position: relative; }
-  .col-resizer {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 6px;
-    height: 100%;
-    cursor: col-resize;
-    user-select: none;
-  }
-  .col-resizer:hover { background: rgba(37,99,235,0.25); }
-  th:hover { background: #f3f4f6; }
+  th, td { padding: 8px 10px; text-align: left; white-space: nowrap; border-bottom: 1px solid var(--border); }
+  th { background: #f9fafb; color: var(--text-muted); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; position: sticky; top: 0; cursor: pointer; user-select: none; }
+  th { position: relative; padding: 6px 10px; }
   tbody tr:hover { background: #f9fafb; }
   tbody tr:last-child td { border-bottom: none; }
-  th { padding: 6px 10px; }
   
   .status-ordered { color: var(--success); font-weight: 600; }
   .status-canceled, .status-rejected { color: var(--danger); }
   .status-lost, .status-hold { color: var(--warning); }
   
-  .date-filter-btn {
-    display: inline-block;
-    margin-left: 4px;
-    padding: 0 3px;
-    font-size: 0.7rem;
-    color: var(--text-muted);
-    cursor: pointer;
-    border: 1px solid transparent;
-    border-radius: 3px;
-    line-height: 1;
-    vertical-align: middle;
-  }
-  .date-filter-btn:hover {
-    color: var(--primary);
-    border-color: var(--border);
-    background: #fff;
-  }
-  .date-filter-btn.active {
-    color: #fff;
-    background: var(--primary);
-    border-color: var(--primary);
-  }
-  .date-popup {
-    position: absolute;
-    z-index: 200;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 10px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-    font-size: 0.8rem;
-    min-width: 200px;
-    top: 100%;
-    right: 0;
-    margin-top: 4px;
-  }
-  .date-popup label {
-    display: block;
-    font-size: 0.7rem;
-    color: var(--text-muted);
-    font-weight: 600;
-    margin-bottom: 2px;
-  }
-  .date-popup input[type="date"] {
-    width: 100%;
-    padding: 4px 6px;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    font-size: 0.78rem;
-    margin-bottom: 6px;
-    outline: none;
-    font-family: var(--font);
-  }
-  .date-popup input[type="date"]:focus { border-color: var(--primary); }
-  .date-popup .popup-actions {
-    display: flex;
-    gap: 6px;
-    margin-top: 4px;
-  }
-  .date-popup .popup-actions button {
-    flex: 1;
-    padding: 5px;
-    border: none;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    cursor: pointer;
-  }
-  .date-popup .popup-actions .apply { background: var(--primary); color: #fff; }
-  .date-popup .popup-actions .apply:hover { background: var(--primary-hover); }
-  .date-popup .popup-actions .clear { background: #e5e7eb; color: var(--text); }
-  .date-popup .popup-actions .clear:hover { background: #d1d5db; }
+  .date-filter-btn { display: inline-block; margin-left: 4px; padding: 0 3px; font-size: 0.7rem; color: var(--text-muted); cursor: pointer; border: 1px solid transparent; border-radius: 3px; line-height: 1; vertical-align: middle; }
+  .date-filter-btn.active { color: #fff; background: var(--primary); border-color: var(--primary); }
   
-  .empty-state {
-    text-align: center;
-    padding: 32px 20px;
-    color: var(--text-muted);
-    font-size: 0.9rem;
-  }
+  .date-popup { position: absolute; z-index: 200; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); font-size: 0.8rem; min-width: 200px; top: 100%; right: 0; margin-top: 4px; }
+  .date-popup label { display: block; font-size: 0.7rem; color: var(--text-muted); font-weight: 600; margin-bottom: 2px; }
+  .date-popup input[type="date"] { width: 100%; padding: 4px 6px; border: 1px solid var(--border); border-radius: 4px; font-size: 0.78rem; margin-bottom: 6px; outline: none; font-family: var(--font); }
+  .date-popup .popup-actions { display: flex; gap: 6px; margin-top: 4px; }
+  .date-popup .popup-actions button { flex: 1; padding: 5px; border: none; border-radius: 4px; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
+  .date-popup .popup-actions .apply { background: var(--primary); color: #fff; }
+  .date-popup .popup-actions .clear { background: #e5e7eb; color: var(--text); }
+  
+  .empty-state { text-align: center; padding: 32px 20px; color: var(--text-muted); font-size: 0.9rem; }
 
-  .quick-filters {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 4px;
-    padding: 5px 10px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    margin-bottom: 8px;
-  }
-  .quick-title {
-    font-size: 0.65rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-muted);
-    margin-right: 4px;
-  }
-  .quick-btn {
-    padding: 4px 10px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--text);
-    border-radius: 12px;
-    font-size: 0.72rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .quick-btn:hover { background: #f3f4f6; border-color: #d1d5db; }
-  .quick-btn.active {
-    background: var(--primary);
-    color: #fff;
-    border-color: var(--primary);
-  }
-  .quick-actions {
-    margin-left: auto;
-    display: flex;
-    gap: 4px;
-  }
-  .quick-actions .btn {
-    padding: 4px 10px;
-    font-size: 0.72rem;
-  }
-
-  @media print {
-    .no-print { display: none !important; }
-    body { background: #fff; padding: 0; }
-    .card { border: none; padding: 0; }
-    th { background: #eee !important; color: #000; }
-  }
+  .quick-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 5px 10px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; }
+  .quick-title { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-right: 4px; }
+  .quick-btn { padding: 4px 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 12px; font-size: 0.72rem; font-weight: 600; cursor: pointer; }
+  .quick-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .quick-actions { margin-left: auto; display: flex; gap: 4px; }
+  .quick-actions .btn { padding: 4px 10px; font-size: 0.72rem; }
 </style>
 </head>
 <body>
 
-<!-- Main App -->
 <div class="container" id="main-app">
-
-  <!-- Header -->
   <div class="card">
     <div class="page-title">Sales Inquiry Report</div>
-    <div class="page-subtitle" id="page-subtitle">Loading data…</div>
+    <div class="page-subtitle" id="page-subtitle">در حال بارگذاری داده‌ها…</div>
   </div>
 
-  <!-- Filters -->
   <div class="card no-print" id="filter-card">
     <div class="filters-row">
-      <div class="filter-group">
-        <select id="f-customer"><option value="">All Customers</option></select>
-      </div>
-      <div class="filter-group">
-        <select id="f-product"><option value="">All Products</option></select>
-      </div>
-      <div class="filter-group">
-        <select id="f-status"><option value="">All Statuses</option></select>
-      </div>
-      <div class="filter-group">
-        <select id="f-currency"><option value="">All Currencies</option></select>
-      </div>
-      <div class="filter-group">
-        <select id="f-payment-type">
-          <option value="">All Types</option>
-          <option value="domestic">Domestic</option>
-          <option value="foreign">Foreign (Out)</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <select id="f-terms"><option value="">All Terms</option></select>
-      </div>
+      <div class="filter-group"><select id="f-customer"><option value="">All Customers</option></select></div>
+      <div class="filter-group"><select id="f-product"><option value="">All Products</option></select></div>
+      <div class="filter-group"><select id="f-status"><option value="">All Statuses</option></select></div>
+      <div class="filter-group"><select id="f-currency"><option value="">All Currencies</option></select></div>
+      <div class="filter-group"><select id="f-payment-type"><option value="">All Types</option><option value="domestic">Domestic</option><option value="foreign">Foreign (Out)</option></select></div>
+      <div class="filter-group"><select id="f-terms"><option value="">All Terms</option></select></div>
       <div class="filter-group filter-group-date hidden" id="order-date-group">
         <span class="filter-group-label">Order Date</span>
         <div class="date-range-inline">
-          <input type="date" id="f-order-from" title="Order date from">
-          <input type="date" id="f-order-to" title="Order date to">
+          <input type="date" id="f-order-from"><input type="date" id="f-order-to">
         </div>
       </div>
       <div class="filter-group filter-group-search">
         <input type="text" id="f-global-search" class="search-input" placeholder="Search anywhere…">
       </div>
     </div>
-
     <div class="active-filters" id="active-filters"></div>
     <div class="search-chip-wrap" id="search-chip-wrap"></div>
     <div class="filtered-stats" id="filtered-stats"></div>
   </div>
 
-  <!-- Quick Filters -->
   <div class="quick-filters no-print" id="quick-filters">
     <span class="quick-title">Quick Filters</span>
-    <button class="quick-btn" data-preset="openOrders" title="Ordered + Payment < 100%">Open Orders</button>
-    <button class="quick-btn" data-preset="completedOrders" title="Payment = 100%">Completed Orders</button>
-    <button class="quick-btn" data-preset="overdueOrders" title="Ordered + not fully shipped + > 180 days">Delayed Orders</button>
-    <button class="quick-btn" data-preset="awaitingShipment" title="Ordered + not fully shipped">Awaiting Shipment</button>
-    <button class="quick-btn" data-preset="awaitingInvoice" title="Shipped + no invoice">Awaiting Invoice</button>
-    <button class="quick-btn" data-preset="awaitingPayment" title="Invoiced + Payment < 100%">Awaiting Payment</button>
+    <button class="quick-btn" data-preset="openOrders">Open Orders</button>
+    <button class="quick-btn" data-preset="completedOrders">Completed Orders</button>
+    <button class="quick-btn" data-preset="overdueOrders">Delayed Orders</button>
+    <button class="quick-btn" data-preset="awaitingShipment">Awaiting Shipment</button>
+    <button class="quick-btn" data-preset="awaitingInvoice">Awaiting Invoice</button>
+    <button class="quick-btn" data-preset="awaitingPayment">Awaiting Payment</button>
     <div class="quick-actions">
       <button class="btn btn-secondary" onclick="App.resetFilters()">Reset</button>
       <button class="btn btn-primary" onclick="window.print()">Print</button>
     </div>
   </div>
 
-  <!-- Table -->
   <div class="card">
     <div class="table-wrap">
       <table id="report-table">
@@ -504,8 +141,271 @@
   </div>
 </div>
 
-<!-- Logic for Data Decryption -->
-<!-- Logic for Data Decryption -->
+<!-- اسکریپت اصلی برنامه -->
+<script>
+const App = (function () {
+  const COLUMNS = [
+    { key: '__row__', label: '#' }, { key: 'Customer', label: 'Customer' },
+    { key: 'Product', label: 'Product' }, { key: 'Inquiry No', label: 'INQ' },
+    { key: 'Brand', label: 'Brand' }, { key: 'Date Of Inquiry Customer', label: 'INQ Date' },
+    { key: 'PI', label: 'PI' }, { key: 'Status', label: 'Status' },
+    { key: 'Date-Ordered', label: 'Status Date' }, { key: 'Price', label: 'Amount' },
+    { key: 'Price Unit', label: 'Currency' }, { key: 'Terms of Delivery', label: 'Term' },
+    { key: 'The order was sent', label: 'Shipment Status' }, { key: 'date sent', label: 'Ship Date' },
+    { key: 'sent invoice', label: 'Invoice Sent' }, { key: 'Payment Received', label: 'Payment' },
+    { key: 'Date Payment Received', label: 'Payment Date' }
+  ];
+  
+  const state = { rows: [], filteredRows: [], sortKey: '', sortAsc: true, dateFilters: {}, quickPreset: '', orderFrom: '', orderTo: '' };
+
+  const dom = {
+    subtitle: () => document.getElementById('page-subtitle'),
+    filteredStats: () => document.getElementById('filtered-stats'),
+    activeFilters: () => document.getElementById('active-filters'),
+    searchChipWrap: () => document.getElementById('search-chip-wrap'),
+    tableHead: () => document.querySelector('#report-table thead'),
+    tableBody: () => document.querySelector('#report-table tbody'),
+    filters: {
+      customer: () => document.getElementById('f-customer'), product: () => document.getElementById('f-product'),
+      status: () => document.getElementById('f-status'), currency: () => document.getElementById('f-currency'),
+      paymentType: () => document.getElementById('f-payment-type'), terms: () => document.getElementById('f-terms'),
+      globalSearch: () => document.getElementById('f-global-search'), orderFrom: () => document.getElementById('f-order-from'),
+      orderTo: () => document.getElementById('f-order-to')
+    }
+  };
+
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function formatDate(value) {
+    if (!value) return '';
+    let d = new Date(value); if (isNaN(d.getTime())) return String(value);
+    return `${String(d.getDate()).padStart(2, '0')}-${MONTHS[d.getMonth()]}-${String(d.getFullYear()).slice(-2)}`;
+  }
+  function formatNumber(n) { if (!n) return ''; const num = parseFloat(String(n).replace(/,/g, '')); return isNaN(num) ? n : num.toLocaleString('en-US'); }
+  function formatPayment(v) { if (v === undefined || v === '') return ''; const num = parseFloat(v); return isNaN(num) ? v : Math.round(num * 100) + '%'; }
+  function formatOrderSent(v) { if (!v) return ''; const m = String(v).match(/\(([^)]+)\)/); return m ? m[1].trim() : String(v); }
+  function uniqueSorted(rows, key) { return [...new Set(rows.map(r => r[key]).filter(Boolean))].sort(); }
+  function getCleanCurrency(currency) { return currency ? currency.replace(' (Out)', '').trim() : ''; }
+  function isForeignCurrency(currency) { return currency && currency.includes('(Out)'); }
+
+  function init() {
+    if (!window.allRows) { dom.subtitle().textContent = 'Error: Data not loaded.'; return; }
+    
+    state.rows = window.allRows.map(r => {
+      let pi = ''; const piC = (r['PI-C'] || '').trim(); const piT = (r['PI-T'] || '').trim();
+      if (piC && piT) pi = piC + ' / ' + piT; else if (piC) pi = piC; else if (piT) pi = piT;
+      let rawInq = String(r['Inquiry No'] || '').replace(/\n/g, ' ');
+      let inqNo = rawInq; let brand = '';
+      if (rawInq.includes(' | ')) { const parts = rawInq.split(' | '); inqNo = parts[0].trim(); brand = parts.slice(1).join(' | ').trim(); }
+      return { ...r, PI: pi, 'Inquiry No': inqNo, Brand: brand };
+    });
+
+    dom.subtitle().textContent = `Total records: ${state.rows.length} · Last updated: ${new Date().toLocaleString('en-US')}`;
+    populateDropdowns(); bindFilterEvents(); updateOrderDateVisibility(); applyFilters();
+  }
+
+  function populateDropdowns() {
+    uniqueSorted(state.rows, 'Customer').forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; dom.filters.customer().appendChild(o); });
+    uniqueSorted(state.rows, 'Product').forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; dom.filters.product().appendChild(o); });
+    const statusSet = new Set(uniqueSorted(state.rows, 'Status')); statusSet.add('Pending');
+    Array.from(statusSet).sort().forEach(s => { const o = document.createElement('option'); o.value = s; o.textContent = s; dom.filters.status().appendChild(o); });
+    const currencySet = new Set(); state.rows.forEach(r => { const c = getCleanCurrency(r['Price Unit']); if (c) currencySet.add(c); });
+    Array.from(currencySet).sort().forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; dom.filters.currency().appendChild(o); });
+    uniqueSorted(state.rows, 'Terms of Delivery').forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; dom.filters.terms().appendChild(o); });
+  }
+
+  function bindFilterEvents() {
+    ['customer', 'product', 'status', 'currency', 'paymentType', 'terms'].forEach(id => { const el = dom.filters[id](); if (el) el.addEventListener('change', applyFilters); });
+    dom.filters.globalSearch().addEventListener('input', () => setTimeout(applyFilters, 300));
+    if (dom.filters.orderFrom()) dom.filters.orderFrom().addEventListener('change', (e) => { state.orderFrom = e.target.value; applyFilters(); });
+    if (dom.filters.orderTo()) dom.filters.orderTo().addEventListener('change', (e) => { state.orderTo = e.target.value; applyFilters(); });
+    document.querySelectorAll('.quick-btn').forEach(btn => btn.addEventListener('click', () => { state.quickPreset = btn.getAttribute('data-preset'); applyFilters(); }));
+    dom.filters.status().addEventListener('change', updateOrderDateVisibility);
+  }
+
+  function updateOrderDateVisibility() {
+    const group = document.getElementById('order-date-group');
+    if ((dom.filters.status().value || '').toLowerCase() === 'ordered') group.classList.remove('hidden');
+    else { group.classList.add('hidden'); if (dom.filters.orderFrom()) { dom.filters.orderFrom().value = ''; state.orderFrom = ''; } if (dom.filters.orderTo()) { dom.filters.orderTo().value = ''; state.orderTo = ''; } }
+  }
+
+  const DATE_FILTER_KEYS = ['Date Of Inquiry Customer', 'Date-Ordered', 'date sent', 'sent invoice', 'Date Payment Received'];
+  function openDatePopup(key, anchorEl) {
+    document.querySelectorAll('.date-popup').forEach(p => p.remove());
+    const existing = state.dateFilters[key] || { from: '', to: '' };
+    const pop = document.createElement('div'); pop.className = 'date-popup';
+    pop.innerHTML = `<label>From</label><input type="date" class="df-from" value="${existing.from}"><label>To</label><input type="date" class="df-to" value="${existing.to}"><div class="popup-actions"><button type="button" class="apply">Apply</button><button type="button" class="clear">Clear</button></div>`;
+    anchorEl.style.position = 'relative'; anchorEl.appendChild(pop);
+    pop.querySelector('.apply').addEventListener('click', (e) => { e.stopPropagation(); state.dateFilters[key] = { from: pop.querySelector('.df-from').value, to: pop.querySelector('.df-to').value }; pop.remove(); applyFilters(); });
+    pop.querySelector('.clear').addEventListener('click', (e) => { e.stopPropagation(); delete state.dateFilters[key]; pop.remove(); applyFilters(); });
+    pop.addEventListener('click', e => e.stopPropagation());
+    setTimeout(() => document.addEventListener('click', function h() { document.querySelectorAll('.date-popup').forEach(p => p.remove()); document.removeEventListener('click', h); }), 0);
+  }
+
+  function readFilters() {
+    return { customer: dom.filters.customer().value, product: dom.filters.product().value, status: dom.filters.status().value, currency: dom.filters.currency().value, paymentType: dom.filters.paymentType().value, terms: dom.filters.terms().value, globalSearch: dom.filters.globalSearch().value.trim().toLowerCase() };
+  }
+
+  function rowMatches(r, f) {
+    if (f.customer && r.Customer !== f.customer) return false;
+    if (f.product && r.Product !== f.product) return false;
+    if (f.status && (r.Status || 'Pending') !== f.status) return false;
+    if (f.terms && r['Terms of Delivery'] !== f.terms) return false;
+    if (f.currency && getCleanCurrency(r['Price Unit']) !== f.currency) return false;
+    if (f.paymentType === 'domestic' && isForeignCurrency(r['Price Unit'])) return false;
+    if (f.paymentType === 'foreign' && !isForeignCurrency(r['Price Unit'])) return false;
+
+    if (state.orderFrom || state.orderTo) {
+      const raw = r['Date-Ordered']; if (!raw) return false;
+      const d = new Date(raw); if (isNaN(d.getTime())) return false;
+      const dDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      if (state.orderFrom && dDay < new Date(state.orderFrom + 'T00:00:00')) return false;
+      if (state.orderTo && dDay > new Date(state.orderTo + 'T00:00:00')) return false;
+    }
+
+    if (state.quickPreset) {
+      const status = String(r.Status || '').toLowerCase(); const payment = parseFloat(r['Payment Received']); const hasPayment = !isNaN(payment);
+      const orderSent = String(r['The order was sent'] || '').toLowerCase(); const isComplete = orderSent.includes('complete'); const isPartial = orderSent.includes('partial'); const hasInvoice = !!r['sent invoice'];
+      switch (state.quickPreset) {
+        case 'openOrders': if (status !== 'ordered' || (hasPayment && payment >= 1)) return false; break;
+        case 'completedOrders': if (!(hasPayment && payment >= 1)) return false; break;
+        case 'overdueOrders': if (status !== 'ordered' || isComplete) return false; const raw = r['Date-Ordered']; if (!raw) return false; const d = new Date(raw); if (isNaN(d.getTime()) || ((Date.now() - d.getTime()) / 86400000) < 180) return false; break;
+        case 'awaitingShipment': if (status !== 'ordered' || isComplete) return false; break;
+        case 'awaitingInvoice': if ((!isComplete && !isPartial) || hasInvoice) return false; break;
+        case 'awaitingPayment': if (!hasInvoice || (hasPayment && payment >= 1)) return false; break;
+      }
+    }
+
+    for (const key in state.dateFilters) {
+      const range = state.dateFilters[key]; if (!range) continue;
+      const from = range.from ? new Date(range.from + 'T00:00:00') : null; const to = range.to ? new Date(range.to + 'T00:00:00') : null;
+      const raw = r[key]; if (!raw) { if (from || to) return false; continue; }
+      const d = new Date(raw); if (isNaN(d.getTime())) { if (from || to) return false; continue; }
+      const dDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      if (from && dDay < from) return false; if (to && dDay > to) return false;
+    }
+
+    if (f.globalSearch) { const haystack = Object.keys(r).map(k => String(r[k] ?? '')).join(' ').toLowerCase(); if (!haystack.includes(f.globalSearch)) return false; }
+    return true;
+  }
+
+  function applyFilters() {
+    const f = readFilters();
+    state.filteredRows = state.rows.filter(r => rowMatches(r, f));
+    renderActiveFilters(f);
+    renderFilteredStats();
+    render();
+  }
+
+  function clearOneFilter(key) {
+    const el = dom.filters[key] ? dom.filters[key]() : dom.filters.globalSearch();
+    if (el) { el.value = ''; if (el.tagName === 'SELECT') el.selectedIndex = 0; }
+    applyFilters();
+  }
+
+  function renderActiveFilters(f) {
+    const sWrap = dom.searchChipWrap(); sWrap.innerHTML = '';
+    if (f.globalSearch) {
+      const chip = document.createElement('span'); chip.className = 'search-chip'; chip.innerHTML = `<span class="chip-key">Search</span><span>${f.globalSearch}</span>`;
+      const x = document.createElement('button'); x.innerHTML = '&times;'; x.onclick = () => clearOneFilter('globalSearch'); chip.appendChild(x); sWrap.appendChild(chip);
+    }
+    const wrap = dom.activeFilters(); wrap.innerHTML = '';
+    const chipLabels = { customer: 'Customer', product: 'Product', status: 'Status', currency: 'Currency', paymentType: 'Payment Type', terms: 'Terms' };
+    Object.keys(chipLabels).forEach(k => {
+      if (f[k]) {
+        const chip = document.createElement('span'); chip.className = 'filter-chip'; chip.innerHTML = `<span class="chip-key">${chipLabels[k]}:</span> ${f[k]}`;
+        const x = document.createElement('button'); x.innerHTML = '&times;'; x.onclick = () => clearOneFilter(k); chip.appendChild(x); wrap.appendChild(chip);
+      }
+    });
+    const dateLabels = { 'Date Of Inquiry Customer': 'INQ Date', 'Date-Ordered': 'Order Date', 'date sent': 'Ship Date', 'sent invoice': 'Invoice', 'Date Payment Received': 'Payment Date' };
+    Object.keys(state.dateFilters).forEach(key => {
+      const range = state.dateFilters[key]; if (!range || (!range.from && !range.to)) return;
+      const chip = document.createElement('span'); chip.className = 'filter-chip'; chip.innerHTML = `<span class="chip-key">${dateLabels[key] || key}:</span> ${range.from || '…'} → ${range.to || '…'}`;
+      const x = document.createElement('button'); x.innerHTML = '&times;'; x.onclick = () => { delete state.dateFilters[key]; applyFilters(); }; chip.appendChild(x); wrap.appendChild(chip);
+    });
+    if (state.quickPreset) {
+      const presetLabels = { openOrders: 'Open Orders', completedOrders: 'Completed Orders', overdueOrders: 'Delayed Orders', awaitingShipment: 'Awaiting Shipment', awaitingInvoice: 'Awaiting Invoice', awaitingPayment: 'Awaiting Payment' };
+      const chip = document.createElement('span'); chip.className = 'filter-chip'; chip.style.cssText = 'background:#dbeafe;border-color:#93c5fd;color:#1e40af;';
+      chip.innerHTML = `<span class="chip-key" style="color:#3b82f6;">Preset:</span> ${presetLabels[state.quickPreset] || state.quickPreset}`;
+      const x = document.createElement('button'); x.innerHTML = '&times;'; x.onclick = () => { state.quickPreset = ''; applyFilters(); }; chip.appendChild(x); wrap.appendChild(chip);
+    }
+    if (state.orderFrom || state.orderTo) {
+      const chip = document.createElement('span'); chip.className = 'filter-chip'; chip.innerHTML = `<span class="chip-key">Order Date:</span> ${state.orderFrom || '…'} → ${state.orderTo || '…'}`;
+      const x = document.createElement('button'); x.innerHTML = '&times;'; x.onclick = () => { state.orderFrom = ''; state.orderTo = ''; if (dom.filters.orderFrom()) dom.filters.orderFrom().value = ''; if (dom.filters.orderTo()) dom.filters.orderTo().value = ''; applyFilters(); }; chip.appendChild(x); wrap.appendChild(chip);
+    }
+  }
+
+  function renderFilteredStats() {
+    const rows = state.filteredRows; const total = rows.length; const ordered = rows.filter(r => String(r.Status || '').toLowerCase() === 'ordered').length;
+    const uniqueWithC = new Set(); const uniqueOrderedWithC = new Set();
+    rows.forEach(r => {
+      const hasC = String(r['Actions Final sent Offer'] || '').includes('C') && !String(r['Actions Final sent Offer'] || '').includes('c');
+      if (!hasC) return;
+      const key = (r.Customer || '') + '|' + (r['Inquiry No'] || '');
+      uniqueWithC.add(key); if (String(r.Status || '').toLowerCase() === 'ordered') uniqueOrderedWithC.add(key);
+    });
+    const rate = uniqueWithC.size ? ((uniqueOrderedWithC.size / uniqueWithC.size) * 100).toFixed(1) : '0.0';
+    dom.filteredStats().innerHTML = `<span>Filtered: <b>${total}</b></span><span>Ordered: <b>${ordered}</b></span><span>Success: <b>${rate}%</b></span>`;
+  }
+
+  function sortTable(key) {
+    if (state.sortKey === key) state.sortAsc = !state.sortAsc; else { state.sortKey = key; state.sortAsc = true; }
+    render();
+  }
+
+  function render() {
+    renderFilteredStats();
+    const rows = [...state.filteredRows].sort((a, b) => {
+      if (!state.sortKey) return 0;
+      const va = a[state.sortKey] ?? ''; const vb = b[state.sortKey] ?? '';
+      const fa = parseFloat(va), fb = parseFloat(vb);
+      if (!isNaN(fa) && !isNaN(fb) && !DATE_FILTER_KEYS.includes(state.sortKey)) return state.sortAsc ? fa - fb : fb - fa;
+      return state.sortAsc ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
+    });
+
+    const isOrderedFilter = (dom.filters.status().value || '').toLowerCase() === 'ordered';
+    dom.tableHead().innerHTML = '<tr>' + COLUMNS.map(c => {
+      const icon = state.sortKey === c.key ? (state.sortAsc ? ' ▲' : ' ▼') : '';
+      const label = (c.key === 'Date-Ordered' && isOrderedFilter) ? 'PO Date' : c.label;
+      const isDateCol = DATE_FILTER_KEYS.includes(c.key);
+      const hasRange = state.dateFilters[c.key] && (state.dateFilters[c.key].from || state.dateFilters[c.key].to);
+      const btn = isDateCol ? `<span class="date-filter-btn${hasRange ? ' active' : ''}" data-key="${c.key}">▾</span>` : '';
+      return `<th onclick="App.sortTable('${c.key}')">${label}${icon}${btn}</th>`;
+    }).join('') + '</tr>';
+
+    dom.tableHead().querySelectorAll('.date-filter-btn').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); openDatePopup(btn.getAttribute('data-key'), btn.parentElement); }));
+
+    if (!rows.length) { dom.tableBody().innerHTML = `<tr><td colspan="${COLUMNS.length}" class="empty-state">No records found.</td></tr>`; return; }
+
+    dom.tableBody().innerHTML = rows.map((r, idx) => '<tr>' + COLUMNS.map(c => {
+      if (c.key === '__row__') return `<td style="color:#9ca3af;text-align:right;">${idx + 1}</td>`;
+      let val = r[c.key] ?? '';
+      if (DATE_FILTER_KEYS.includes(c.key)) val = formatDate(val);
+      else if (c.key === 'The order was sent') val = formatOrderSent(val);
+      else if (c.key === 'Payment Received') val = formatPayment(val);
+      else if (c.key === 'Price') val = formatNumber(val);
+      
+      if (c.key === 'Status') {
+        if (!val) val = 'Pending';
+        return `<td class="status-${String(val).toLowerCase().replace(/\s+/g, '')}">${val}</td>`;
+      }
+      return `<td>${val}</td>`;
+    }).join('') + '</tr>').join('');
+
+    document.querySelectorAll('.quick-btn').forEach(btn => btn.classList.toggle('active', btn.getAttribute('data-preset') === state.quickPreset));
+    updateOrderDateVisibility();
+  }
+
+  function resetFilters() {
+    Object.values(dom.filters).forEach(fn => { const el = fn(); if (el) { el.value = ''; if (el.tagName === 'SELECT') el.selectedIndex = 0; } });
+    state.dateFilters = {}; state.quickPreset = ''; state.orderFrom = ''; state.orderTo = ''; state.sortKey = ''; state.sortAsc = true;
+    applyFilters();
+  }
+
+  return { init, sortTable, resetFilters };
+})();
+</script>
+
+<!-- اسکریپت رمزگشایی (باید بعد از App باشد) -->
 <script>
 async function initApp() {
   const password = '1235'; // رمز مستقیماً اینجاست
@@ -518,18 +418,11 @@ async function initApp() {
     const enc = await resp.json();
     
     const b64 = (s) => Uint8Array.from(atob(s), c => c.charCodeAt(0));
-    const salt = b64(enc.salt), iv = b64(enc.iv), tag = b64(enc.tag);
-    const cipherText = b64(enc.data);
+    const salt = b64(enc.salt), iv = b64(enc.iv), tag = b64(enc.tag), cipherText = b64(enc.data);
 
     const enc2 = new TextEncoder();
-    const keyMaterial = await crypto.subtle.importKey(
-      'raw', enc2.encode(password), 'PBKDF2', false, ['deriveKey']
-    );
-    
-    const key = await crypto.subtle.deriveKey(
-      { name: 'PBKDF2', salt, iterations: 300000, hash: 'SHA-256' },
-      keyMaterial, { name: 'AES-GCM', length: 256 }, false, ['decrypt']
-    );
+    const keyMaterial = await crypto.subtle.importKey('raw', enc2.encode(password), 'PBKDF2', false, ['deriveKey']);
+    const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 300000, hash: 'SHA-256' }, keyMaterial, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
 
     const combined = new Uint8Array(cipherText.length + tag.length);
     combined.set(cipherText); combined.set(tag, cipherText.length);
@@ -537,7 +430,9 @@ async function initApp() {
     const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, combined);
     
     window.allRows = JSON.parse(new TextDecoder().decode(decrypted));
-    init(); 
+    
+    // حالا که App ساخته شده، تابع init را صدا می‌زنیم
+    App.init();
     
   } catch (e) {
     console.error("خطای رمزگشایی:", e);
@@ -546,668 +441,6 @@ async function initApp() {
 }
 
 window.addEventListener('DOMContentLoaded', initApp);
-</script>
-
-<!-- Main Application Logic -->
-<script>
-const App = (function () {
-  const COLUMNS = [
-    { key: '__row__',                 label: '#' },
-    { key: 'Customer',                label: 'Customer' },
-    { key: 'Product',                 label: 'Product' },
-    { key: 'Inquiry No',              label: 'INQ' },
-    { key: 'Brand',                   label: 'Brand' },
-    { key: 'Date Of Inquiry Customer',label: 'INQ Date' },
-    { key: 'PI',                      label: 'PI' },
-    { key: 'Status',                  label: 'Status' },
-    { key: 'Date-Ordered',            label: 'Status Date' },
-    { key: 'Price',                   label: 'Amount' },
-    { key: 'Price Unit',              label: 'Currency' },
-    { key: 'Terms of Delivery',       label: 'Term' },
-    { key: 'The order was sent',      label: 'Shipment Status' },
-    { key: 'date sent',               label: 'Ship Date' },
-    { key: 'sent invoice',            label: 'Invoice Sent' },
-    { key: 'Payment Received',        label: 'Payment' },
-    { key: 'Date Payment Received',   label: 'Payment Date' }
-  ];
-  
-  const state = {
-    rows: [],
-    filteredRows: [],
-    sortKey: '',
-    sortAsc: true,
-    dateFilters: {},
-    quickPreset: '',
-    orderFrom: '',
-    orderTo: ''
-  };
-
-  const dom = {
-    subtitle:    () => document.getElementById('page-subtitle'),
-    filteredStats: () => document.getElementById('filtered-stats'),
-    activeFilters: () => document.getElementById('active-filters'),
-    searchChipWrap: () => document.getElementById('search-chip-wrap'),
-    tableHead:   () => document.querySelector('#report-table thead'),
-    tableBody:   () => document.querySelector('#report-table tbody'),
-    filters: {
-      customer:    () => document.getElementById('f-customer'),
-      product:     () => document.getElementById('f-product'),
-      status:      () => document.getElementById('f-status'),
-      currency:    () => document.getElementById('f-currency'),
-      paymentType: () => document.getElementById('f-payment-type'),
-      terms:        () => document.getElementById('f-terms'),
-      globalSearch: () => document.getElementById('f-global-search'),
-      orderFrom:    () => document.getElementById('f-order-from'),
-      orderTo:      () => document.getElementById('f-order-to')
-    }
-  };
-
-  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-
-  function formatDate(value) {
-    if (value === null || value === undefined || value === '') return '';
-    let d;
-    if (value instanceof Date) { d = value; } 
-    else { d = new Date(value); if (isNaN(d.getTime())) return String(value); }
-    const day = String(d.getDate()).padStart(2, '0');
-    const mon = MONTHS[d.getMonth()];
-    const yr  = String(d.getFullYear()).slice(-2);
-    return `${day}-${mon}-${yr}`;
-  }
-
-  function formatNumber(n) {
-    if (n === null || n === undefined || n === '') return '';
-    const num = parseFloat(String(n).replace(/,/g, ''));
-    return isNaN(num) ? n : num.toLocaleString('en-US');
-  }
-
-  function formatPayment(v) {
-    if (v === null || v === undefined || v === '') return '';
-    const num = parseFloat(v);
-    if (isNaN(num)) return v;
-    return Math.round(num * 100) + '%';
-  }
-
-  function formatOrderSent(v) {
-    if (v === null || v === undefined || v === '') return '';
-    const s = String(v);
-    const m = s.match(/\(([^)]+)\)/);
-    return m ? m[1].trim() : s;
-  }
-
-  function uniqueSorted(rows, key) {
-    return [...new Set(rows.map(r => r[key]).filter(Boolean))].sort();
-  }
-
-  function getCleanCurrency(currency) {
-    if (!currency) return '';
-    return currency.replace(' (Out)', '').trim();
-  }
-
-  function isForeignCurrency(currency) {
-    return currency && currency.includes('(Out)');
-  }
-
-  function init() {
-    if (typeof window.allRows === 'undefined') {
-      dom.subtitle().textContent = 'Error: Data not loaded.';
-      return;
-    }
-
-    state.rows = window.allRows.map(r => {
-      let pi = '';
-      const piC = (r['PI-C'] || '').trim();
-      const piT = (r['PI-T'] || '').trim();
-      if (piC && piT) pi = piC + ' / ' + piT;
-      else if (piC) pi = piC;
-      else if (piT) pi = piT;
-
-      let rawInq = String(r['Inquiry No'] || '');
-      rawInq = rawInq.replace(/\n/g, ' ');  
-      let inqNo = rawInq;
-      let brand = '';
-
-      if (rawInq.includes(' | ')) {
-        const parts = rawInq.split(' | ');
-        inqNo = parts[0].trim();
-        brand = parts.slice(1).join(' | ').trim();
-      }
-
-      return { ...r, PI: pi, 'Inquiry No': inqNo, Brand: brand };
-    });
-
-    dom.subtitle().textContent = `Total records: ${state.rows.length} · Last updated: ${new Date().toLocaleString('en-US')}`;
-
-    populateDropdowns();
-    bindFilterEvents();
-
-    const of = dom.filters.orderFrom();
-    const ot = dom.filters.orderTo();
-    if (of) of.value = state.orderFrom || '';
-    if (ot) ot.value = state.orderTo || '';
-
-    updateOrderDateVisibility();
-    applyFilters();
-  }
-
-  function populateDropdowns() {
-    uniqueSorted(state.rows, 'Customer').forEach(c => {
-      const o = document.createElement('option');
-      o.value = c; o.textContent = c;
-      dom.filters.customer().appendChild(o);
-    });
-
-    uniqueSorted(state.rows, 'Product').forEach(p => {
-      const o = document.createElement('option');
-      o.value = p; o.textContent = p;
-      dom.filters.product().appendChild(o);
-    });
-
-    const statusSet = new Set(uniqueSorted(state.rows, 'Status'));
-    statusSet.add('Pending');
-    Array.from(statusSet).sort().forEach(s => {
-      const o = document.createElement('option');
-      o.value = s; o.textContent = s;
-      dom.filters.status().appendChild(o);
-    });
-
-    const currencySet = new Set();
-    state.rows.forEach(r => {
-      const c = getCleanCurrency(r['Price Unit']);
-      if (c) currencySet.add(c);
-    });
-    Array.from(currencySet).sort().forEach(c => {
-      const o = document.createElement('option');
-      o.value = c; o.textContent = c;
-      dom.filters.currency().appendChild(o);
-    });
-
-    uniqueSorted(state.rows, 'Terms of Delivery').forEach(t => {
-      const o = document.createElement('option');
-      o.value = t; o.textContent = t;
-      dom.filters.terms().appendChild(o);
-    });
-  }
-
-  function bindFilterEvents() {
-    ['customer', 'product', 'status', 'currency', 'paymentType', 'terms'].forEach(id => {
-      const el = dom.filters[id]();
-      if (el) el.addEventListener('change', applyFilters);
-    });
-
-    let timeout2;
-    dom.filters.globalSearch().addEventListener('input', () => {
-      clearTimeout(timeout2);
-      timeout2 = setTimeout(applyFilters, 300);
-    });
-
-    const orderFromEl = dom.filters.orderFrom();
-    const orderToEl = dom.filters.orderTo();
-    if (orderFromEl) orderFromEl.addEventListener('change', () => {
-      state.orderFrom = orderFromEl.value || '';
-      applyFilters();
-    });
-    if (orderToEl) orderToEl.addEventListener('change', () => {
-      state.orderTo = orderToEl.value || '';
-      applyFilters();
-    });
-
-    document.querySelectorAll('.quick-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        state.quickPreset = btn.getAttribute('data-preset') || '';
-        applyFilters();
-      });
-    });
-
-    dom.filters.status().addEventListener('change', updateOrderDateVisibility);
-  }
-
-  function updateOrderDateVisibility() {
-    const statusVal = (dom.filters.status().value || '').trim().toLowerCase();
-    const group = document.getElementById('order-date-group');
-    if (!group) return;
-
-    if (statusVal === 'ordered') {
-      group.classList.remove('hidden');
-    } else {
-      group.classList.add('hidden');
-      const of = dom.filters.orderFrom();
-      const ot = dom.filters.orderTo();
-      if (of && of.value) { of.value = ''; state.orderFrom = ''; }
-      if (ot && ot.value) { ot.value = ''; state.orderTo = ''; }
-    }
-  }
-
-  const DATE_FILTER_KEYS = ['Date Of Inquiry Customer', 'Date-Ordered', 'date sent', 'sent invoice', 'Date Payment Received'];
-
-  function parseDateInput(v) {
-    if (!v) return null;
-    const d = new Date(v + 'T00:00:00');
-    return isNaN(d.getTime()) ? null : d;
-  }
-
-  function closeAllDatePopups() {
-    document.querySelectorAll('.date-popup').forEach(p => p.remove());
-  }
-
-  function applyDateFilter(key, from, to) {
-    if (!from && !to) { delete state.dateFilters[key]; } 
-    else { state.dateFilters[key] = { from: from || '', to: to || '' }; }
-    applyFilters();
-  }
-
-  function openDatePopup(key, anchorEl) {
-    closeAllDatePopups();
-    const existing = state.dateFilters[key] || { from: '', to: '' };
-
-    const pop = document.createElement('div');
-    pop.className = 'date-popup';
-    pop.innerHTML = `
-      <label>From</label><input type="date" class="df-from" value="${existing.from}">
-      <label>To</label><input type="date" class="df-to" value="${existing.to}">
-      <div class="popup-actions">
-        <button type="button" class="apply">Apply</button><button type="button" class="clear">Clear</button>
-      </div>
-    `;
-
-    anchorEl.style.position = 'relative';
-    anchorEl.appendChild(pop);
-
-    const fromInput = pop.querySelector('.df-from');
-    const toInput = pop.querySelector('.df-to');
-
-    pop.querySelector('.apply').addEventListener('click', (e) => {
-      e.stopPropagation(); applyDateFilter(key, fromInput.value, toInput.value); closeAllDatePopups();
-    });
-
-    pop.querySelector('.clear').addEventListener('click', (e) => {
-      e.stopPropagation(); applyDateFilter(key, '', ''); closeAllDatePopups();
-    });
-
-    pop.addEventListener('click', (e) => e.stopPropagation());
-    setTimeout(() => {
-      document.addEventListener('click', function handler() {
-        closeAllDatePopups(); document.removeEventListener('click', handler);
-      });
-    }, 0);
-  }
-
-  const COL_WIDTHS_KEY = 'sir_col_widths_v1';
-
-  function loadColumnWidths() {
-    try { const raw = localStorage.getItem(COL_WIDTHS_KEY); return raw ? JSON.parse(raw) : {}; } 
-    catch (e) { return {}; }
-  }
-
-  function saveColumnWidths(obj) {
-    try { localStorage.setItem(COL_WIDTHS_KEY, JSON.stringify(obj)); } catch (e) {}
-  }
-
-  function applySavedWidths() {
-    const widths = loadColumnWidths();
-    if (!Object.keys(widths).length) return;
-
-    dom.tableHead().querySelectorAll('th').forEach((th, i) => {
-      const w = widths[i];
-      if (w) { th.style.width = w + 'px'; th.style.minWidth = w + 'px'; th.style.maxWidth = w + 'px'; }
-    });
-
-    dom.tableBody().querySelectorAll('tr').forEach(tr => {
-      tr.querySelectorAll('td').forEach((td, i) => {
-        const w = widths[i];
-        if (w) { td.style.width = w + 'px'; td.style.minWidth = w + 'px'; td.style.maxWidth = w + 'px'; }
-      });
-    });
-  }
-
-  function attachColumnResizers() {
-    dom.tableHead().querySelectorAll('th').forEach((th, idx) => {
-      if (th.querySelector('.col-resizer')) return;
-
-      const handle = document.createElement('span');
-      handle.className = 'col-resizer';
-      th.appendChild(handle);
-
-      let startX = 0, startW = 0;
-
-      handle.addEventListener('mousedown', (e) => {
-        e.preventDefault(); e.stopPropagation(); 
-        startX = e.pageX; startW = th.offsetWidth;
-        document.body.style.cursor = 'col-resize';
-
-        const onMove = (ev) => {
-          const delta = ev.pageX - startX;
-          const newW = Math.max(40, startW + delta);
-          th.style.width = newW + 'px'; th.style.minWidth = newW + 'px'; th.style.maxWidth = newW + 'px';
-
-          dom.tableBody().querySelectorAll('tr').forEach(tr => {
-            const td = tr.children[idx];
-            if (td) { td.style.width = newW + 'px'; td.style.minWidth = newW + 'px'; td.style.maxWidth = newW + 'px'; }
-          });
-        };
-
-        const onUp = () => {
-          document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp);
-          document.body.style.cursor = '';
-          const widths = loadColumnWidths(); widths[idx] = th.offsetWidth; saveColumnWidths(widths);
-        };
-
-        document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onUp);
-      });
-    });
-  }
-
-  function readFilters() {
-    return {
-      customer:    dom.filters.customer().value,
-      product:     dom.filters.product().value,
-      status:      dom.filters.status().value,
-      currency:    dom.filters.currency().value,
-      paymentType: dom.filters.paymentType().value,
-      terms:        dom.filters.terms().value,
-      globalSearch: dom.filters.globalSearch().value.trim().toLowerCase()
-    };
-  }
-
-  function rowMatches(r, f) {
-    if (f.customer && r.Customer !== f.customer) return false;
-    if (f.product && r.Product !== f.product) return false;
-    if (f.status) {
-      const rowStatus = r.Status ? String(r.Status) : 'Pending';
-      if (rowStatus !== f.status) return false;
-    }
-    if (f.terms && r['Terms of Delivery'] !== f.terms) return false;
-    if (f.currency && getCleanCurrency(r['Price Unit']) !== f.currency) return false;
-    if (f.paymentType === 'domestic' && isForeignCurrency(r['Price Unit'])) return false;
-    if (f.paymentType === 'foreign' && !isForeignCurrency(r['Price Unit'])) return false;
-
-    if (state.orderFrom || state.orderTo) {
-      const raw = r['Date-Ordered'];
-      if (!raw) return false;
-      const d = new Date(raw);
-      if (isNaN(d.getTime())) return false;
-      const dDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-      if (state.orderFrom && dDay < new Date(state.orderFrom + 'T00:00:00')) return false;
-      if (state.orderTo && dDay > new Date(state.orderTo + 'T00:00:00')) return false;
-    }
-
-    if (state.quickPreset) {
-      const status = String(r.Status || '').toLowerCase();
-      const payment = parseFloat(r['Payment Received']);
-      const hasPayment = !isNaN(payment);
-      const orderSent = String(r['The order was sent'] || '').toLowerCase();
-      const isComplete = orderSent.includes('complete');
-      const isPartial = orderSent.includes('partial');
-      const hasInvoice = !!r['sent invoice'];
-
-      switch (state.quickPreset) {
-        case 'openOrders':
-          if (status !== 'ordered' || (hasPayment && payment >= 1)) return false;
-          break;
-        case 'completedOrders':
-          if (!(hasPayment && payment >= 1)) return false;
-          break;
-        case 'overdueOrders':
-          if (status !== 'ordered' || isComplete) return false;
-          const raw = r['Date-Ordered'];
-          if (!raw) return false;
-          const d = new Date(raw);
-          if (isNaN(d.getTime()) || ((Date.now() - d.getTime()) / (1000 * 60 * 60 * 24)) < 180) return false;
-          break;
-        case 'awaitingShipment':
-          if (status !== 'ordered' || isComplete) return false;
-          break;
-        case 'awaitingInvoice':
-          if ((!isComplete && !isPartial) || hasInvoice) return false;
-          break;
-        case 'awaitingPayment':
-          if (!hasInvoice || (hasPayment && payment >= 1)) return false;
-          break;
-      }
-    }
-
-    for (const key in state.dateFilters) {
-      const range = state.dateFilters[key];
-      if (!range) continue;
-      const from = parseDateInput(range.from);
-      const to   = parseDateInput(range.to);
-      const raw = r[key];
-      if (!raw) { if (from || to) return false; continue; }
-      const d = new Date(raw);
-      if (isNaN(d.getTime())) { if (from || to) return false; continue; }
-      const dDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-      if (from && dDay < from) return false;
-      if (to   && dDay > to)   return false;
-    }
-
-    if (f.globalSearch) {
-      const haystack = Object.keys(r).map(k => String(r[k] ?? '')).join(' ').toLowerCase();
-      if (!haystack.includes(f.globalSearch)) return false;
-    }
-    return true;
-  }
-
-  function applyFilters() {
-    const f = readFilters();
-    state.filteredRows = state.rows.filter(r => rowMatches(r, f));
-    renderActiveFilters(f);
-    renderFilteredStats();
-    render();
-  }
-
-  function getFilterElement(key) {
-    const map = {
-      customer: dom.filters.customer, product: dom.filters.product, status: dom.filters.status,
-      currency: dom.filters.currency, paymentType: dom.filters.paymentType, terms: dom.filters.terms,
-      globalSearch: dom.filters.globalSearch
-    };
-    const fn = map[key]; return fn ? fn() : null;
-  }
-
-  function clearOneFilter(key) {
-    const el = getFilterElement(key);
-    if (el) { el.value = ''; if (el.tagName === 'SELECT') el.selectedIndex = 0; }
-    applyFilters();
-  }
-
-  function renderActiveFilters(f) {
-    const sWrap = dom.searchChipWrap(); sWrap.innerHTML = '';
-    if (f.globalSearch) {
-      const chip = document.createElement('span'); chip.className = 'search-chip';
-      chip.innerHTML = `<span class="chip-key">Search</span><span>${f.globalSearch}</span>`;
-      const xBtn = document.createElement('button'); xBtn.type = 'button'; xBtn.innerHTML = '&times;';
-      xBtn.style.cssText = 'background:none;border:none;color:inherit;cursor:pointer;font-size:1.1rem;line-height:1;padding:0 0 0 4px;';
-      xBtn.addEventListener('click', () => clearOneFilter('globalSearch'));
-      chip.appendChild(xBtn); sWrap.appendChild(chip);
-    }
-
-    const wrap = dom.activeFilters(); wrap.innerHTML = '';
-    const chipLabels = { customer: 'Customer', product: 'Product', status: 'Status', currency: 'Currency', paymentType: 'Payment Type', terms: 'Terms' };
-    Object.keys(chipLabels).forEach(k => {
-      if (f[k]) {
-        const chip = document.createElement('span'); chip.className = 'filter-chip';
-        chip.innerHTML = `<span class="chip-key">${chipLabels[k]}:</span> ${f[k]}`;
-        const xBtn = document.createElement('button'); xBtn.type = 'button'; xBtn.innerHTML = '&times;';
-        xBtn.addEventListener('click', () => clearOneFilter(k));
-        chip.appendChild(xBtn); wrap.appendChild(chip);
-      }
-    });
-
-    const dateLabels = { 'Date Of Inquiry Customer': 'INQ Date', 'Date-Ordered': 'Order Date', 'date sent': 'Ship Date', 'sent invoice': 'Invoice', 'Date Payment Received': 'Payment Date' };
-    Object.keys(state.dateFilters).forEach(key => {
-      const range = state.dateFilters[key];
-      if (!range || (!range.from && !range.to)) return;
-      const chip = document.createElement('span'); chip.className = 'filter-chip';
-      chip.innerHTML = `<span class="chip-key">${dateLabels[key] || key}:</span> ${range.from || '…'} → ${range.to || '…'}`;
-      const xBtn = document.createElement('button'); xBtn.type = 'button'; xBtn.innerHTML = '&times;';
-      xBtn.addEventListener('click', () => { delete state.dateFilters[key]; applyFilters(); });
-      chip.appendChild(xBtn); wrap.appendChild(chip);
-    });
-
-    if (state.quickPreset) {
-      const presetLabels = { openOrders: 'Open Orders', completedOrders: 'Completed Orders', overdueOrders: 'Delayed Orders', awaitingShipment: 'Awaiting Shipment', awaitingInvoice: 'Awaiting Invoice', awaitingPayment: 'Awaiting Payment' };
-      const chip = document.createElement('span'); chip.className = 'filter-chip';
-      chip.style.cssText = 'background:#dbeafe;border-color:#93c5fd;color:#1e40af;';
-      chip.innerHTML = `<span class="chip-key" style="color:#3b82f6;">Preset:</span> ${presetLabels[state.quickPreset] || state.quickPreset}`;
-      const xBtn = document.createElement('button'); xBtn.type = 'button'; xBtn.innerHTML = '&times;';
-      xBtn.addEventListener('click', () => { state.quickPreset = ''; applyFilters(); });
-      chip.appendChild(xBtn); wrap.appendChild(chip);
-    }
-
-    if (state.orderFrom || state.orderTo) {
-      const chip = document.createElement('span'); chip.className = 'filter-chip';
-      chip.innerHTML = `<span class="chip-key">Order Date:</span> ${state.orderFrom || '…'} → ${state.orderTo || '…'}`;
-      const xBtn = document.createElement('button'); xBtn.type = 'button'; xBtn.innerHTML = '&times;';
-      xBtn.addEventListener('click', () => {
-        state.orderFrom = ''; state.orderTo = '';
-        if (dom.filters.orderFrom()) dom.filters.orderFrom().value = '';
-        if (dom.filters.orderTo()) dom.filters.orderTo().value = '';
-        applyFilters();
-      });
-      chip.appendChild(xBtn); wrap.appendChild(chip);
-    }
-  }
-
-  function renderFilteredStats() {
-    const rows = state.filteredRows;
-    const total = rows.length;
-    const ordered = rows.filter(r => String(r.Status || '').toLowerCase() === 'ordered').length;
-
-    const uniqueWithC = new Set();
-    const uniqueOrderedWithC = new Set();
-
-    rows.forEach(r => {
-      const action = String(r['Actions Final sent Offer'] || '');
-      const hasC = action.includes('C') && !action.includes('c');
-      if (!hasC) return;
-      const key = (r.Customer || '') + '|' + (r['Inquiry No'] || '');
-      uniqueWithC.add(key);
-      if (String(r.Status || '').toLowerCase() === 'ordered') uniqueOrderedWithC.add(key);
-    });
-
-    const rate = uniqueWithC.size ? ((uniqueOrderedWithC.size / uniqueWithC.size) * 100).toFixed(1) : '0.0';
-
-    dom.filteredStats().innerHTML =
-      `<span>Filtered: <b>${total}</b></span>` +
-      `<span>Ordered: <b>${ordered}</b></span>` +
-      `<span>Success: <b>${rate}%</b></span>`;
-  }
-
-  const DATE_SORT_KEYS = new Set(['Date Of Inquiry Customer', 'Date-Ordered', 'date sent', 'sent invoice', 'Date Payment Received']);
-
-  function parseDateValue(v) {
-    if (v === null || v === undefined || v === '') return NaN;
-    if (v instanceof Date) return v.getTime();
-    const d = new Date(v);
-    return isNaN(d.getTime()) ? NaN : d.getTime();
-  }
-
-  function parseShipmentStatus(v) {
-    if (v === null || v === undefined || v === '') return 0;
-    const s = String(v).toLowerCase().trim();
-    if (s.includes('complete')) return 3;
-    if (s.includes('partial')) return 2;
-    if (s.includes('not sent')) return 1;
-    return 0;
-  }
-
-  function sortRows(rows) {
-    if (!state.sortKey) return rows;
-    const key = state.sortKey;
-    const isDate = DATE_SORT_KEYS.has(key);
-    const isShipmentStatus = key === 'The order was sent';
-
-    return [...rows].sort((a, b) => {
-      const va = a[key] ?? ''; const vb = b[key] ?? '';
-      if (isDate) {
-        const na = parseDateValue(va); const nb = parseDateValue(vb);
-        const vaEmpty = isNaN(na), vbEmpty = isNaN(nb);
-        if (vaEmpty && vbEmpty) return 0;
-        if (vaEmpty) return 1;
-        if (vbEmpty) return -1;
-        return state.sortAsc ? na - nb : nb - na;
-      }
-      if (isShipmentStatus) {
-        const na = parseShipmentStatus(va); const nb = parseShipmentStatus(vb);
-        return state.sortAsc ? na - nb : nb - na;
-      }
-      const fa = parseFloat(va), fb = parseFloat(vb);
-      if (!isNaN(fa) && !isNaN(fb)) return state.sortAsc ? fa - fb : fb - fa;
-      return state.sortAsc ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
-    });
-  }
-
-  function sortTable(key) {
-    if (state.sortKey === key) state.sortAsc = !state.sortAsc;
-    else { state.sortKey = key; state.sortAsc = true; }
-    render();
-  }
-
-  function render() {
-    renderFilteredStats();
-    const rows = sortRows(state.filteredRows);
-    const isOrderedFilter = (dom.filters.status().value || '').trim().toLowerCase() === 'ordered';
-
-    dom.tableHead().innerHTML = '<tr>' + COLUMNS.map(c => {
-      const icon = state.sortKey === c.key ? (state.sortAsc ? ' ▲' : ' ▼') : '';
-      let label = c.label;
-      if (c.key === 'Date-Ordered' && isOrderedFilter) label = 'PO Date';
-      const isDateCol = DATE_FILTER_KEYS.includes(c.key);
-      const hasRange = state.dateFilters[c.key] && (state.dateFilters[c.key].from || state.dateFilters[c.key].to);
-      const filterBtn = isDateCol ? `<span class="date-filter-btn${hasRange ? ' active' : ''}" data-date-key="${c.key}" title="Filter by date range">▾</span>` : '';
-      return `<th onclick="App.sortTable('${c.key}')">${label}${icon}${filterBtn}</th>`;
-    }).join('') + '</tr>';
-
-    dom.tableHead().querySelectorAll('.date-filter-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        openDatePopup(btn.getAttribute('data-date-key'), btn.parentElement);
-      });
-    });
-
-    if (!rows.length) {
-      dom.tableBody().innerHTML = `<tr><td colspan="${COLUMNS.length}" class="empty-state">No records match the current filters.</td></tr>`;
-      return;
-    }
-
-    dom.tableBody().innerHTML = rows.map((r, idx) => {
-      return '<tr>' + COLUMNS.map(c => {
-        if (c.key === '__row__') return `<td style="color:#9ca3af;text-align:right;">${idx + 1}</td>`;
-        let val = r[c.key] ?? '';
-        if (['Date Of Inquiry Customer','Date-Ordered','date sent','sent invoice','Date Payment Received'].includes(c.key)) val = formatDate(val);
-        if (c.key === 'The order was sent') val = formatOrderSent(val);
-        if (c.key === 'Payment Received') val = formatPayment(val);
-        if (c.key === 'Price') val = formatNumber(val);
-        if (c.key === 'Status') {
-          if (!val) val = 'Pending';
-          return `<td class="status-${String(val).toLowerCase().replace(/\s+/g, '')}">${val}</td>`;
-        }
-        return `<td>${val}</td>`;
-      }).join('') + '</tr>';
-    }).join('');
-
-    attachColumnResizers();
-    applySavedWidths();
-
-    document.querySelectorAll('.quick-btn').forEach(btn => {
-      if (btn.getAttribute('data-preset') === state.quickPreset) btn.classList.add('active');
-      else btn.classList.remove('active');
-    });
-    updateOrderDateVisibility();
-  }
-
-  function resetFilters() {
-    Object.values(dom.filters).forEach(fn => {
-      const el = fn();
-      if (el) { el.value = ''; if (el.tagName === 'SELECT') el.selectedIndex = 0; }
-    });
-    state.dateFilters = {}; state.quickPreset = ''; state.orderFrom = ''; state.orderTo = '';
-    state.sortKey = ''; state.sortAsc = true;
-    updateOrderDateVisibility(); applyFilters();
-  }
-
-  return { sortTable, resetFilters };
-})();
 </script>
 </body>
 </html>
