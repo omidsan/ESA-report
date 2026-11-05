@@ -405,10 +405,9 @@ const App = (function () {
       const detailRow = '<tr class="detail-row" data-idx="' + idx + '" style="display:none;background:#f9fafb;">' +
         '<td colspan="' + COLUMNS.length + '" style="padding:8px 12px;">' +
           '<div style="display:flex;flex-wrap:wrap;gap:20px;font-size:0.78rem;">' +
-            '<div><div style="font-size:0.65rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.03em;">Last Internal Action</div><div>' + (r['Last Action'] || '—') + '</div></div>' +
             '<div><div style="font-size:0.65rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.03em;">Last Offer to Customer</div><div>' + (r['Actions Final sent Offer'] || '—') + '</div></div>' +
             '<div><div style="font-size:0.65rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.03em;">Last Action Date</div><div>' + (r['Date AF'] ? formatDate(r['Date AF']) : '—') + '</div></div>' +
-          '</div>'
+          '</div>' +
         '</td>' +
       '</tr>';
 
