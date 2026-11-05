@@ -49,57 +49,6 @@
     color: var(--text-muted);
   }
 
-  /* Login */
-  #login-screen {
-    position: fixed;
-    inset: 0;
-    background: var(--bg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    padding: 16px;
-  }
-  .login-box {
-    background: var(--surface);
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
-    padding: 32px 28px;
-    max-width: 340px;
-    width: 100%;
-    text-align: center;
-  }
-  .login-box h2 { font-size: 1.1rem; margin-bottom: 6px; }
-  .login-box p { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 16px; }
-  .login-box input {
-    width: 100%;
-    padding: 9px 12px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    font-size: 0.9rem;
-    margin-bottom: 10px;
-    outline: none;
-  }
-  .login-box input:focus { border-color: var(--primary); }
-  .login-box button {
-    width: 100%;
-    padding: 9px;
-    background: var(--primary);
-    color: #fff;
-    border: none;
-    border-radius: var(--radius);
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-  }
-  .login-box button:hover { background: var(--primary-hover); }
-  .login-error {
-    color: var(--danger);
-    font-size: 0.8rem;
-    margin-top: 8px;
-    display: none;
-  }
-
   /* Stats */
   .stats-grid {
     display: grid;
@@ -130,7 +79,6 @@
   .stat-value.danger { color: var(--danger); }
   .stat-value.warning { color: var(--warning); }
 
-  /* Filtered stats (inline, lighter) */
   .filtered-stats {
     display: flex;
     flex-wrap: wrap;
@@ -143,26 +91,11 @@
   }
   .filtered-stats b { color: var(--text); }
 
-  /* Filters */
-  /* Filters (compact) */
   .filters-row {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
     align-items: center;
-  }
-  .filters-row-bottom {
-    margin-top: 6px;
-    padding-top: 6px;
-    border-top: 1px dashed var(--border);
-  }
-  .filters-row-bottom.hidden-date {
-    border-top: none;
-    margin-top: 0;
-    padding-top: 0;
-  }
-  .filter-group-date.hidden {
-    display: none;
   }
   .filter-group {
     flex: 0 1 130px;
@@ -204,12 +137,8 @@
     border: 1px solid #fde8cc;
     border-radius: 4px;
   }
-  .filter-group-date.hidden {
-    display: none;
-  }
-  .filter-group-date .filter-group-label {
-    color: #b45309;
-  }
+  .filter-group-date.hidden { display: none; }
+  .filter-group-date .filter-group-label { color: #b45309; }
   .date-range-inline {
     display: flex;
     gap: 4px;
@@ -230,7 +159,7 @@
     flex: 1 1 3000px;
     min-width: 200px;
     max-width: 500px;
-    margin: 0 auto;   /* وسط‌چین */
+    margin: 0 auto;
   }
   .filter-group-search .search-input {
     width: 100%;
@@ -243,26 +172,12 @@
     outline: none;
     text-align: left;
   }
-  .filter-group-search .search-input::placeholder {
-    color: #93b4d8;
-  }
+  .filter-group-search .search-input::placeholder { color: #93b4d8; }
   .filter-group-search .search-input:focus {
     border-color: var(--primary);
     background: #fff;
   }
 
-  .toolbar-inline {
-    display: flex;
-    gap: 4px;
-    margin: 0;
-    flex: 0 0 auto;
-  }
-  .toolbar-inline .btn {
-    padding: 5px 12px;
-    font-size: 0.78rem;
-  }
-
-  /* Active filters chips */
   .active-filters {
     display: flex;
     flex-wrap: wrap;
@@ -319,43 +234,6 @@
     letter-spacing: 0.04em;
   }
 
-  /* Filtered stats */
-  .filtered-stats {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px 16px;
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    padding: 6px 0 0;
-    border-top: 1px dashed var(--border);
-    margin-top: 6px;
-  }
-  .filtered-stats b { color: var(--text); }
-  .search-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    background: #eff6ff;
-    color: #1d4ed8;
-    border: 1px solid #bfdbfe;
-    border-radius: 16px;
-    padding: 7px 18px;
-    font-size: 0.9rem;
-    font-weight: 600;
-  }
-  .search-chip .chip-key {
-    color: #3b82f6;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-  /* Buttons */
-  .toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 8px;
-  }
   .btn {
     padding: 6px 14px;
     border: none;
@@ -369,7 +247,6 @@
   .btn-secondary { background: #e5e7eb; color: var(--text); }
   .btn-secondary:hover { background: #d1d5db; }
 
-  /* Table */
   .table-wrap {
     overflow-x: auto;
     border: 1px solid var(--border);
@@ -394,7 +271,6 @@
     cursor: pointer;
     user-select: none;
   }
-  /* Column resizer */
   th { position: relative; }
   .col-resizer {
     position: absolute;
@@ -409,15 +285,12 @@
   th:hover { background: #f3f4f6; }
   tbody tr:hover { background: #f9fafb; }
   tbody tr:last-child td { border-bottom: none; }
-  th {
-    padding: 6px 10px;
-  }
-  .status-ordered    { color: var(--success); font-weight: 600; }
-  .status-canceled,
-  .status-rejected   { color: var(--danger); }
-  .status-lost,
-  .status-hold       { color: var(--warning); }
-  /* Date filter popup */
+  th { padding: 6px 10px; }
+  
+  .status-ordered { color: var(--success); font-weight: 600; }
+  .status-canceled, .status-rejected { color: var(--danger); }
+  .status-lost, .status-hold { color: var(--warning); }
+  
   .date-filter-btn {
     display: inline-block;
     margin-left: 4px;
@@ -486,39 +359,18 @@
     font-weight: 600;
     cursor: pointer;
   }
-  .date-popup .popup-actions .apply {
-    background: var(--primary);
-    color: #fff;
-  }
+  .date-popup .popup-actions .apply { background: var(--primary); color: #fff; }
   .date-popup .popup-actions .apply:hover { background: var(--primary-hover); }
-  .date-popup .popup-actions .clear {
-    background: #e5e7eb;
-    color: var(--text);
-  }
+  .date-popup .popup-actions .clear { background: #e5e7eb; color: var(--text); }
   .date-popup .popup-actions .clear:hover { background: #d1d5db; }
+  
   .empty-state {
     text-align: center;
     padding: 32px 20px;
     color: var(--text-muted);
     font-size: 0.9rem;
   }
-    /* Inline date range (Order Date) */
-  .date-range-inline {
-    display: flex;
-    gap: 4px;
-  }
-  .date-range-inline input {
-    flex: 1;
-    padding: 5px 6px;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    font-size: 0.75rem;
-    outline: none;
-    font-family: var(--font);
-  }
-  .date-range-inline input:focus { border-color: var(--primary); }
 
-  /* Quick filters bar */
   .quick-filters {
     display: flex;
     flex-wrap: wrap;
@@ -565,18 +417,6 @@
     font-size: 0.72rem;
   }
 
-  @media (max-width: 640px) {
-    .quick-btn { font-size: 0.7rem; padding: 5px 8px; }
-  }
-  @media (max-width: 640px) {
-    body { padding: 10px 8px; }
-    .card { padding: 14px; }
-    .page-title { font-size: 1.1rem; }
-    .filters-grid { grid-template-columns: 1fr; }
-    .stats-grid { grid-template-columns: repeat(2, 1fr); }
-    .stat-value { font-size: 1.2rem; }
-  }
-
   @media print {
     .no-print { display: none !important; }
     body { background: #fff; padding: 0; }
@@ -587,7 +427,6 @@
 </head>
 <body>
 
-
 <!-- Main App -->
 <div class="container" id="main-app">
 
@@ -597,12 +436,8 @@
     <div class="page-subtitle" id="page-subtitle">Loading data…</div>
   </div>
 
-
-
-  <!-- Filters + filtered stats -->
-  <!-- Filters + filtered stats -->
+  <!-- Filters -->
   <div class="card no-print" id="filter-card">
-    <!-- Row 1: compact filters -->
     <div class="filters-row">
       <div class="filter-group">
         <select id="f-customer"><option value="">All Customers</option></select>
@@ -623,7 +458,6 @@
           <option value="foreign">Foreign (Out)</option>
         </select>
       </div>
-
       <div class="filter-group">
         <select id="f-terms"><option value="">All Terms</option></select>
       </div>
@@ -639,17 +473,11 @@
       </div>
     </div>
 
-    <!-- Row 2: only chips and stats (no filter inputs) -->
-
-    <!-- Active chips -->
     <div class="active-filters" id="active-filters"></div>
     <div class="search-chip-wrap" id="search-chip-wrap"></div>
-
-    <!-- Filtered stats -->
     <div class="filtered-stats" id="filtered-stats"></div>
   </div>
 
-  <!-- Table -->
   <!-- Quick Filters -->
   <div class="quick-filters no-print" id="quick-filters">
     <span class="quick-title">Quick Filters</span>
@@ -674,12 +502,11 @@
       </table>
     </div>
   </div>
-
 </div>
 
+<!-- Logic for Data Decryption -->
 <script>
 async function initApp() {
-  // از کاربر رمز داده‌ها را می‌پرسیم
   const password = prompt("لطفا رمز عبور گزارش را وارد کنید:");
   
   if (!password) {
@@ -691,12 +518,10 @@ async function initApp() {
   subtitle.textContent = 'در حال رمزگشایی داده‌ها…';
 
   try {
-    // ۱. دریافت فایل رمزگذاری‌شده
     const resp = await fetch('./data.enc.json');
     if (!resp.ok) throw new Error('فایل داده یافت نشد');
     const enc = await resp.json();
     
-    // ۲. رمزگشایی
     const b64 = (s) => Uint8Array.from(atob(s), c => c.charCodeAt(0));
     const salt = b64(enc.salt), iv = b64(enc.iv), tag = b64(enc.tag);
     const cipherText = b64(enc.data);
@@ -716,26 +541,22 @@ async function initApp() {
 
     const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, combined);
     
-    // ۳. تزریق داده‌ها و شروع برنامه
     window.allRows = JSON.parse(new TextDecoder().decode(decrypted));
-    init(); // تابع اصلی برنامه شما
+    init(); 
     
   } catch (e) {
     console.error("خطای رمزگشایی:", e);
     alert('رمز عبور اشتباه است یا فایل داده پیدا نشد.\nصفحه رفرش می‌شود...');
-    location.reload(); // رفرش صفحه برای تلاش مجدد
+    location.reload(); 
   }
 }
 
-// اجرای خودکار برنامه هنگام لود شدن صفحه
 window.addEventListener('DOMContentLoaded', initApp);
 </script>
+
+<!-- Main Application Logic -->
 <script>
 const App = (function () {
-
-  
-
-  // Only columns we want to show
   const COLUMNS = [
     { key: '__row__',                 label: '#' },
     { key: 'Customer',                label: 'Customer' },
@@ -755,6 +576,7 @@ const App = (function () {
     { key: 'Payment Received',        label: 'Payment' },
     { key: 'Date Payment Received',   label: 'Payment Date' }
   ];
+  
   const state = {
     rows: [],
     filteredRows: [],
@@ -767,12 +589,7 @@ const App = (function () {
   };
 
   const dom = {
-    loginScreen: () => document.getElementById('login-screen'),
-    mainApp:     () => document.getElementById('main-app'),
-    loginInput:  () => document.getElementById('password-input'),
-    loginError:  () => document.getElementById('login-error'),
     subtitle:    () => document.getElementById('page-subtitle'),
-    statsGrid:   () => document.getElementById('stats-grid'),
     filteredStats: () => document.getElementById('filtered-stats'),
     activeFilters: () => document.getElementById('active-filters'),
     searchChipWrap: () => document.getElementById('search-chip-wrap'),
@@ -791,20 +608,13 @@ const App = (function () {
     }
   };
 
-  // ---------- Helpers ----------
   const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-  // format any date-like value as "10-Nov-26"
   function formatDate(value) {
     if (value === null || value === undefined || value === '') return '';
     let d;
-    if (value instanceof Date) {
-      d = value;
-    } else {
-      // try direct parse
-      d = new Date(value);
-      if (isNaN(d.getTime())) return String(value);
-    }
+    if (value instanceof Date) { d = value; } 
+    else { d = new Date(value); if (isNaN(d.getTime())) return String(value); }
     const day = String(d.getDate()).padStart(2, '0');
     const mon = MONTHS[d.getMonth()];
     const yr  = String(d.getFullYear()).slice(-2);
@@ -824,7 +634,6 @@ const App = (function () {
     return Math.round(num * 100) + '%';
   }
 
-  // Order Sent: only show content inside parentheses, e.g. "20 of 20 units shipped (Complete)" -> "Complete"
   function formatOrderSent(v) {
     if (v === null || v === undefined || v === '') return '';
     const s = String(v);
@@ -845,67 +654,13 @@ const App = (function () {
     return currency && currency.includes('(Out)');
   }
 
-  // ---------- Login ----------
-async function initApp() {
-  // از کاربر رمز داده‌ها را می‌پرسیم
-  const password = prompt("لطفا رمز عبور گزارش را وارد کنید:");
-  
-  if (!password) {
-    document.body.innerHTML = "<h2 style='text-align:center; margin-top:50px; font-family:sans-serif;'>برای مشاهده گزارش، صفحه را رفرش کنید و رمز را وارد نمایید.</h2>";
-    return;
-  }
-
-  const subtitle = document.getElementById('page-subtitle');
-  subtitle.textContent = 'در حال رمزگشایی داده‌ها…';
-
-  try {
-    // ۱. دریافت فایل رمزگذاری‌شده
-    const resp = await fetch('./data.enc.json');
-    if (!resp.ok) throw new Error('فایل داده یافت نشد');
-    const enc = await resp.json();
-    
-    // ۲. رمزگشایی
-    const b64 = (s) => Uint8Array.from(atob(s), c => c.charCodeAt(0));
-    const salt = b64(enc.salt), iv = b64(enc.iv), tag = b64(enc.tag);
-    const cipherText = b64(enc.data);
-
-    const enc2 = new TextEncoder();
-    const keyMaterial = await crypto.subtle.importKey(
-      'raw', enc2.encode(password), 'PBKDF2', false, ['deriveKey']
-    );
-    
-    const key = await crypto.subtle.deriveKey(
-      { name: 'PBKDF2', salt, iterations: 300000, hash: 'SHA-256' },
-      keyMaterial, { name: 'AES-GCM', length: 256 }, false, ['decrypt']
-    );
-
-    const combined = new Uint8Array(cipherText.length + tag.length);
-    combined.set(cipherText); combined.set(tag, cipherText.length);
-
-    const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, combined);
-    
-    // ۳. تزریق داده‌ها و شروع برنامه
-    window.allRows = JSON.parse(new TextDecoder().decode(decrypted));
-    init(); // تابع اصلی برنامه شما
-    
-  } catch (e) {
-    console.error("خطای رمزگشایی:", e);
-    alert('رمز عبور اشتباه است یا فایل داده پیدا نشد.\nصفحه رفرش می‌شود...');
-    location.reload(); // رفرش صفحه برای تلاش مجدد
-  }
-}
-
-// اجرای خودکار برنامه هنگام لود شدن صفحه
-window.addEventListener('DOMContentLoaded', initApp);
-
-  // ---------- Init ----------
   function init() {
-    if (typeof allRows === 'undefined') {
-      dom.subtitle().textContent = 'Error: data.js not loaded.';
+    if (typeof window.allRows === 'undefined') {
+      dom.subtitle().textContent = 'Error: Data not loaded.';
       return;
     }
 
-    state.rows = allRows.map(r => {
+    state.rows = window.allRows.map(r => {
       let pi = '';
       const piC = (r['PI-C'] || '').trim();
       const piT = (r['PI-T'] || '').trim();
@@ -913,9 +668,8 @@ window.addEventListener('DOMContentLoaded', initApp);
       else if (piC) pi = piC;
       else if (piT) pi = piT;
 
-      // INQ: separate "Inquiry No | Brand" into two fields
       let rawInq = String(r['Inquiry No'] || '');
-      rawInq = rawInq.replace(/\n/g, ' ');  // newlines -> space
+      rawInq = rawInq.replace(/\n/g, ' ');  
       let inqNo = rawInq;
       let brand = '';
 
@@ -928,20 +682,17 @@ window.addEventListener('DOMContentLoaded', initApp);
       return { ...r, PI: pi, 'Inquiry No': inqNo, Brand: brand };
     });
 
-    dom.subtitle().textContent =
-      `Total records: ${state.rows.length} · Last updated: ${new Date().toLocaleString('en-US')}`;
+    dom.subtitle().textContent = `Total records: ${state.rows.length} · Last updated: ${new Date().toLocaleString('en-US')}`;
 
     populateDropdowns();
     bindFilterEvents();
 
-    // Init order date inputs
     const of = dom.filters.orderFrom();
     const ot = dom.filters.orderTo();
     if (of) of.value = state.orderFrom || '';
     if (ot) ot.value = state.orderTo || '';
 
     updateOrderDateVisibility();
-
     applyFilters();
   }
 
@@ -958,7 +709,6 @@ window.addEventListener('DOMContentLoaded', initApp);
       dom.filters.product().appendChild(o);
     });
 
-    // Status: distinct values + "Pending" (for empty status)
     const statusSet = new Set(uniqueSorted(state.rows, 'Status'));
     statusSet.add('Pending');
     Array.from(statusSet).sort().forEach(s => {
@@ -978,7 +728,6 @@ window.addEventListener('DOMContentLoaded', initApp);
       dom.filters.currency().appendChild(o);
     });
 
-
     uniqueSorted(state.rows, 'Terms of Delivery').forEach(t => {
       const o = document.createElement('option');
       o.value = t; o.textContent = t;
@@ -987,11 +736,10 @@ window.addEventListener('DOMContentLoaded', initApp);
   }
 
   function bindFilterEvents() {
-    ['customer', 'product', 'status', 'currency', 'paymentType', 'terms']
-      .forEach(id => {
-        const el = dom.filters[id]();
-        if (el) el.addEventListener('change', applyFilters);
-      });
+    ['customer', 'product', 'status', 'currency', 'paymentType', 'terms'].forEach(id => {
+      const el = dom.filters[id]();
+      if (el) el.addEventListener('change', applyFilters);
+    });
 
     let timeout2;
     dom.filters.globalSearch().addEventListener('input', () => {
@@ -999,7 +747,6 @@ window.addEventListener('DOMContentLoaded', initApp);
       timeout2 = setTimeout(applyFilters, 300);
     });
 
-    // Order date range
     const orderFromEl = dom.filters.orderFrom();
     const orderToEl = dom.filters.orderTo();
     if (orderFromEl) orderFromEl.addEventListener('change', () => {
@@ -1011,46 +758,33 @@ window.addEventListener('DOMContentLoaded', initApp);
       applyFilters();
     });
 
-    // Quick filter buttons
     document.querySelectorAll('.quick-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        const preset = btn.getAttribute('data-preset') || '';
-        state.quickPreset = preset;
+        state.quickPreset = btn.getAttribute('data-preset') || '';
         applyFilters();
       });
     });
 
-    // Show/hide order date based on status filter
     dom.filters.status().addEventListener('change', updateOrderDateVisibility);
   }
 
   function updateOrderDateVisibility() {
     const statusVal = (dom.filters.status().value || '').trim().toLowerCase();
     const group = document.getElementById('order-date-group');
-    const bottomRow = document.querySelector('.filters-row-bottom');
     if (!group) return;
 
     if (statusVal === 'ordered') {
       group.classList.remove('hidden');
     } else {
       group.classList.add('hidden');
-      // اگر مقدار داشت، پاک کن
       const of = dom.filters.orderFrom();
       const ot = dom.filters.orderTo();
       if (of && of.value) { of.value = ''; state.orderFrom = ''; }
       if (ot && ot.value) { ot.value = ''; state.orderTo = ''; }
     }
-    // اگر هر دو (Order Date و Search) مخفی شدن، خط جداکننده هم برداشته بشه
-    // Search همیشه هست، پس خط می‌مونه
   }
-  // ---------- Date filter popup ----------
-  const DATE_FILTER_KEYS = [
-    'Date Of Inquiry Customer',
-    'Date-Ordered',
-    'date sent',
-    'sent invoice',
-    'Date Payment Received'
-  ];
+
+  const DATE_FILTER_KEYS = ['Date Of Inquiry Customer', 'Date-Ordered', 'date sent', 'sent invoice', 'Date Payment Received'];
 
   function parseDateInput(v) {
     if (!v) return null;
@@ -1063,11 +797,8 @@ window.addEventListener('DOMContentLoaded', initApp);
   }
 
   function applyDateFilter(key, from, to) {
-    if (!from && !to) {
-      delete state.dateFilters[key];
-    } else {
-      state.dateFilters[key] = { from: from || '', to: to || '' };
-    }
+    if (!from && !to) { delete state.dateFilters[key]; } 
+    else { state.dateFilters[key] = { from: from || '', to: to || '' }; }
     applyFilters();
   }
 
@@ -1078,13 +809,10 @@ window.addEventListener('DOMContentLoaded', initApp);
     const pop = document.createElement('div');
     pop.className = 'date-popup';
     pop.innerHTML = `
-      <label>From</label>
-      <input type="date" class="df-from" value="${existing.from}">
-      <label>To</label>
-      <input type="date" class="df-to" value="${existing.to}">
+      <label>From</label><input type="date" class="df-from" value="${existing.from}">
+      <label>To</label><input type="date" class="df-to" value="${existing.to}">
       <div class="popup-actions">
-        <button type="button" class="apply">Apply</button>
-        <button type="button" class="clear">Clear</button>
+        <button type="button" class="apply">Apply</button><button type="button" class="clear">Clear</button>
       </div>
     `;
 
@@ -1095,36 +823,26 @@ window.addEventListener('DOMContentLoaded', initApp);
     const toInput = pop.querySelector('.df-to');
 
     pop.querySelector('.apply').addEventListener('click', (e) => {
-      e.stopPropagation();
-      applyDateFilter(key, fromInput.value, toInput.value);
-      closeAllDatePopups();
+      e.stopPropagation(); applyDateFilter(key, fromInput.value, toInput.value); closeAllDatePopups();
     });
 
     pop.querySelector('.clear').addEventListener('click', (e) => {
-      e.stopPropagation();
-      applyDateFilter(key, '', '');
-      closeAllDatePopups();
+      e.stopPropagation(); applyDateFilter(key, '', ''); closeAllDatePopups();
     });
 
-    // جلوگیری از بسته شدن با کلیک داخل پاپ‌آور
     pop.addEventListener('click', (e) => e.stopPropagation());
-
-    // بستن با کلیک بیرون
     setTimeout(() => {
       document.addEventListener('click', function handler() {
-        closeAllDatePopups();
-        document.removeEventListener('click', handler);
+        closeAllDatePopups(); document.removeEventListener('click', handler);
       });
     }, 0);
   }
-  // ---------- Column resize ----------
+
   const COL_WIDTHS_KEY = 'sir_col_widths_v1';
 
   function loadColumnWidths() {
-    try {
-      const raw = localStorage.getItem(COL_WIDTHS_KEY);
-      return raw ? JSON.parse(raw) : {};
-    } catch (e) { return {}; }
+    try { const raw = localStorage.getItem(COL_WIDTHS_KEY); return raw ? JSON.parse(raw) : {}; } 
+    catch (e) { return {}; }
   }
 
   function saveColumnWidths(obj) {
@@ -1135,32 +853,21 @@ window.addEventListener('DOMContentLoaded', initApp);
     const widths = loadColumnWidths();
     if (!Object.keys(widths).length) return;
 
-    const ths = dom.tableHead().querySelectorAll('th');
-    ths.forEach((th, i) => {
+    dom.tableHead().querySelectorAll('th').forEach((th, i) => {
       const w = widths[i];
-      if (w) {
-        th.style.width = w + 'px';
-        th.style.minWidth = w + 'px';
-        th.style.maxWidth = w + 'px';
-      }
+      if (w) { th.style.width = w + 'px'; th.style.minWidth = w + 'px'; th.style.maxWidth = w + 'px'; }
     });
 
-    const trs = dom.tableBody().querySelectorAll('tr');
-    trs.forEach(tr => {
+    dom.tableBody().querySelectorAll('tr').forEach(tr => {
       tr.querySelectorAll('td').forEach((td, i) => {
         const w = widths[i];
-        if (w) {
-          td.style.width = w + 'px';
-          td.style.minWidth = w + 'px';
-          td.style.maxWidth = w + 'px';
-        }
+        if (w) { td.style.width = w + 'px'; td.style.minWidth = w + 'px'; td.style.maxWidth = w + 'px'; }
       });
     });
   }
 
   function attachColumnResizers() {
-    const ths = dom.tableHead().querySelectorAll('th');
-    ths.forEach((th, idx) => {
+    dom.tableHead().querySelectorAll('th').forEach((th, idx) => {
       if (th.querySelector('.col-resizer')) return;
 
       const handle = document.createElement('span');
@@ -1170,46 +877,32 @@ window.addEventListener('DOMContentLoaded', initApp);
       let startX = 0, startW = 0;
 
       handle.addEventListener('mousedown', (e) => {
-        e.preventDefault();
-        e.stopPropagation(); // جلوگیری از sort شدن با کلیک روی resizer
-        startX = e.pageX;
-        startW = th.offsetWidth;
+        e.preventDefault(); e.stopPropagation(); 
+        startX = e.pageX; startW = th.offsetWidth;
         document.body.style.cursor = 'col-resize';
 
         const onMove = (ev) => {
           const delta = ev.pageX - startX;
           const newW = Math.max(40, startW + delta);
-          th.style.width = newW + 'px';
-          th.style.minWidth = newW + 'px';
-          th.style.maxWidth = newW + 'px';
+          th.style.width = newW + 'px'; th.style.minWidth = newW + 'px'; th.style.maxWidth = newW + 'px';
 
-          const trs = dom.tableBody().querySelectorAll('tr');
-          trs.forEach(tr => {
+          dom.tableBody().querySelectorAll('tr').forEach(tr => {
             const td = tr.children[idx];
-            if (td) {
-              td.style.width = newW + 'px';
-              td.style.minWidth = newW + 'px';
-              td.style.maxWidth = newW + 'px';
-            }
+            if (td) { td.style.width = newW + 'px'; td.style.minWidth = newW + 'px'; td.style.maxWidth = newW + 'px'; }
           });
         };
 
         const onUp = () => {
-          document.removeEventListener('mousemove', onMove);
-          document.removeEventListener('mouseup', onUp);
+          document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp);
           document.body.style.cursor = '';
-          const widths = loadColumnWidths();
-          widths[idx] = th.offsetWidth;
-          saveColumnWidths(widths);
+          const widths = loadColumnWidths(); widths[idx] = th.offsetWidth; saveColumnWidths(widths);
         };
 
-        document.addEventListener('mousemove', onMove);
-        document.addEventListener('mouseup', onUp);
+        document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onUp);
       });
     });
   }
 
-  // ---------- Filtering ----------
   function readFilters() {
     return {
       customer:    dom.filters.customer().value,
@@ -1230,529 +923,5 @@ window.addEventListener('DOMContentLoaded', initApp);
       if (rowStatus !== f.status) return false;
     }
     if (f.terms && r['Terms of Delivery'] !== f.terms) return false;
-
-    if (f.currency) {
-      const rowCurrency = getCleanCurrency(r['Price Unit']);
-      if (rowCurrency !== f.currency) return false;
-    }
-
-    if (f.paymentType === 'domestic' && isForeignCurrency(r['Price Unit'])) return false;
-    if (f.paymentType === 'foreign' && !isForeignCurrency(r['Price Unit'])) return false;
-
-
-    // Order date range (from/to)
-    if (state.orderFrom || state.orderTo) {
-      const raw = r['Date-Ordered'];
-      if (!raw) return false;
-      const d = new Date(raw);
-      if (isNaN(d.getTime())) return false;
-      const dDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-      if (state.orderFrom) {
-        const from = new Date(state.orderFrom + 'T00:00:00');
-        if (!isNaN(from.getTime()) && dDay < from) return false;
-      }
-      if (state.orderTo) {
-        const to = new Date(state.orderTo + 'T00:00:00');
-        if (!isNaN(to.getTime()) && dDay > to) return false;
-      }
-    }
-
-    // Quick preset
-    if (state.quickPreset) {
-      const status = String(r.Status || '').toLowerCase();
-      const payment = parseFloat(r['Payment Received']);
-      const hasPayment = !isNaN(payment);
-      const orderSent = String(r['The order was sent'] || '').toLowerCase();
-      const isComplete = orderSent.includes('complete');
-      const isPartial = orderSent.includes('partial');
-      const isNotSent = orderSent.includes('not sent') || orderSent === '';
-      const hasInvoice = !!r['sent invoice'];
-
-      switch (state.quickPreset) {
-        case 'openOrders':
-          if (status !== 'ordered') return false;
-          if (hasPayment && payment >= 1) return false;
-          break;
-
-        case 'completedOrders':
-          if (hasPayment && payment >= 1) {
-            // ok
-          } else {
-            return false;
-          }
-          break;
-
-        case 'overdueOrders':
-          if (status !== 'ordered') return false;
-          if (isComplete) return false;
-          {
-            const raw = r['Date-Ordered'];
-            if (!raw) return false;
-            const d = new Date(raw);
-            if (isNaN(d.getTime())) return false;
-            const days = (Date.now() - d.getTime()) / (1000 * 60 * 60 * 24);
-            if (days < 180) return false;
-          }
-          break;
-
-        case 'awaitingShipment':
-          if (status !== 'ordered') return false;
-          if (isComplete) return false;
-          break;
-
-        case 'awaitingInvoice':
-          if (!isComplete && !isPartial) return false;
-          if (hasInvoice) return false;
-          break;
-
-        case 'awaitingPayment':
-          if (!hasInvoice) return false;
-          if (hasPayment && payment >= 1) return false;
-          break;
-      }
-    }
-
-    // Date range filters (per-column)
-    for (const key in state.dateFilters) {
-      const range = state.dateFilters[key];
-      if (!range) continue;
-      const from = parseDateInput(range.from);
-      const to   = parseDateInput(range.to);
-
-      const raw = r[key];
-      if (!raw) {
-        if (from || to) return false;
-        continue;
-      }
-      const d = new Date(raw);
-      if (isNaN(d.getTime())) {
-        if (from || to) return false;
-        continue;
-      }
-      const dDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-      if (from && dDay < from) return false;
-      if (to   && dDay > to)   return false;
-    }
-
-    // Global search
-    if (f.globalSearch) {
-      const haystack = Object.keys(r)
-        .map(k => String(r[k] ?? ''))
-        .join(' ')
-        .toLowerCase();
-      if (!haystack.includes(f.globalSearch)) return false;
-    }
-
-    return true;
-  }
-
-  function applyFilters() {
-    const f = readFilters();
-    state.filteredRows = state.rows.filter(r => rowMatches(r, f));
-    renderActiveFilters(f);
-    renderFilteredStats();
-    render();
-  }
-
-  // ---------- Active filter chips ----------
-  // Map filter key -> DOM element (برای پاک کردن)
-  function getFilterElement(key) {
-    const map = {
-      customer: dom.filters.customer,
-      product: dom.filters.product,
-      status: dom.filters.status,
-      currency: dom.filters.currency,
-      paymentType: dom.filters.paymentType,
-      terms: dom.filters.terms,
-      globalSearch: dom.filters.globalSearch
-    };
-    const fn = map[key];
-    return fn ? fn() : null;
-  }
-
-  function clearOneFilter(key) {
-    const el = getFilterElement(key);
-    if (el) {
-      el.value = '';
-      if (el.tagName === 'SELECT') {
-        el.selectedIndex = 0;
-      }
-    }
-    applyFilters();
-  }
-
-  function renderActiveFilters(f) {
-    // 1) Search chip (separate, centered, larger)
-    const sWrap = dom.searchChipWrap();
-    sWrap.innerHTML = '';
-    if (f.globalSearch) {
-      const chip = document.createElement('span');
-      chip.className = 'search-chip';
-      chip.innerHTML = `<span class="chip-key">Search</span><span>${f.globalSearch}</span>`;
-
-      const xBtn = document.createElement('button');
-      xBtn.type = 'button';
-      xBtn.innerHTML = '&times;';
-      xBtn.title = 'Clear search';
-      xBtn.style.cssText = 'background:none;border:none;color:inherit;cursor:pointer;font-size:1.1rem;line-height:1;padding:0 0 0 4px;';
-      xBtn.addEventListener('click', () => clearOneFilter('globalSearch'));
-      chip.appendChild(xBtn);
-
-      sWrap.appendChild(chip);
-    }
-
-    // 2) Other active filters as small chips
-    const wrap = dom.activeFilters();
-    wrap.innerHTML = '';
-    const chipLabels = {
-      customer: 'Customer',
-      product: 'Product',
-      status: 'Status',
-      currency: 'Currency',
-      paymentType: 'Payment Type',
-      terms: 'Terms'
-    };
-    Object.keys(chipLabels).forEach(k => {
-      if (f[k]) {
-        const chip = document.createElement('span');
-        chip.className = 'filter-chip';
-        chip.innerHTML = `<span class="chip-key">${chipLabels[k]}:</span> ${f[k]}`;
-
-        const xBtn = document.createElement('button');
-        xBtn.type = 'button';
-        xBtn.innerHTML = '&times;';
-        xBtn.title = 'Clear ' + chipLabels[k];
-        xBtn.addEventListener('click', () => clearOneFilter(k));
-        chip.appendChild(xBtn);
-
-        wrap.appendChild(chip);
-      }
-    });
-
-    // Date range chips
-    const dateLabels = {
-      'Date Of Inquiry Customer': 'INQ Date',
-      'Date-Ordered': 'Order Date',
-      'date sent': 'Ship Date',
-      'sent invoice': 'Invoice',
-      'Date Payment Received': 'Payment Date'
-    };
-
-    Object.keys(state.dateFilters).forEach(key => {
-      const range = state.dateFilters[key];
-      if (!range || (!range.from && !range.to)) return;
-
-      const fromStr = range.from || '…';
-      const toStr   = range.to || '…';
-      const label = dateLabels[key] || key;
-
-      const chip = document.createElement('span');
-      chip.className = 'filter-chip';
-      chip.innerHTML = `<span class="chip-key">${label}:</span> ${fromStr} → ${toStr}`;
-
-      const xBtn = document.createElement('button');
-      xBtn.type = 'button';
-      xBtn.innerHTML = '&times;';
-      xBtn.title = 'Clear ' + label + ' range';
-      xBtn.addEventListener('click', () => {
-        delete state.dateFilters[key];
-        applyFilters();
-      });
-      chip.appendChild(xBtn);
-
-      wrap.appendChild(chip);
-    });
-
-    // Quick preset chip
-    if (state.quickPreset) {
-      const presetLabels = {
-        openOrders: 'Open Orders',
-        completedOrders: 'Completed Orders',
-        overdueOrders: 'Delayed Orders',
-        awaitingShipment: 'Awaiting Shipment',
-        awaitingInvoice: 'Awaiting Invoice',
-        awaitingPayment: 'Awaiting Payment'
-      };
-      const chip = document.createElement('span');
-      chip.className = 'filter-chip';
-      chip.style.background = '#dbeafe';
-      chip.style.borderColor = '#93c5fd';
-      chip.style.color = '#1e40af';
-      chip.innerHTML = `<span class="chip-key" style="color:#3b82f6;">Preset:</span> ${presetLabels[state.quickPreset] || state.quickPreset}`;
-
-      const xBtn = document.createElement('button');
-      xBtn.type = 'button';
-      xBtn.innerHTML = '&times;';
-      xBtn.title = 'Clear quick filter';
-      xBtn.addEventListener('click', () => {
-        state.quickPreset = '';
-        applyFilters();
-      });
-      chip.appendChild(xBtn);
-      wrap.appendChild(chip);
-    }
-
-    // Order date range chip
-    if (state.orderFrom || state.orderTo) {
-      const fromStr = state.orderFrom || '…';
-      const toStr = state.orderTo || '…';
-      const chip = document.createElement('span');
-      chip.className = 'filter-chip';
-      chip.innerHTML = `<span class="chip-key">Order Date:</span> ${fromStr} → ${toStr}`;
-      const xBtn = document.createElement('button');
-      xBtn.type = 'button';
-      xBtn.innerHTML = '&times;';
-      xBtn.title = 'Clear order date range';
-      xBtn.addEventListener('click', () => {
-        state.orderFrom = '';
-        state.orderTo = '';
-        const fEl = dom.filters.orderFrom();
-        const tEl = dom.filters.orderTo();
-        if (fEl) fEl.value = '';
-        if (tEl) tEl.value = '';
-        applyFilters();
-      });
-      chip.appendChild(xBtn);
-      wrap.appendChild(chip);
-    }
-  }
-
-  // ---------- Stats ----------
-
-
-  function renderFilteredStats() {
-    const rows = state.filteredRows;
-    const total = rows.length;
-
-    // Ordered: تعداد رکوردهایی که Status = "Ordered" (بدون یکتا کردن)
-    const ordered = rows.filter(r => String(r.Status || '').toLowerCase() === 'ordered').length;
-
-    // Success Rate: مبنا = Inquiry های یکتا با CO ارسال‌شده (Actions Final شامل C بزرگ)
-    // مخرج = تعداد unique inquiry با CO
-    // صورت = تعداد unique inquiry با CO که Status = Ordered
-    const uniqueWithC = new Set();
-    const uniqueOrderedWithC = new Set();
-
-    rows.forEach(r => {
-      const action = String(r['Actions Final sent Offer'] || '');
-      const hasC = action.includes('C') && !action.includes('c');
-      if (!hasC) return;
-
-      const key = (r.Customer || '') + '|' + (r['Inquiry No'] || '');
-      uniqueWithC.add(key);
-
-      if (String(r.Status || '').toLowerCase() === 'ordered') {
-        uniqueOrderedWithC.add(key);
-      }
-    });
-
-    const rate = uniqueWithC.size
-      ? ((uniqueOrderedWithC.size / uniqueWithC.size) * 100).toFixed(1)
-      : '0.0';
-
-    dom.filteredStats().innerHTML =
-      `<span>Filtered: <b>${total}</b></span>` +
-      `<span>Ordered: <b>${ordered}</b></span>` +
-      `<span>Success: <b>${rate}%</b></span>`;
-  }
-
-  // ---------- Sorting ----------
-  // Date columns for sort: parse as timestamps
-  const DATE_SORT_KEYS = new Set([
-    'Date Of Inquiry Customer',
-    'Date-Ordered',
-    'date sent',
-    'sent invoice',
-    'Date Payment Received'
-  ]);
-
-  // Shipment Status priority for sort
-  const SHIPMENT_STATUS_ORDER = {
-    'not sent': 1,
-    'partial': 2,
-    'complete': 3
-  };
-
-  function parseDateValue(v) {
-    if (v === null || v === undefined || v === '') return NaN;
-    if (v instanceof Date) return v.getTime();
-    const d = new Date(v);
-    return isNaN(d.getTime()) ? NaN : d.getTime();
-  }
-
-  function parseShipmentStatus(v) {
-    if (v === null || v === undefined || v === '') return 0;
-    const s = String(v).toLowerCase().trim();
-    // حالا مقدار ممکنه "Complete" / "Partial" / "Not sent" باشه (چون formatOrderSent قبلاً اجرا شده)
-    // یا مقدار اصلی "(Complete)" / "(Partial)" / "(Not sent)" باشه اگر قبل از فرمت sort کنیم
-    // با هر دو حالت کنار می‌آییم
-    if (s.includes('complete')) return 3;
-    if (s.includes('partial')) return 2;
-    if (s.includes('not sent') || s.includes('not sent')) return 1;
-    return 0;
-  }
-
-  function sortRows(rows) {
-    if (!state.sortKey) return rows;
-    const key = state.sortKey;
-    const isDate = DATE_SORT_KEYS.has(key);
-    const isShipmentStatus = key === 'The order was sent';
-
-    return [...rows].sort((a, b) => {
-      const va = a[key] ?? '';
-      const vb = b[key] ?? '';
-
-      // Date columns
-      if (isDate) {
-        const na = parseDateValue(va);
-        const nb = parseDateValue(vb);
-        const vaEmpty = isNaN(na), vbEmpty = isNaN(nb);
-        if (vaEmpty && vbEmpty) return 0;
-        if (vaEmpty) return 1;   // خالی‌ها همیشه آخر
-        if (vbEmpty) return -1;
-        return state.sortAsc ? na - nb : nb - na;
-      }
-
-      // Shipment Status: priority-based
-      if (isShipmentStatus) {
-        const na = parseShipmentStatus(va);
-        const nb = parseShipmentStatus(vb);
-        return state.sortAsc ? na - nb : nb - na;
-      }
-
-      // Numeric
-      const fa = parseFloat(va), fb = parseFloat(vb);
-      if (!isNaN(fa) && !isNaN(fb)) {
-        return state.sortAsc ? fa - fb : fb - fa;
-      }
-
-      // Text
-      return state.sortAsc
-        ? String(va).localeCompare(String(vb))
-        : String(vb).localeCompare(String(va));
-    });
-  }
-
-  function sortTable(key) {
-    if (state.sortKey === key) state.sortAsc = !state.sortAsc;
-    else { state.sortKey = key; state.sortAsc = true; }
-    render();
-  }
-
-  // ---------- Render ----------
-  function render() {
-    renderFilteredStats();
-
-    const rows = sortRows(state.filteredRows);
-
-    // Dynamic header label: if Status filter = Ordered, rename "Status Date" column to "PO Date"
-    // Dynamic header label
-    const statusFilter = (dom.filters.status().value || '').trim();
-    const isOrderedFilter = statusFilter.toLowerCase() === 'ordered';
-
-    dom.tableHead().innerHTML = '<tr>' + COLUMNS.map(c => {
-      const icon = state.sortKey === c.key ? (state.sortAsc ? ' ▲' : ' ▼') : '';
-      let label = c.label;
-      if (c.key === 'Date-Ordered' && isOrderedFilter) {
-        label = 'PO Date';
-      }
-
-      const isDateCol = DATE_FILTER_KEYS.includes(c.key);
-      const hasRange = state.dateFilters[c.key] && (state.dateFilters[c.key].from || state.dateFilters[c.key].to);
-      const filterBtn = isDateCol
-        ? `<span class="date-filter-btn${hasRange ? ' active' : ''}" data-date-key="${c.key}" title="Filter by date range">▾</span>`
-        : '';
-
-      return `<th onclick="App.sortTable('${c.key}')">${label}${icon}${filterBtn}</th>`;
-    }).join('') + '</tr>';
-
-    // bind date filter buttons
-    dom.tableHead().querySelectorAll('.date-filter-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation(); // جلوگیری از sort
-        const key = btn.getAttribute('data-date-key');
-        openDatePopup(key, btn.parentElement);
-      });
-    });
-
-    if (!rows.length) {
-      dom.tableBody().innerHTML =
-        `<tr><td colspan="${COLUMNS.length}" class="empty-state">No records match the current filters.</td></tr>`;
-      return;
-    }
-
-    dom.tableBody().innerHTML = rows.map((r, idx) => {
-      return '<tr>' + COLUMNS.map(c => {
-        if (c.key === '__row__') {
-          return `<td style="color:#9ca3af;text-align:right;">${idx + 1}</td>`;
-        }
-        let val = r[c.key] ?? '';
-
-        // Date formatting
-        if (['Date Of Inquiry Customer','Date-Ordered','date sent','sent invoice','Date Payment Received'].includes(c.key)) {
-          val = formatDate(val);
-        }
-
-        // Order Sent -> only parentheses content
-        if (c.key === 'The order was sent') {
-          val = formatOrderSent(val);
-        }
-
-        // Payment -> percent
-        if (c.key === 'Payment Received') {
-          val = formatPayment(val);
-        }
-
-        // Price formatting
-        if (c.key === 'Price') {
-          val = formatNumber(val);
-        }
-
-        // Status: empty -> "Pending"
-        if (c.key === 'Status') {
-          if (!val) val = 'Pending';
-          const cls = 'status-' + String(val).toLowerCase().replace(/\s+/g, '');
-          return `<td class="${cls}">${val}</td>`;
-        }
-
-        return `<td>${val}</td>`;
-      }).join('') + '</tr>';
-    }).join('');
-
-    attachColumnResizers();
-    applySavedWidths();
-
-    // Sync active state of quick buttons
-    document.querySelectorAll('.quick-btn').forEach(btn => {
-      const p = btn.getAttribute('data-preset') || '';
-      if (p === state.quickPreset) btn.classList.add('active');
-      else btn.classList.remove('active');
-    });
-
-    // Sync order date visibility (in case status changed externally)
-    updateOrderDateVisibility();
-  }
-
-  // ---------- Reset ----------
-  function resetFilters() {
-    Object.values(dom.filters).forEach(fn => {
-      const el = fn();
-      if (!el) return;
-      el.value = '';
-      if (el.tagName === 'SELECT') el.selectedIndex = 0;
-    });
-    state.dateFilters = {};
-    state.quickPreset = '';
-    state.orderFrom = '';
-    state.orderTo = '';
-    state.sortKey = ''; state.sortAsc = true;
-    updateOrderDateVisibility();
-    applyFilters();
-  }
-
-  return { sortTable, resetFilters };
-
-})();
-</script>
-</body>
-</html>
+    if (f.currency && getCleanCurrency(r['Price Unit']) !== f.currency) return false;
+    if (f
