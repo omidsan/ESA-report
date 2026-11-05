@@ -406,9 +406,17 @@ const App = (function () {
 </script>
 
 <!-- اسکریپت رمزگشایی (باید بعد از App باشد) -->
+<!-- اسکریپت رمزگشایی -->
 <script>
 async function initApp() {
-  const password = '1235'; // رمز مستقیماً اینجاست
+  // این خط رمز را از کاربر می‌پرسد
+  const password = prompt("لطفا رمز عبور گزارش را وارد کنید:");
+  
+  if (!password) {
+    document.body.innerHTML = "<h2 style='text-align:center; margin-top:50px; font-family:sans-serif;'>برای مشاهده گزارش، صفحه را رفرش کنید و رمز را وارد نمایید.</h2>";
+    return;
+  }
+
   const subtitle = document.getElementById('page-subtitle');
   subtitle.textContent = 'در حال بارگذاری داده‌ها…';
 
@@ -430,13 +438,12 @@ async function initApp() {
     const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, combined);
     
     window.allRows = JSON.parse(new TextDecoder().decode(decrypted));
-    
-    // حالا که App ساخته شده، تابع init را صدا می‌زنیم
     App.init();
     
   } catch (e) {
     console.error("خطای رمزگشایی:", e);
-    subtitle.innerHTML = "<span style='color:red;'>خطا در بارگذاری داده‌ها. لطفا به پشتیبان اطلاع دهید.</span>";
+    alert('رمز عبور اشتباه است!');
+    document.body.innerHTML = "<h2 style='text-align:center; margin-top:50px; font-family:sans-serif;'>رمز اشتباه بود. صفحه را رفرش کنید و دوباره تلاش کنید.</h2>";
   }
 }
 
