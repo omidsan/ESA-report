@@ -263,7 +263,11 @@ const App = (function () {
     if (f.customer && r.Customer !== f.customer) return false;
     if (f.product && r.Product !== f.product) return false;
     if (f.status === 'In Progress') {
-      if (String(r['Actions Final sent Offer'] ?? '').trim() !== '') return false;
+      const hasOffer = String(r['Actions Final sent Offer'] ?? '').trim() !== '';
+      if ((r.Status || '') !== '' || hasOffer) return false;
+    } else if (f.status === 'Pending') {
+      const hasOffer = String(r['Actions Final sent Offer'] ?? '').trim() !== '';
+      if ((r.Status || '') !== '' || !hasOffer) return false;
     } else if (f.status && (r.Status || 'Pending') !== f.status) return false;
     if (f.terms && r['Terms of Delivery'] !== f.terms) return false;
     if (f.currency && getCleanCurrency(r['Price Unit']) !== f.currency) return false;
