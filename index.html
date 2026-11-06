@@ -44,12 +44,11 @@
   .btn { padding: 6px 14px; border: none; border-radius: 4px; font-size: 0.78rem; font-weight: 600; cursor: pointer; }
   .btn-primary { background: var(--primary); color: #fff; }
   .btn-secondary { background: #e5e7eb; color: var(--text); }
-  .table-wrap { max-height: 600px; overflow-y: auto; overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); }
-  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
-  th, td { padding: 8px 10px; text-align: left; white-space: nowrap; border-bottom: 1px solid var(--border); }
-  th { background: #f9fafb; color: var(--text-muted); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; position: sticky; top: 0; cursor: pointer; user-select: none; z-index: 2; }
-  th { position: relative; padding: 6px 10px; }
+  .table-wrap { max-height: 50vh; overflow-y: auto; overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); }
+  th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  th { background: #f9fafb; color: var(--text-muted); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; position: sticky; top: 0; cursor: pointer; user-select: none; z-index: 2; padding: 6px 10px; }
   tbody tr:hover { background: #f9fafb; }
+  td:first-child, th:first-child { overflow: visible; text-overflow: clip; }
   tbody tr:last-child td { border-bottom: none; }
   .status-ordered { color: var(--success); font-weight: 600; }
   .status-canceled, .status-rejected { color: var(--danger); }
@@ -78,6 +77,27 @@
     .detail-row { display: none !important; }
     .expand-btn { display: none !important; }
   }
+  #columns-panel label { display: flex; align-items: center; gap: 6px; padding: 4px 2px; font-size: 0.78rem; color: var(--text); cursor: pointer; user-select: none; }
+  #columns-panel label:hover { background: #f3f4f6; border-radius: 3px; }
+  #columns-panel input[type="checkbox"] { cursor: pointer; }
+  
+  /* تنظیمات جدول اصلی */
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; table-layout: auto; }
+  th:nth-child(4), td:nth-child(4) { width: 100px !important; max-width: 100px !important; }
+
+  /* تنظیمات جدول گزارشات */
+  .report-table { width:100%; border-collapse:collapse; font-size:0.8rem; table-layout: auto; } /* auto شد */
+  .report-table th { background:#f3f4f6; color:#374151; font-weight:600; padding:8px; text-align:left; border-bottom:2px solid #e5e7eb; position: sticky; top: 0; z-index: 10; cursor: pointer; user-select: none; white-space: nowrap; }
+  .report-table th:hover { background: #e5e7eb; }
+  .report-table td { padding:8px; border-bottom:1px solid #e5e7eb; color:#4b5563; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px; }
+  .report-table tr:hover { background:#f9fafb; }
+
+  /* استایل دکمه تنظیمات ستون‌ها در گزارش */
+  .col-settings-btn { position: absolute; right: 16px; top: 12px; background: #fff; border: 1px solid #d1d5db; border-radius: 4px; padding: 4px 8px; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); z-index: 20; }
+  .col-settings-btn:hover { background: #f9fafb; }
+  .col-settings-panel { position: absolute; right: 16px; top: 40px; background: #fff; border: 1px solid #d1d5db; border-radius: 6px; padding: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 30; width: 200px; max-height: 300px; overflow-y: auto; display: none; text-align: left; }
+  .col-settings-panel label { display: flex; align-items: center; gap: 6px; padding: 4px 0; font-size: 0.75rem; cursor: pointer; }
+  #sidebar-resizer:hover, #sidebar-resizer:active { background: #c7d2fe; }
 </style>
 </head>
 <body>
@@ -145,6 +165,13 @@
     <button class="quick-btn" data-preset="awaitingInvoice">Awaiting Invoice</button>
     <button class="quick-btn" data-preset="awaitingPayment">Awaiting Payment</button>
     <div class="quick-actions">
+      <div style="position:relative;">
+        <button class="btn btn-secondary" id="columns-btn">Columns</button>
+        <button class="btn btn-secondary" id="reports-btn" style="background:#fef3c7; color:#92400e; border:1px solid #fcd34d;">📊 Reports</button>
+        <div id="columns-panel" style="display:none;position:absolute;top:100%;right:0;margin-top:6px;background:#fff;border:1px solid var(--border);border-radius:6px;padding:10px;box-shadow:0 4px 16px rgba(0,0,0,0.1);z-index:300;min-width:200px;max-height:320px;overflow-y:auto;text-align:left;">
+          <!-- چک‌باکس‌ها توسط JS اضافه می‌شوند -->
+        </div>
+      </div>
       <button class="btn btn-secondary" onclick="App.resetFilters()">Reset</button>
       <button class="btn btn-primary" onclick="window.print()">Print</button>
     </div>
@@ -153,9 +180,139 @@
   <div class="card">
     <div class="table-wrap">
       <table id="report-table">
+        <colgroup>
+          <col style="width: 48px;">
+          <col style="width: 14%;">
+          <col style="width: 8%;">
+          <col style="width: 8%;">
+          <col style="width: 8%;">
+          <col style="width: 8%;">
+          <col style="width: 10%;">
+          <col style="width: 8%;">
+          <col style="width: 8%;">
+          <col style="width: 7%;">
+          <col style="width: 5%;">
+          <col style="width: 6%;">
+          <col style="width: 8%;">
+          <col style="width: 7%;">
+          <col style="width: 6%;">
+          <col style="width: 6%;">
+          <col style="width: 7%;">
+        </colgroup>
         <thead></thead>
         <tbody></tbody>
       </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for Reports -->
+<div id="reports-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+  <div id="reports-modal-box" style="background:#fff; border-radius:8px; width:90%; max-width:1100px; height:85vh; display:flex; flex-direction:column; box-shadow:0 10px 25px rgba(0,0,0,0.2); transition: all 0.2s ease;">
+    
+    <!-- Header -->
+    <div style="padding:10px 16px; border-bottom:1px solid #e5e7eb; display:flex; justify-content:space-between; align-items:center; background:#f9fafb; border-radius:8px 8px 0 0;">
+      <div style="font-weight:700; font-size:1.1rem; color:#1f2937;">Management Reports</div>
+      
+      <div style="display:flex; gap:8px; align-items:center;">
+        <!-- دکمه تمام صفحه با آیکون -->
+        <button id="expand-reports" style="background:none; border:none; font-size:1.3rem; cursor:pointer; color:#6b7280; line-height:1; margin-right:4px;" title="Maximize / Restore">⛶</button>
+        <!-- دکمه بستن -->
+        <button id="close-reports" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#6b7280; line-height:1;">&times;</button>
+      </div>
+    </div>
+
+    <!-- Body (Split into Sidebar and Content) -->
+    <div style="display:flex; flex:1; overflow:hidden;">
+      
+      <!-- ================= سایدبار (منو و فیلترها) ================= -->
+      <div id="reports-sidebar" style="width:260px; min-width:200px; max-width:450px; border-right:1px solid #e5e7eb; background:#f8fafc; display:flex; flex-direction:column;">
+        
+        <!-- منوی انتخاب گزارش -->
+        <div style="padding:12px; border-bottom:1px solid #e5e7eb; overflow-y:auto; flex: 1;">
+          <div style="font-size:0.7rem; font-weight:700; color:#6b7280; text-transform:uppercase; margin-bottom:8px;">1. Select Report</div>
+          
+          <details open style="margin-bottom:8px;">
+            <summary style="font-size:0.7rem; font-weight:700; color:#6b7280; text-transform:uppercase; cursor:pointer; outline:none; margin-bottom:4px;">▼ Sales & Orders</summary>
+            <div style="padding-left:4px; margin-top:4px;">
+              <button class="report-btn active" data-report="allOrdered" style="width:100%; text-align:left; padding:6px 8px; border:none; background:#e0e7ff; color:#3730a3; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">All Ordered</button>
+              <button class="report-btn" data-report="delayedOrders" style="width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#4b5563; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">Delayed Orders</button>
+              <button class="report-btn" data-report="completedOrders" style="width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#4b5563; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">Completed Orders</button>
+              <button class="report-btn" data-report="openOrders" style="width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#4b5563; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">Open Orders</button>
+              <button class="report-btn" data-report="awaitingShipment" style="width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#4b5563; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">Awaiting Shipment</button>
+              <button class="report-btn" data-report="awaitingInvoice" style="width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#4b5563; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">Awaiting Invoice</button>
+              <button class="report-btn" data-report="awaitingPayment" style="width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#4b5563; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">Awaiting Payment</button>
+              <button class="report-btn" data-report="ordersByCustomer" style="width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#4b5563; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">Orders by Customer</button>
+              <button class="report-btn" data-report="ordersByProduct" style="width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#4b5563; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">Orders by Product</button>
+            </div>
+          </details>
+
+          <details style="margin-bottom:8px;">
+            <summary style="font-size:0.7rem; font-weight:700; color:#6b7280; text-transform:uppercase; cursor:pointer; outline:none; margin-bottom:4px;">▶ Commercial & Currency</summary>
+            <div style="padding-left:4px; margin-top:4px;">
+              <button class="report-btn" data-report="paymentSummary" style="width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#4b5563; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">Payment Summary</button>
+              <button class="report-btn" data-report="customerSales" style="width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#4b5563; border-radius:4px; font-size:0.75rem; font-weight:600; cursor:pointer;">Customer Sales Summary</button>
+            </div>
+          </details>
+        </div>
+        
+        <!-- فیلترها -->
+        <div style="padding:12px; border-top:1px solid #e5e7eb; background:#fff;">
+          <div style="font-size:0.7rem; font-weight:700; color:#6b7280; text-transform:uppercase; margin-bottom:8px;">2. Filters</div>
+          
+          <label style="font-size:0.75rem; font-weight:600; color:#374151;">Customer</label>
+          <select id="rep-f-customer" style="width:100%; margin-bottom:8px; padding:4px; border:1px solid #d1d5db; border-radius:4px; font-size:0.8rem;"><option value="">All</option></select>
+
+          <label style="font-size:0.75rem; font-weight:600; color:#374151;">Currency</label>
+          <select id="rep-f-currency" style="width:100%; margin-bottom:8px; padding:4px; border:1px solid #d1d5db; border-radius:4px; font-size:0.8rem;">
+            <option value="">All</option>
+            <option value="usd">USD</option>
+            <option value="eur">EUR</option>
+            <option value="rial">Rial</option>
+            <option value="aed">AED</option>
+          </select>
+
+          <label style="font-size:0.75rem; font-weight:600; color:#374151;">Region (Dom/For)</label>
+          <select id="rep-f-region" style="width:100%; margin-bottom:8px; padding:4px; border:1px solid #d1d5db; border-radius:4px; font-size:0.8rem;">
+            <option value="">All</option>
+            <option value="domestic">Domestic Only</option>
+            <option value="foreign">Foreign Only (Out)</option>
+          </select>
+
+          <label style="font-size:0.75rem; font-weight:600; color:#374151;">Terms of Delivery</label>
+          <select id="rep-f-terms" style="width:100%; margin-bottom:12px; padding:4px; border:1px solid #d1d5db; border-radius:4px; font-size:0.8rem;"><option value="">All</option></select>
+
+          <button id="btn-apply-rep-filters" style="width:100%; padding:6px; background:#2563eb; color:#fff; border:none; border-radius:4px; font-weight:600; cursor:pointer; margin-bottom:6px;">Apply Filters</button>
+          <button id="reset-reports" style="width:100%; padding:6px; background:#f3f4f6; color:#374151; border:1px solid #d1d5db; border-radius:4px; font-weight:600; cursor:pointer;">Reset Filters</button>
+        </div>
+      </div>
+
+      <!-- ================= دسته‌گیر (Resizer) ================= -->
+      <div id="sidebar-resizer" style="width: 5px; cursor: col-resize; background: transparent; transition: background 0.2s; z-index: 100; flex-shrink: 0;"></div>
+
+      <!-- ================= محتوای اصلی (جدول) ================= -->
+      <div style="flex:1; display:flex; flex-direction:column; background:#fff; position: relative;">
+        
+        <!-- هدر جدول و دکمه ستون‌ها -->
+        <div style="padding:12px 16px; font-weight:700; font-size:1rem; color:#1f2937; border-bottom:1px solid #e5e7eb; background:#f9fafb; display: flex; justify-content: space-between; align-items: center;">
+          <span id="report-title">All Ordered</span>
+          <div style="position: relative;">
+            <button id="rep-cols-btn" class="col-settings-btn" style="position:static; box-shadow:none;">⚙️ Columns</button>
+            <div id="rep-cols-panel" class="col-settings-panel" style="right:0; top: 100%; margin-top: 4px;"></div>
+          </div>
+        </div>
+
+        <!-- کادر ثابت خلاصه تعداد رکوردها -->
+        <div id="report-summary-container" style="padding: 12px 16px 0 16px; background: #fff; flex-shrink: 0;">
+          <!-- محتوای Total Records توسط جاوااسکریپت اینجا قرار می‌گیرد -->
+        </div>
+
+        <!-- کادر اسکرول شونده جدول -->
+        <div id="report-content" style="flex:1; overflow-y:auto; overflow-x:auto; padding:0; max-height: calc(85vh - 150px); border: 1px solid #e5e7eb; border-radius: 6px; margin: 0 16px 16px 16px; background: #fff;">
+          <!-- Report Table -->
+        </div>
+      </div>
+      
     </div>
   </div>
 </div>
@@ -175,7 +332,28 @@ const App = (function () {
     { key: 'Date Payment Received', label: 'Payment Date' }
   ];
   
-  const state = { rows: [], filteredRows: [], sortKey: '', sortAsc: true, dateFilters: {}, quickPreset: '', orderFrom: '', orderTo: '' };
+  const DEFAULT_HIDDEN = ['Brand', 'Terms of Delivery', 'Date Payment Received'];
+  const LS_KEY = 'esa_hidden_columns_v1';
+  
+  function loadHidden() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
+      if (Array.isArray(saved)) return new Set(saved);
+    } catch (e) {}
+    return new Set(DEFAULT_HIDDEN);
+  }
+
+  const state = { 
+    rows: [], 
+    filteredRows: [], 
+    sortKey: '', 
+    sortAsc: true, 
+    dateFilters: {}, 
+    quickPreset: '', 
+    orderFrom: '', 
+    orderTo: '',
+    hiddenColumns: loadHidden()
+  };
 
   const dom = {
     subtitle: () => document.getElementById('page-subtitle'), filteredStats: () => document.getElementById('filtered-stats'),
@@ -194,7 +372,7 @@ const App = (function () {
   function formatDate(value) {
     if (!value) return '';
     let d = new Date(value); if (isNaN(d.getTime())) return String(value);
-    return `${String(d.getDate()).padStart(2, '0')}-${MONTHS[d.getMonth()]}-${String(d.getFullYear()).slice(-2)}`;
+    return `${MONTHS[d.getMonth()]}-${String(d.getFullYear()).slice(-2)}`;
   }
   function formatNumber(n) { if (!n) return ''; const num = parseFloat(String(n).replace(/,/g, '')); return isNaN(num) ? n : num.toLocaleString('en-US'); }
   function formatPayment(v) { if (v === undefined || v === '') return ''; const num = parseFloat(v); return isNaN(num) ? v : Math.round(num * 100) + '%'; }
@@ -236,6 +414,31 @@ const App = (function () {
     if (dom.filters.orderTo()) dom.filters.orderTo().addEventListener('change', (e) => { state.orderTo = e.target.value; applyFilters(); });
     document.querySelectorAll('.quick-btn').forEach(btn => btn.addEventListener('click', () => { state.quickPreset = btn.getAttribute('data-preset'); applyFilters(); }));
     dom.filters.status().addEventListener('change', updateOrderDateVisibility);
+    
+    // Columns Button Logic
+    const colsBtn = document.getElementById('columns-btn');
+    const colsPanel = document.getElementById('columns-panel');
+    if (colsBtn && colsPanel) {
+      colsPanel.innerHTML = COLUMNS.filter(c => c.key !== '__row__').map(c => {
+        const checked = state.hiddenColumns.has(c.key) ? '' : 'checked';
+        return `<label><input type="checkbox" data-key="${c.key}" ${checked}> ${c.label}</label>`;
+      }).join('');
+      colsPanel.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        cb.addEventListener('change', () => {
+          if (cb.checked) state.hiddenColumns.delete(cb.getAttribute('data-key'));
+          else state.hiddenColumns.add(cb.getAttribute('data-key'));
+          localStorage.setItem(LS_KEY, JSON.stringify([...state.hiddenColumns]));
+          render();
+        });
+      });
+      colsBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        colsPanel.style.display = colsPanel.style.display === 'none' ? 'block' : 'none';
+      });
+      document.addEventListener('click', (e) => {
+        if (!colsPanel.contains(e.target) && e.target !== colsBtn) colsPanel.style.display = 'none';
+      });
+    }
   }
 
   function updateOrderDateVisibility() {
@@ -391,8 +594,25 @@ const App = (function () {
       return state.sortAsc ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
     });
 
-    const isOrderedFilter = (dom.filters.status().value || '').toLowerCase() === 'ordered';
-    dom.tableHead().innerHTML = '<tr>' + COLUMNS.map(c => {
+    const visibleCols = COLUMNS.filter(c => c.key === '__row__' || !state.hiddenColumns.has(c.key));
+    const isOrderedFilter = (dom.filters.status().value || '').toLowerCase() === 'ordered' || state.quickPreset !== '';
+    
+    const tableEl = document.getElementById('report-table');
+    if (tableEl) {
+      if (tableEl.querySelector('colgroup')) tableEl.querySelector('colgroup').remove();
+      const colgroup = document.createElement('colgroup');
+      visibleCols.forEach(c => {
+        const col = document.createElement('col');
+        if (c.key === 'Inquiry No') col.style.maxWidth = '140px';
+        else if (c.key === 'Customer') col.style.maxWidth = '180px';
+        else if (c.key === 'PI') col.style.maxWidth = '120px';
+        else if (c.key === 'Product') col.style.maxWidth = '120px';
+        colgroup.appendChild(col);
+      });
+      tableEl.insertBefore(colgroup, tableEl.firstChild);
+    }
+    
+    dom.tableHead().innerHTML = '<tr>' + visibleCols.map(c => {
       const icon = state.sortKey === c.key ? (state.sortAsc ? ' ▲' : ' ▼') : '';
       const label = (c.key === 'Date-Ordered' && isOrderedFilter) ? 'PO Date' : c.label;
       const isDateCol = DATE_FILTER_KEYS.includes(c.key);
@@ -403,10 +623,10 @@ const App = (function () {
 
     dom.tableHead().querySelectorAll('.date-filter-btn').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); openDatePopup(btn.getAttribute('data-key'), btn.parentElement); }));
 
-    if (!rows.length) { dom.tableBody().innerHTML = `<tr><td colspan="${COLUMNS.length}" class="empty-state">No records found.</td></tr>`; return; }
+    if (!rows.length) { dom.tableBody().innerHTML = `<tr><td colspan="${visibleCols.length}" class="empty-state">No records found.</td></tr>`; return; }
 
     dom.tableBody().innerHTML = rows.map((r, idx) => {
-      const mainRow = '<tr class="main-row" data-idx="' + idx + '">' + COLUMNS.map(c => {
+      const mainRow = '<tr class="main-row" data-idx="' + idx + '">' + visibleCols.map(c => {
         if (c.key === '__row__') return `<td style="color:#9ca3af;text-align:right;white-space:nowrap;"><span class="expand-btn" data-idx="${idx}" style="display:inline-block;width:14px;cursor:pointer;color:#2563eb;user-select:none;">▶</span> ${idx + 1}</td>`;
         let val = r[c.key] ?? '';
         if (DATE_FILTER_KEYS.includes(c.key)) val = formatDate(val);
@@ -422,11 +642,11 @@ const App = (function () {
           const cls = String(val).toLowerCase().replace(/\s+/g, '-');
           return `<td class="status-${cls}">${val}</td>`;
         }
-        return `<td>${val}</td>`;
+        return `<td title="${String(val).replace(/"/g, '&quot;')}">${val}</td>`;
       }).join('') + '</tr>';
 
       const detailRow = '<tr class="detail-row" data-idx="' + idx + '" style="display:none;background:#f9fafb;">' +
-        '<td colspan="' + COLUMNS.length + '" style="padding:8px 12px;">' +
+        '<td colspan="' + visibleCols.length + '" style="padding:8px 12px;">' +
           '<div style="display:flex;flex-wrap:wrap;gap:20px;font-size:0.78rem;">' +
             '<div><div style="font-size:0.65rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.03em;">Last Offer to Customer</div><div>' + (r['Actions Final sent Offer'] || '—') + '</div></div>' +
             '<div><div style="font-size:0.65rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.03em;">Last Action Date</div><div>' + (r['Date AF'] ? formatDate(r['Date AF']) : '—') + '</div></div>' +
@@ -467,8 +687,693 @@ const App = (function () {
     state.dateFilters = {}; state.quickPreset = ''; state.orderFrom = ''; state.orderTo = ''; state.sortKey = ''; state.sortAsc = true;
     applyFilters();
   }
+  
+  function getState() {
+      return state; 
+  }
 
-  return { init, sortTable, resetFilters };
+  return { init, sortTable, resetFilters, getState }; 
+})();
+</script>
+
+<!-- REPORTING MODULE -->
+<script>
+const Reports = (function() {
+    let currentReport = 'allOrdered'; 
+    let isExpanded = false;
+    let sortKey = '';
+    let sortAsc = true;
+    let currentRawData = [];
+    let hiddenCols = new Set(); 
+    
+    function loadHiddenCols() {
+        try {
+            const saved = JSON.parse(localStorage.getItem('rep_hidden_cols') || '{}');
+            if (saved[currentReport]) {
+                hiddenCols = new Set(saved[currentReport]);
+            } else {
+                hiddenCols = new Set();
+                if (REPORT_SCHEMAS[currentReport]) {
+                    REPORT_SCHEMAS[currentReport].cols.forEach(c => {
+                        if (c.defaultHidden) hiddenCols.add(c.key);
+                    });
+                }
+            }
+        } catch(e) { hiddenCols = new Set(); }
+    }
+    function saveHiddenCols() {
+        try {
+            const saved = JSON.parse(localStorage.getItem('rep_hidden_cols') || '{}');
+            saved[currentReport] = [...hiddenCols];
+            localStorage.setItem('rep_hidden_cols', JSON.stringify(saved));
+        } catch(e) {}
+    }
+
+    const REPORT_SCHEMAS = {
+        allOrdered: {
+            cols: [
+                { key: 'Customer', label: 'Customer', w: '15%' },
+                { key: 'Product', label: 'Product', w: '8%' },
+                { key: 'INQ', label: 'INQ', w: '10%' },
+                { key: 'PI', label: 'PI', w: '10%' },
+                { key: 'PO Date', label: 'PO Date', w: '8%', isDate: true },
+                { key: 'Shipment Status', label: 'Shipment', w: '10%' },
+                { key: 'Ship Date', label: 'Ship Date', w: '8%', isDate: true },
+                { key: 'Invoice Date', label: 'Invoice', w: '8%', isDate: true },
+                { key: 'Amount', label: 'Amount', w: '8%', isNum: true },
+                { key: 'Currency', label: 'Currency', w: '5%' },
+                { key: 'Terms', label: 'Terms', w: '5%' },
+                { key: 'Payment %', label: 'Paid %', w: '5%', isNum: true },
+                { key: 'Payment Date', label: 'Pay Date', w: '8%', isDate: true, defaultHidden: true }
+            ]
+        },
+        delayedOrders: {
+            cols: [
+                { key: 'Customer', label: 'Customer', w: '15%' },
+                { key: 'Product', label: 'Product', w: '8%' },
+                { key: 'INQ', label: 'INQ', w: '10%' },
+                { key: 'PI', label: 'PI', w: '10%' },
+                { key: 'PO Date', label: 'PO Date', w: '8%', isDate: true },
+                { key: 'Months Overdue', label: 'Months Late', w: '8%', isNum: true },
+                { key: 'Shipment Status', label: 'Shipment', w: '10%' },
+                { key: 'Amount', label: 'Amount', w: '8%', isNum: true },
+                { key: 'Currency', label: 'Currency', w: '5%' },
+                { key: 'Terms', label: 'Terms', w: '5%' },
+                { key: 'Payment %', label: 'Paid %', w: '5%', isNum: true }
+            ]
+        },
+        completedOrders: {
+            cols: [
+                { key: 'Customer', label: 'Customer', w: '15%' },
+                { key: 'Product', label: 'Product', w: '8%' },
+                { key: 'INQ', label: 'INQ', w: '10%' },
+                { key: 'PI', label: 'PI', w: '10%' },
+                { key: 'PO Date', label: 'PO Date', w: '8%', isDate: true },
+                { key: 'Shipment Status', label: 'Shipment', w: '10%' },
+                { key: 'Ship Date', label: 'Ship Date', w: '8%', isDate: true },
+                { key: 'Invoice Date', label: 'Invoice', w: '8%', isDate: true },
+                { key: 'Amount', label: 'Amount', w: '8%', isNum: true },
+                { key: 'Currency', label: 'Currency', w: '5%' },
+                { key: 'Terms', label: 'Terms', w: '5%' },
+                { key: 'Payment %', label: 'Paid %', w: '5%', isNum: true },
+                { key: 'Payment Date', label: 'Pay Date', w: '8%', isDate: true }
+            ]
+        },
+        openOrders: {
+            cols: [
+                { key: 'Customer', label: 'Customer', w: '15%' },
+                { key: 'Product', label: 'Product', w: '8%' },
+                { key: 'INQ', label: 'INQ', w: '10%' },
+                { key: 'PI', label: 'PI', w: '10%' },
+                { key: 'PO Date', label: 'PO Date', w: '8%', isDate: true },
+                { key: 'Amount', label: 'Amount', w: '8%', isNum: true },
+                { key: 'Currency', label: 'Currency', w: '5%' },
+                { key: 'Terms', label: 'Terms', w: '5%' },
+                { key: 'Payment %', label: 'Paid %', w: '8%', isNum: true },
+                { key: 'Shipment Status', label: 'Shipment', w: '10%', defaultHidden: true },
+                { key: 'Ship Date', label: 'Ship Date', w: '8%', isDate: true, defaultHidden: true },
+                { key: 'Invoice Date', label: 'Invoice', w: '8%', isDate: true, defaultHidden: true },
+                { key: 'Payment Date', label: 'Pay Date', w: '8%', isDate: true, defaultHidden: true }
+            ]
+        },
+        awaitingShipment: {
+            cols: [
+                { key: 'Customer', label: 'Customer', w: '15%' },
+                { key: 'Product', label: 'Product', w: '8%' },
+                { key: 'INQ', label: 'INQ', w: '10%' },
+                { key: 'PI', label: 'PI', w: '10%' },
+                { key: 'PO Date', label: 'PO Date', w: '8%', isDate: true },
+                { key: 'Shipment Status', label: 'Shipment', w: '10%' },
+                { key: 'Amount', label: 'Amount', w: '8%', isNum: true },
+                { key: 'Currency', label: 'Currency', w: '5%' },
+                { key: 'Terms', label: 'Terms', w: '5%' },
+                { key: 'Payment %', label: 'Paid %', w: '5%', isNum: true },
+                { key: 'Ship Date', label: 'Ship Date', w: '8%', isDate: true, defaultHidden: true }
+            ]
+        },
+        awaitingInvoice: {
+            cols: [
+                { key: 'Customer', label: 'Customer', w: '15%' },
+                { key: 'Product', label: 'Product', w: '8%' },
+                { key: 'INQ', label: 'INQ', w: '10%' },
+                { key: 'PI', label: 'PI', w: '10%' },
+                { key: 'PO Date', label: 'PO Date', w: '8%', isDate: true },
+                { key: 'Shipment Status', label: 'Shipment', w: '10%' },
+                { key: 'Ship Date', label: 'Ship Date', w: '8%', isDate: true },
+                { key: 'Amount', label: 'Amount', w: '8%', isNum: true },
+                { key: 'Currency', label: 'Currency', w: '5%' },
+                { key: 'Terms', label: 'Terms', w: '5%' },
+                { key: 'Payment %', label: 'Paid %', w: '8%', isNum: true },
+                { key: 'Invoice Date', label: 'Invoice', w: '8%', isDate: true, defaultHidden: true },
+                { key: 'Payment Date', label: 'Pay Date', w: '8%', isDate: true, defaultHidden: true }
+            ]
+        },
+        awaitingPayment: {
+            cols: [
+                { key: 'Customer', label: 'Customer', w: '15%' },
+                { key: 'Product', label: 'Product', w: '8%' },
+                { key: 'INQ', label: 'INQ', w: '10%' },
+                { key: 'PO Date', label: 'PO Date', w: '8%', isDate: true },
+                { key: 'Invoice Date', label: 'Invoice', w: '8%', isDate: true },
+                { key: 'Amount', label: 'Amount', w: '8%', isNum: true },
+                { key: 'Currency', label: 'Currency', w: '5%' },
+                { key: 'Terms', label: 'Terms', w: '5%' },
+                { key: 'Payment %', label: 'Paid %', w: '8%', isNum: true },
+                { key: 'PI', label: 'PI', w: '10%', defaultHidden: true },
+                { key: 'Shipment Status', label: 'Shipment', w: '10%', defaultHidden: true },
+                { key: 'Ship Date', label: 'Ship Date', w: '8%', isDate: true, defaultHidden: true },
+                { key: 'Payment Date', label: 'Pay Date', w: '8%', isDate: true, defaultHidden: true }
+            ]
+        },
+        ordersByCustomer: {
+            cols: [
+                { key: 'Customer', label: 'Customer', w: '30%' },
+                { key: 'Orders', label: 'Orders', w: '10%', isNum: true },
+                { key: 'USD', label: 'USD', w: '15%', isNum: true },
+                { key: 'EUR', label: 'EUR', w: '15%', isNum: true },
+                { key: 'Rial', label: 'Rial', w: '15%', isNum: true },
+                { key: 'AED', label: 'AED', w: '15%', isNum: true }
+            ]
+        },
+        ordersByProduct: {
+            cols: [
+                { key: 'Product', label: 'Product', w: '30%' },
+                { key: 'Orders', label: 'Orders', w: '10%', isNum: true },
+                { key: 'USD', label: 'USD', w: '15%', isNum: true },
+                { key: 'EUR', label: 'EUR', w: '15%', isNum: true },
+                { key: 'Rial', label: 'Rial', w: '15%', isNum: true },
+                { key: 'AED', label: 'AED', w: '15%', isNum: true }
+            ]
+        },
+        paymentSummary: {
+            cols: [
+                { key: 'Currency', label: 'Currency', w: '20%' },
+                { key: 'Total Orders', label: 'Total Orders', w: '20%', isNum: true },
+                { key: 'Total Amount', label: 'Total Amount', w: '20%', isNum: true },
+                { key: 'Paid Amount', label: 'Paid Amount', w: '20%', isNum: true },
+                { key: 'Unpaid Amount', label: 'Unpaid Amount', w: '20%', isNum: true }
+            ]
+        },
+        customerSales: {
+            cols: [
+                { key: 'Customer', label: 'Customer', w: '30%' },
+                { key: 'Currency', label: 'Currency', w: '10%' },
+                { key: 'Orders', label: 'Orders', w: '10%', isNum: true },
+                { key: 'Total Sales', label: 'Total Sales', w: '20%', isNum: true },
+                { key: 'Paid', label: 'Paid', w: '15%', isNum: true },
+                { key: 'Unpaid', label: 'Unpaid', w: '15%', isNum: true }
+            ]
+        }
+    };
+
+    function parsePrice(val) {
+        if (!val) return 0;
+        const num = parseFloat(String(val).replace(/,/g, ''));
+        return isNaN(num) ? 0 : num;
+    }
+
+    function getCurrency(row) {
+        let cur = row['Price Unit'] || '';
+        const isOut = cur.includes('(Out)');
+        cur = cur.replace(' (Out)', '').trim().toLowerCase();
+        return { name: cur, isOut: isOut };
+    }
+
+    function fmtNum(n) {
+        return n.toLocaleString('en-US', { maximumFractionDigits: 0 });
+    }
+
+    function prepareData(type, rows) {
+        const fCust = document.getElementById('rep-f-customer').value;
+        const fCur = document.getElementById('rep-f-currency').value;
+        const fReg = document.getElementById('rep-f-region').value;
+        const fTerms = document.getElementById('rep-f-terms').value;
+
+        let filtered = rows.filter(r => {
+            if (fCust && r.Customer !== fCust) return false;
+            const curObj = getCurrency(r);
+            if (fCur && curObj.name !== fCur) return false;
+            if (fReg === 'domestic' && curObj.isOut) return false;
+            if (fReg === 'foreign' && !curObj.isOut) return false;
+            if (fTerms && r['Terms of Delivery'] !== fTerms) return false;
+            if (String(r['The order was sent']).includes('Canceled by ESA')) return false;
+            return true;
+        });
+
+        let data = [];
+        let title = "";
+        let subtitle = ""; // ? اضافه کردن این خط
+        const getTime = (d) => d ? new Date(d).getTime() : 0;
+        const getPrice = (p) => parseFloat(String(p).replace(/,/g, '')) || 0;
+
+        const extractRow = (r) => {
+            return {
+                'Customer': r.Customer || '',
+                'Product': r.Product || '',
+                'INQ': String(r['Inquiry No'] || '').split('\n')[0],
+                'PI': (r['PI-C'] || '') + (r['PI-T'] ? ' / ' + r['PI-T'] : ''),
+                'PO Date': r['Date-Ordered'] ? new Date(r['Date-Ordered']).toLocaleDateString('en-GB', {month:'short', year:'numeric'}) : '',
+                'Shipment Status': (() => {
+                    const s = String(r['The order was sent'] || '');
+                    const m = s.match(/\(([^)]+)\)/); // پیدا کردن محتوای داخل پرانتز
+                    return m ? m[1].trim() : s;       // اگر پرانتز بود، فقط داخلش را برگردان
+                })(),
+                'Ship Date': r['date sent'] ? new Date(r['date sent']).toLocaleDateString('en-GB', {month:'short', year:'numeric'}) : '',
+                'Invoice Date': r['sent invoice'] ? new Date(r['sent invoice']).toLocaleDateString('en-GB', {month:'short', year:'numeric'}) : '',
+                'Amount': getPrice(r.Price),
+                'Currency': r['Price Unit'] || '',
+                'Terms': r['Terms of Delivery'] || '',
+                'Payment %': Math.round((parseFloat(r['Payment Received']) || 0) * 100),
+                'Payment Date': r['Date Payment Received'] ? new Date(r['Date Payment Received']).toLocaleDateString('en-GB', {month:'short', year:'numeric'}) : '',
+                _rawPODate: getTime(r['Date-Ordered']),
+                _rawShipDate: getTime(r['date sent']),
+                _rawInvDate: getTime(r['sent invoice']),
+                _rawPayDate: getTime(r['Date Payment Received']),
+                _rawPrice: getPrice(r.Price)
+            };
+        };
+
+        if (type === 'allOrdered') {
+            title = "All Ordered (Regardless of Payment/Shipping)";
+            filtered.filter(r => String(r.Status || '').toLowerCase() === 'ordered').forEach(r => { data.push(extractRow(r)); });
+        } 
+        else if (type === 'delayedOrders') {
+            title = "Delayed Orders";
+            subtitle = "Calculated based on PO Date (older than 180 days & not fully shipped)"; // ? اضافه کردن این خط
+            const cutoff = Date.now() - (180 * 86400000);
+            filtered.filter(r => {
+                if (String(r.Status || '').toLowerCase() !== 'ordered') return false;
+                if (String(r['The order was sent']).includes('Complete')) return false;
+                const d = getTime(r['Date-Ordered']);
+                return d > 0 && d < cutoff;
+            }).forEach(r => {
+                let row = extractRow(r);
+                row['Months Overdue'] = Math.floor((Date.now() - getTime(r['Date-Ordered'])) / (30 * 86400000));
+                data.push(row);
+            });
+        }
+        else if (type === 'completedOrders') {
+            title = "Completed Orders (100% Paid)";
+            filtered.filter(r => (parseFloat(r['Payment Received']) || 0) >= 1).forEach(r => { data.push(extractRow(r)); });
+        }
+        else if (type === 'openOrders') {
+            title = "Open Orders (Ordered & Unpaid)";
+            filtered.filter(r => String(r.Status || '').toLowerCase() === 'ordered' && (parseFloat(r['Payment Received']) || 0) < 1).forEach(r => { data.push(extractRow(r)); });
+        }
+        else if (type === 'awaitingShipment') {
+            title = "Awaiting Shipment (Ordered, not fully shipped)";
+            filtered.filter(r => {
+                const status = String(r.Status || '').toLowerCase();
+                const ship = String(r['The order was sent'] || '');
+                return status === 'ordered' && !ship.includes('Complete');
+            }).forEach(r => { data.push(extractRow(r)); });
+        }
+        else if (type === 'awaitingInvoice') {
+            title = "Awaiting Invoice (Shipped, but not invoiced)";
+            filtered.filter(r => {
+                const ship = String(r['The order was sent'] || '');
+                const inv = !!r['sent invoice'];
+                return (ship.includes('Complete') || ship.includes('Partial')) && !inv;
+            }).forEach(r => { data.push(extractRow(r)); });
+        }
+        else if (type === 'awaitingPayment') {
+            title = "Awaiting Payment (Invoice Sent, Not Fully Paid)";
+            filtered.filter(r => !!r['sent invoice'] && (parseFloat(r['Payment Received']) || 0) < 1).forEach(r => { data.push(extractRow(r)); });
+        }
+        else if (type === 'ordersByCustomer' || type === 'ordersByProduct') {
+            const isCust = (type === 'ordersByCustomer');
+            title = isCust ? "Orders by Customer (Grouped)" : "Orders by Product (Grouped)";
+            let summary = {};
+            filtered.filter(r => String(r.Status || '').toLowerCase() === 'ordered').forEach(r => {
+                const keyName = isCust ? (r.Customer || 'Unknown') : (r.Product || 'Unknown');
+                const cur = getCurrency(r).name;
+                if (!cur) return;
+                const key = `${keyName}|${cur}`;
+                if (!summary[key]) summary[key] = { name: keyName, cur, total: 0, count: 0 };
+                summary[key].count++;
+                summary[key].total += getPrice(r.Price);
+            });
+            
+            let groups = {};
+            Object.values(summary).forEach(s => {
+                if (!groups[s.name]) groups[s.name] = { 'name': s.name, 'Orders': 0, 'USD': 0, 'EUR': 0, 'Rial': 0, 'AED': 0 };
+                groups[s.name]['Orders'] += s.count;
+                let cName = s.cur.charAt(0).toUpperCase() + s.cur.slice(1);
+                if (cName === 'Rial') cName = 'Rial';
+                if (groups[s.name][cName] !== undefined) groups[s.name][cName] += s.total;
+            });
+            
+            Object.values(groups).forEach(c => {
+                let row = {
+                    [isCust ? 'Customer' : 'Product']: c.name,
+                    'Orders': c.Orders,
+                    'USD': c.USD > 0 ? fmtNum(c.USD) : '',
+                    'EUR': c.EUR > 0 ? fmtNum(c.EUR) : '',
+                    'Rial': c.Rial > 0 ? fmtNum(c.Rial) : '',
+                    'AED': c.AED > 0 ? fmtNum(c.AED) : '',
+                    _rawOrders: c.Orders, _rawUSD: c.USD, _rawEUR: c.EUR, _rawRial: c.Rial, _rawAED: c.AED
+                };
+                data.push(row);
+            });
+        }
+        else if (type === 'paymentSummary') {
+            title = "Payment Summary";
+            let summary = {};
+            filtered.forEach(r => {
+                if (String(r.Status || '').toLowerCase() !== 'ordered') return;
+                const pay = parseFloat(r['Payment Received']) || 0;
+                const price = getPrice(r.Price);
+                const cur = getCurrency(r).name;
+                if (!cur) return;
+                if (!summary[cur]) summary[cur] = { paid: 0, paidAmt: 0, partial: 0, partialAmt: 0, unpaid: 0, unpaidAmt: 0, totalAmt: 0 };
+                summary[cur].totalAmt += price;
+                if (pay >= 1) { summary[cur].paid++; summary[cur].paidAmt += price; }
+                else if (pay > 0) { summary[cur].partial++; summary[cur].partialAmt += (price * pay); }
+                else { summary[cur].unpaid++; summary[cur].unpaidAmt += price; }
+            });
+            Object.keys(summary).forEach(cur => {
+                data.push({
+                    'Currency': cur.toUpperCase(),
+                    'Total Orders': summary[cur].paid + summary[cur].partial + summary[cur].unpaid,
+                    'Total Amount': fmtNum(summary[cur].totalAmt),
+                    'Paid Amount': fmtNum(summary[cur].paidAmt + summary[cur].partialAmt),
+                    'Unpaid Amount': fmtNum(summary[cur].unpaidAmt),
+                    _rawOrders: summary[cur].paid + summary[cur].partial + summary[cur].unpaid,
+                    _rawTotal: summary[cur].totalAmt, _rawPaid: summary[cur].paidAmt + summary[cur].partialAmt, _rawUnpaid: summary[cur].unpaidAmt
+                });
+            });
+        } 
+        else if (type === 'customerSales') {
+            title = "Customer Sales Summary";
+            let summary = {};
+            filtered.forEach(r => {
+                if (String(r.Status || '').toLowerCase() !== 'ordered') return;
+                const cust = r.Customer || 'Unknown';
+                const pay = parseFloat(r['Payment Received']) || 0;
+                const price = getPrice(r.Price);
+                const cur = getCurrency(r).name;
+                if (!cur) return;
+                const key = `${cust}|${cur}`;
+                if (!summary[key]) summary[key] = { cust, cur, total: 0, paid: 0, unpaid: 0, count: 0 };
+                summary[key].count++;
+                summary[key].total += price;
+                summary[key].paid += (price * pay);
+                summary[key].unpaid += (price * (1 - pay));
+            });
+            Object.values(summary).forEach(s => {
+                data.push({
+                    'Customer': s.cust,
+                    'Currency': s.cur.toUpperCase(),
+                    'Orders': s.count,
+                    'Total Sales': fmtNum(s.total),
+                    'Paid': fmtNum(s.paid),
+                    'Unpaid': fmtNum(s.unpaid),
+                    _rawOrders: s.count, _rawTotal: s.total, _rawPaid: s.paid, _rawUnpaid: s.unpaid
+                });
+            });
+        }
+
+        return { data, title, subtitle, schema: REPORT_SCHEMAS[type] }; // ? subtitle اضافه شد
+    }
+
+    function renderTable() {
+        const { data, title, subtitle, schema } = prepareData(currentReport, App.getState().rows);
+        const titleEl = document.getElementById('report-title');
+        if (subtitle) {
+            titleEl.innerHTML = `<div>${title}</div><div style="font-size:0.7rem; font-weight:normal; color:#6b7280; margin-top:2px;">${subtitle}</div>`;
+        } else {
+            titleEl.textContent = title;
+        }
+
+        let sortedData = [...data];
+        if (sortKey) {
+            const colDef = schema.cols.find(c => c.key === sortKey);
+            sortedData.sort((a, b) => {
+                let va = a[sortKey], vb = b[sortKey];
+                
+                // ? سورت دقیق تاریخ‌ها و اعداد
+                if (colDef && colDef.isDate) {
+                    let ta = 0, tb = 0;
+                    if (sortKey === 'PO Date') { ta = a._rawPODate || 0; tb = b._rawPODate || 0; }
+                    else if (sortKey === 'Ship Date') { ta = a._rawShipDate || 0; tb = b._rawShipDate || 0; }
+                    else if (sortKey === 'Invoice Date') { ta = a._rawInvDate || 0; tb = b._rawInvDate || 0; }
+                    else if (sortKey === 'Payment Date') { ta = a._rawPayDate || 0; tb = b._rawPayDate || 0; }
+                    else { 
+                        // پشتیبانی از حالت پیش‌فرض
+                        ta = new Date(va).getTime() || 0; 
+                        tb = new Date(vb).getTime() || 0; 
+                    }
+                    return sortAsc ? ta - tb : tb - ta;
+                }
+                
+                if (colDef && colDef.isNum) {
+                    const na = (a._rawPrice !== undefined && sortKey === 'Amount') ? a._rawPrice : (parseFloat(String(va).replace(/,/g, '')) || 0);
+                    const nb = (b._rawPrice !== undefined && sortKey === 'Amount') ? b._rawPrice : (parseFloat(String(vb).replace(/,/g, '')) || 0);
+                    return sortAsc ? na - nb : nb - na;
+                }
+                
+                if (colDef && colDef.isNum) {
+                    const na = parseFloat(String(va).replace(/,/g, '')) || 0;
+                    const nb = parseFloat(String(vb).replace(/,/g, '')) || 0;
+                    return sortAsc ? na - nb : nb - na;
+                }
+                
+                const sa = String(va).toUpperCase();
+                const sb = String(vb).toUpperCase();
+                if (sa < sb) return sortAsc ? -1 : 1;
+                if (sa > sb) return sortAsc ? 1 : -1;
+                return 0;
+            });
+        }
+
+        // ? مرجع ترتیب دقیق ستون‌ها (مطابق شیت مادر)
+        const MASTER_ORDER = [
+            'Customer', 'Product', 'INQ', 'PI', 'PO Date', 'Shipment Status', 
+            'Ship Date', 'Invoice Date', 'Amount', 'Currency', 'Terms', 
+            'Payment %', 'Payment Date', 'Months Overdue', 'Orders', 'USD', 'EUR', 'Rial', 'AED',
+            'Total Orders', 'Total Amount', 'Paid Amount', 'Unpaid Amount', 'Total Sales', 'Paid', 'Unpaid'
+        ];
+
+        // مرتب‌سازی ستون‌ها بر اساس ترتیب مرجع، و سپس فیلتر کردن ستون‌های مخفی
+        const sortedCols = [...schema.cols].sort((a, b) => {
+            let idxA = MASTER_ORDER.indexOf(a.key);
+            let idxB = MASTER_ORDER.indexOf(b.key);
+            if (idxA === -1) idxA = 999;
+            if (idxB === -1) idxB = 999;
+            return idxA - idxB;
+        });
+
+        const visibleCols = sortedCols.filter(c => !hiddenCols.has(c.key));
+
+        let theadHtml = '<tr><th style="width: 40px; text-align: center;">#</th>';
+        visibleCols.forEach(c => {
+            const icon = sortKey === c.key ? (sortAsc ? ' ▲' : ' ▼') : '';
+            theadHtml += `<th data-key="${c.key}" style="text-align:${c.isNum ? 'right' : 'left'}; white-space: nowrap;">${c.label}${icon}</th>`;
+        });
+        theadHtml += '</tr>';
+
+        let tbodyHtml = '';
+        if (sortedData.length === 0) {
+            tbodyHtml = `<tr><td colspan="${visibleCols.length + 1}" style="text-align:center; padding:20px; color:#6b7280;">No data found.</td></tr>`;
+        } else {
+            sortedData.forEach((row, index) => {
+                tbodyHtml += '<tr>';
+                // ? اضافه کردن سلول شماره ردیف
+                tbodyHtml += `<td style="text-align:center; color:#9ca3af;">${index + 1}</td>`;
+                visibleCols.forEach(c => {
+                    let val = row[c.key];
+                    if (c.isNum && typeof val === 'number') val = val.toLocaleString('en-US');
+                    tbodyHtml += `<td style="text-align:${c.isNum ? 'right' : 'left'};" title="${val}">${val}</td>`;
+                });
+                tbodyHtml += '</tr>';
+            });
+        }
+
+        // 1. تزریق کادر خلاصه در بالای جدول (ثابت)
+        document.getElementById('report-summary-container').innerHTML = `
+            <div class="report-summary" style="margin-bottom: 12px;">
+                Total Records: <b>${data.length}</b>
+            </div>
+        `;
+
+        // 2. تزریق جدول در کادر اسکرول‌شونده
+        const tableHtml = `
+            <table class="report-table">
+                <thead>${theadHtml}</thead>
+                <tbody>${tbodyHtml}</tbody>
+            </table>
+        `;
+        
+        document.getElementById('report-content').innerHTML = tableHtml;
+
+        document.querySelectorAll('#report-content th').forEach(th => {
+            th.addEventListener('click', () => {
+                const key = th.getAttribute('data-key');
+                if (sortKey === key) sortAsc = !sortAsc;
+                else { sortKey = key; sortAsc = true; }
+                renderTable();
+            });
+        });
+
+        updateColsPanel(schema);
+    }
+
+    function updateColsPanel(schema) {
+        const panel = document.getElementById('rep-cols-panel');
+        const btn = document.getElementById('rep-cols-btn');
+        
+        if (!schema || schema.cols.length === 0) {
+            btn.style.display = 'none';
+            return;
+        }
+        btn.style.display = 'flex';
+
+        // ? مرجع ترتیب ستون‌ها دقیقاً مطابق شیت مادر
+        const MASTER_ORDER = [
+            'Customer', 'Product', 'INQ', 'PI', 'PO Date', 'Shipment Status', 
+            'Ship Date', 'Invoice Date', 'Amount', 'Currency', 'Terms', 
+            'Payment %', 'Payment Date', 'Months Overdue'
+        ];
+
+        // مرتب‌سازی ستون‌های فعلی بر اساس ترتیب مرجع
+        const sortedCols = [...schema.cols].sort((a, b) => {
+            let idxA = MASTER_ORDER.indexOf(a.key);
+            let idxB = MASTER_ORDER.indexOf(b.key);
+            
+            // اگر ستونی در مرجع نبود، به آخر لیست می‌رود
+            if (idxA === -1) idxA = 999;
+            if (idxB === -1) idxB = 999;
+            
+            return idxA - idxB;
+        });
+
+        panel.innerHTML = sortedCols.map(c => {
+            const checked = hiddenCols.has(c.key) ? '' : 'checked';
+            return `<label><input type="checkbox" data-key="${c.key}" ${checked}> ${c.label}</label>`;
+        }).join('');
+
+        panel.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+            cb.addEventListener('change', () => {
+                if (cb.checked) hiddenCols.delete(cb.getAttribute('data-key'));
+                else hiddenCols.add(cb.getAttribute('data-key'));
+                saveHiddenCols();
+                renderTable(); 
+            });
+        });
+    }
+
+    function init() {
+        const modal = document.getElementById('reports-modal');
+        const modalBox = document.getElementById('reports-modal-box');
+        const btnOpen = document.getElementById('reports-btn');
+        const btnClose = document.getElementById('close-reports');
+        const btnApply = document.getElementById('btn-apply-rep-filters');
+        const btnReset = document.getElementById('reset-reports');
+        const btnExpand = document.getElementById('expand-reports');
+        const btnCols = document.getElementById('rep-cols-btn');
+        const panelCols = document.getElementById('rep-cols-panel');
+        const btns = document.querySelectorAll('.report-btn');
+
+        btnOpen.addEventListener('click', () => {
+            modal.style.display = 'flex';
+            populateFilters();
+            loadHiddenCols();
+            sortKey = ''; sortAsc = true; 
+            renderTable();
+        });
+
+        btnClose.addEventListener('click', () => {
+            modal.style.display = 'none';
+            if (isExpanded) btnExpand.click(); 
+        });
+
+        btns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                btns.forEach(b => { b.style.background = 'transparent'; b.style.color = '#4b5563'; });
+                btn.style.background = '#e0e7ff'; btn.style.color = '#3730a3';
+                currentReport = btn.getAttribute('data-report');
+                loadHiddenCols();
+                sortKey = ''; sortAsc = true; 
+                renderTable();
+            });
+        });
+
+        btnApply.addEventListener('click', renderTable);
+
+        btnReset.addEventListener('click', () => {
+            document.getElementById('rep-f-customer').value = '';
+            document.getElementById('rep-f-currency').value = '';
+            document.getElementById('rep-f-region').value = '';
+            document.getElementById('rep-f-terms').value = '';
+            renderTable();
+        });
+
+        btnExpand.addEventListener('click', () => {
+            isExpanded = !isExpanded;
+            if (isExpanded) {
+                modalBox.style.width = '100vw'; modalBox.style.maxWidth = '100vw';
+                modalBox.style.height = '100vh'; modalBox.style.borderRadius = '0';
+                btnExpand.textContent = '🗗'; btnExpand.title = 'Restore';
+            } else {
+                modalBox.style.width = '90%'; modalBox.style.maxWidth = '1100px';
+                modalBox.style.height = '85vh'; modalBox.style.borderRadius = '8px';
+                btnExpand.textContent = '⛶'; btnExpand.title = 'Maximize';
+            }
+        });
+
+        btnCols.addEventListener('click', (e) => {
+            e.stopPropagation();
+            panelCols.style.display = panelCols.style.display === 'block' ? 'none' : 'block';
+        });
+        document.addEventListener('click', (e) => {
+            if (!panelCols.contains(e.target) && e.target !== btnCols) panelCols.style.display = 'none';
+        });
+        // ? منطق تغییر عرض سایدبار با کشیدن ماوس
+        const resizer = document.getElementById('sidebar-resizer');
+        const sidebar = document.getElementById('reports-sidebar');
+        let isResizing = false;
+
+        resizer.addEventListener('mousedown', (e) => {
+            isResizing = true;
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none'; // جلوگیری از انتخاب متن هنگام کشیدن
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+            const modalBox = document.getElementById('reports-modal-box').getBoundingClientRect();
+            let newWidth = e.clientX - modalBox.left;
+            
+            // محدودیت‌های حداقل و حداکثر عرض سایدبار
+            if (newWidth < 200) newWidth = 200;
+            if (newWidth > 450) newWidth = 450;
+            
+            sidebar.style.width = newWidth + 'px';
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isResizing) {
+                isResizing = false;
+                document.body.style.cursor = '';
+                document.body.style.userSelect = '';
+            }
+        });
+    }
+
+    function populateFilters() {
+        const rows = App.getState().rows;
+        const custSelect = document.getElementById('rep-f-customer');
+        const termsSelect = document.getElementById('rep-f-terms');
+        if (custSelect.options.length > 1) return; 
+
+        const customers = [...new Set(rows.map(r => r.Customer).filter(Boolean))].sort();
+        const terms = [...new Set(rows.map(r => r['Terms of Delivery']).filter(Boolean))].sort();
+
+        customers.forEach(c => custSelect.add(new Option(c, c)));
+        terms.forEach(t => termsSelect.add(new Option(t, t)));
+    }
+
+    return { init };
 })();
 </script>
 
@@ -518,6 +1423,7 @@ async function initApp() {
       window.allRows = await tryDecrypt(input.value);
       overlay.remove();
       App.init();
+      Reports.init(); // مقداردهی اولیه گزارشات
     } catch (e) {
       console.error('login error:', e);
       err.style.display = 'block';
