@@ -86,11 +86,14 @@
   th:nth-child(4), td:nth-child(4) { width: 100px !important; max-width: 100px !important; }
 
   /* تنظیمات جدول گزارشات */
-  .report-table { width:100%; border-collapse:collapse; font-size:0.8rem; table-layout: auto; } /* auto شد */
-  .report-table th { background:#f3f4f6; color:#374151; font-weight:600; padding:8px; text-align:left; border-bottom:2px solid #e5e7eb; position: sticky; top: 0; z-index: 10; cursor: pointer; user-select: none; white-space: nowrap; }
-  .report-table th:hover { background: #e5e7eb; }
-  .report-table td { padding:8px; border-bottom:1px solid #e5e7eb; color:#4b5563; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px; }
-  .report-table tr:hover { background:#f9fafb; }
+  .report-table { width:100%; border-collapse:collapse; font-size:0.8rem; table-layout: auto; }
+  .report-table th, .report-table td { padding:8px 6px; }
+  .report-table th, .report-table td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .report-table th { background:#f3f4f6; color:#374151; font-weight:600; padding:8px; text-align:left; border-bottom:2px solid #e5e7eb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .report-table td { padding:8px; border-bottom:1px solid #e5e7eb; color:#4b5563; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .report-table tfoot tr { position: sticky; bottom: 0; z-index: 4; }
+  .report-table tfoot td { background: #f3f4f6; border-top: 2px solid #6b7280; padding: 8px 6px; white-space: nowrap; }
+  #report-content { position: relative; padding: 0 !important; }
 
   /* استایل دکمه تنظیمات ستون‌ها در گزارش */
   .col-settings-btn { position: absolute; right: 16px; top: 12px; background: #fff; border: 1px solid #d1d5db; border-radius: 4px; padding: 4px 8px; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); z-index: 20; }
@@ -98,6 +101,14 @@
   .col-settings-panel { position: absolute; right: 16px; top: 40px; background: #fff; border: 1px solid #d1d5db; border-radius: 6px; padding: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 30; width: 200px; max-height: 300px; overflow-y: auto; display: none; text-align: left; }
   .col-settings-panel label { display: flex; align-items: center; gap: 6px; padding: 4px 0; font-size: 0.75rem; cursor: pointer; }
   #sidebar-resizer:hover, #sidebar-resizer:active { background: #c7d2fe; }
+  @media print {
+    body * { visibility: hidden; }
+    #report-content, #report-content *, #report-summary-container, #report-summary-container *, #report-title, #report-title * { visibility: visible; }
+    #report-content { position: absolute; left: 0; top: 100px; width: 100%; height: auto !important; max-height: none !important; overflow: visible !important; border: none !important; }
+    #report-summary-container { position: absolute; left: 0; top: 40px; width: 100%; }
+    #report-title { position: absolute; left: 0; top: 0; width: 100%; }
+    #reports-sidebar, #sidebar-resizer, .col-settings-btn, #rep-print-btn, #rep-pdf-btn { display: none !important; }
+  }
 </style>
 </head>
 <body>
@@ -168,6 +179,7 @@
       <div style="position:relative;">
         <button class="btn btn-secondary" id="columns-btn">Columns</button>
         <button class="btn btn-secondary" id="reports-btn" style="background:#fef3c7; color:#92400e; border:1px solid #fcd34d;">📊 Reports</button>
+        <button class="btn btn-secondary" id="help-btn" style="background:#e0f2fe; color:#075985; border:1px solid #7dd3fc;">📖 Help</button>
         <div id="columns-panel" style="display:none;position:absolute;top:100%;right:0;margin-top:6px;background:#fff;border:1px solid var(--border);border-radius:6px;padding:10px;box-shadow:0 4px 16px rgba(0,0,0,0.1);z-index:300;min-width:200px;max-height:320px;overflow-y:auto;text-align:left;">
           <!-- چک‌باکس‌ها توسط JS اضافه می‌شوند -->
         </div>
@@ -235,7 +247,7 @@
       <div id="reports-sidebar" style="width:260px; min-width:200px; max-width:450px; border-right:1px solid #e5e7eb; background:#f8fafc; display:flex; flex-direction:column;">
         
         <!-- منوی انتخاب گزارش -->
-        <div style="padding:12px; border-bottom:1px solid #e5e7eb; overflow-y:auto; flex: 1;">
+        <div style="padding:12px; border-bottom:1px solid #e5e7eb; overflow-y:auto;">
           <div style="font-size:0.7rem; font-weight:700; color:#6b7280; text-transform:uppercase; margin-bottom:8px;">1. Select Report</div>
           
           <details open style="margin-bottom:8px;">
@@ -263,7 +275,7 @@
         </div>
         
         <!-- فیلترها -->
-        <div style="padding:12px; border-top:1px solid #e5e7eb; background:#fff;">
+        <div style="padding:12px; border-top:1px solid #e5e7eb; background:#fff; flex: 1; overflow-y: auto;">
           <div style="font-size:0.7rem; font-weight:700; color:#6b7280; text-transform:uppercase; margin-bottom:8px;">2. Filters</div>
           
           <label style="font-size:0.75rem; font-weight:600; color:#374151;">Customer</label>
@@ -287,7 +299,18 @@
 
           <label style="font-size:0.75rem; font-weight:600; color:#374151;">Terms of Delivery</label>
           <select id="rep-f-terms" style="width:100%; margin-bottom:12px; padding:4px; border:1px solid #d1d5db; border-radius:4px; font-size:0.8rem;"><option value="">All</option></select>
-
+          <label style="font-size:0.75rem; font-weight:600; color:#374151;">Date Filter</label>
+          <div style="display: flex; gap: 4px; margin-bottom: 8px;">
+            <select id="rep-f-date-col" style="flex: 1; min-width: 0; padding: 4px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.7rem;">
+              <option value="">No Date</option>
+              <option value="Date Of Inquiry Customer">INQ Date</option>
+              <option value="Date-Ordered">PO Date</option>
+              <option value="date sent">Ship Date</option>
+              <option value="sent invoice">Invoice Date</option>
+            </select>
+            <input type="date" id="rep-f-date-from" style="flex: 1; min-width: 0; padding: 3px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.7rem;" title="From Date">
+            <input type="date" id="rep-f-date-to" style="flex: 1; min-width: 0; padding: 3px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.7rem;" title="To Date">
+          </div>
           <button id="btn-apply-rep-filters" style="width:100%; padding:6px; background:#2563eb; color:#fff; border:none; border-radius:4px; font-weight:600; cursor:pointer; margin-bottom:6px;">Apply Filters</button>
           <button id="reset-reports" style="width:100%; padding:6px; background:#f3f4f6; color:#374151; border:1px solid #d1d5db; border-radius:4px; font-weight:600; cursor:pointer;">Reset Filters</button>
         </div>
@@ -297,14 +320,20 @@
       <div id="sidebar-resizer" style="width: 5px; cursor: col-resize; background: transparent; transition: background 0.2s; z-index: 100; flex-shrink: 0;"></div>
 
       <!-- ================= محتوای اصلی (جدول) ================= -->
-      <div style="flex:1; display:flex; flex-direction:column; background:#fff; position: relative;">
+      <!-- Content Area -->
+      <!-- Content Area -->
+      <div id="report-main-content" style="flex:1; display:flex; flex-direction:column; background:#fff; position: relative; overflow: hidden;">
         
         <!-- هدر جدول و دکمه ستون‌ها -->
         <div style="padding:12px 16px; font-weight:700; font-size:1rem; color:#1f2937; border-bottom:1px solid #e5e7eb; background:#f9fafb; display: flex; justify-content: space-between; align-items: center;">
           <span id="report-title">All Ordered</span>
-          <div style="position: relative;">
-            <button id="rep-cols-btn" class="col-settings-btn" style="position:static; box-shadow:none;">⚙️ Columns</button>
-            <div id="rep-cols-panel" class="col-settings-panel" style="right:0; top: 100%; margin-top: 4px;"></div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <button id="rep-print-btn" class="btn btn-secondary" style="padding:4px 10px; font-size:0.75rem;">🖨️ Print</button>
+            <button id="rep-pdf-btn" class="btn btn-primary" style="padding:4px 10px; font-size:0.75rem;">📄 PDF</button>
+            <div style="position: relative;">
+              <button id="rep-cols-btn" class="col-settings-btn" style="position:static; box-shadow:none;">⚙️ Columns</button>
+              <div id="rep-cols-panel" class="col-settings-panel" style="right:0; top: 100%; margin-top: 4px;"></div>
+            </div>
           </div>
         </div>
 
@@ -314,7 +343,7 @@
         </div>
 
         <!-- کادر اسکرول شونده جدول -->
-        <div id="report-content" style="flex:1; overflow-y:auto; overflow-x:auto; padding:0; max-height: calc(85vh - 150px); border: 1px solid #e5e7eb; border-radius: 6px; margin: 0 16px 16px 16px; background: #fff;">
+        <div id="report-content" style="flex:1; overflow-y:auto; overflow-x:auto; padding:0; height: calc(85vh - 160px); border: 1px solid #e5e7eb; border-radius: 6px; margin: 0 16px 16px 16px; background: #fff;">
           <!-- Report Table -->
         </div>
       </div>
@@ -322,7 +351,19 @@
     </div>
   </div>
 </div>
-
+<!-- Help Modal -->
+<div id="help-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1100; align-items:center; justify-content:center;">
+  <div style="background:#fff; border-radius:8px; width:90%; max-width:900px; height:80vh; display:flex; flex-direction:column; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+    <div style="padding:10px 16px; border-bottom:1px solid #e5e7eb; display:flex; justify-content:space-between; align-items:center; background:#f9fafb; border-radius:8px 8px 0 0;">
+      <div style="font-weight:700; font-size:1.1rem; color:#1f2937;">📖 Help</div>
+      <button id="close-help" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#6b7280;">&times;</button>
+    </div>
+    <div style="display:flex; flex:1; overflow:hidden;">
+      <div id="help-nav" style="width:200px; border-right:1px solid #e5e7eb; background:#f8fafc; padding:10px; overflow-y:auto;"></div>
+      <div id="help-body" style="flex:1; padding:16px 20px; overflow-y:auto; font-size:0.85rem; line-height:1.55;"></div>
+    </div>
+  </div>
+</div>
 <!-- اسکریپت اصلی برنامه -->
 <script>
 const App = (function () {
@@ -396,7 +437,22 @@ const App = (function () {
       let rawInq = String(r['Inquiry No'] ?? '').replace(/\n/g, ' ');
       let inqNo = rawInq; let brand = '';
       if (rawInq.includes(' | ')) { const parts = rawInq.split(' | '); inqNo = parts[0].trim(); brand = parts.slice(1).join(' | ').trim(); }
-      return { ...r, PI: pi, 'Inquiry No': inqNo, Brand: brand };
+      
+      // ? استخراج مطمئن Price و Price Unit
+      let rawPrice = r['Price'];
+      let finalPrice = 0;
+      if (typeof rawPrice === 'number') {
+          finalPrice = rawPrice;
+      } else if (rawPrice) {
+          // حذف هر چیزی که عدد نیست
+          const cleanNum = String(rawPrice).replace(/[^\d.-]/g, '');
+          finalPrice = parseFloat(cleanNum) || 0;
+      }
+      
+      let finalUnit = r['Price Unit'] || '';
+      if (typeof finalUnit === 'string') finalUnit = finalUnit.trim();
+
+      return { ...r, PI: pi, 'Inquiry No': inqNo, Brand: brand, Price: finalPrice, 'Price Unit': finalUnit };
     });
 
     dom.subtitle().textContent = `Total records: ${state.rows.length} · Last updated: ${new Date().toLocaleString('en-US')}`;
@@ -741,6 +797,7 @@ const Reports = (function() {
                 { key: 'Customer', label: 'Customer', w: '15%' },
                 { key: 'Product', label: 'Product', w: '8%' },
                 { key: 'INQ', label: 'INQ', w: '10%' },
+                { key: 'INQ Date', label: 'INQ Date', w: '8%', isDate: true },
                 { key: 'PI', label: 'PI', w: '10%' },
                 { key: 'PO Date', label: 'PO Date', w: '8%', isDate: true },
                 { key: 'Shipment Status', label: 'Shipment', w: '10%' },
@@ -758,6 +815,7 @@ const Reports = (function() {
                 { key: 'Customer', label: 'Customer', w: '15%' },
                 { key: 'Product', label: 'Product', w: '8%' },
                 { key: 'INQ', label: 'INQ', w: '10%' },
+                { key: 'INQ Date', label: 'INQ Date', w: '8%', isDate: true },
                 { key: 'PI', label: 'PI', w: '10%' },
                 { key: 'PO Date', label: 'PO Date', w: '8%', isDate: true },
                 { key: 'Months Overdue', label: 'Months Late', w: '8%', isNum: true },
@@ -773,6 +831,7 @@ const Reports = (function() {
                 { key: 'Customer', label: 'Customer', w: '15%' },
                 { key: 'Product', label: 'Product', w: '8%' },
                 { key: 'INQ', label: 'INQ', w: '10%' },
+                { key: 'INQ Date', label: 'INQ Date', w: '8%', isDate: true, defaultHidden: true },
                 { key: 'PI', label: 'PI', w: '10%' },
                 { key: 'PO Date', label: 'PO Date', w: '8%', isDate: true },
                 { key: 'Shipment Status', label: 'Shipment', w: '10%' },
@@ -790,6 +849,7 @@ const Reports = (function() {
                 { key: 'Customer', label: 'Customer', w: '15%' },
                 { key: 'Product', label: 'Product', w: '8%' },
                 { key: 'INQ', label: 'INQ', w: '10%' },
+                { key: 'INQ Date', label: 'INQ Date', w: '8%', isDate: true },
                 { key: 'PI', label: 'PI', w: '10%' },
                 { key: 'PO Date', label: 'PO Date', w: '8%', isDate: true },
                 { key: 'Amount', label: 'Amount', w: '8%', isNum: true },
@@ -807,6 +867,7 @@ const Reports = (function() {
                 { key: 'Customer', label: 'Customer', w: '15%' },
                 { key: 'Product', label: 'Product', w: '8%' },
                 { key: 'INQ', label: 'INQ', w: '10%' },
+                { key: 'INQ Date', label: 'INQ Date', w: '8%', isDate: true, defaultHidden: true },
                 { key: 'PI', label: 'PI', w: '10%' },
                 { key: 'PO Date', label: 'PO Date', w: '8%', isDate: true },
                 { key: 'Shipment Status', label: 'Shipment', w: '10%' },
@@ -822,6 +883,7 @@ const Reports = (function() {
                 { key: 'Customer', label: 'Customer', w: '15%' },
                 { key: 'Product', label: 'Product', w: '8%' },
                 { key: 'INQ', label: 'INQ', w: '10%' },
+                { key: 'INQ Date', label: 'INQ Date', w: '8%', isDate: true, defaultHidden: true },
                 { key: 'PI', label: 'PI', w: '10%' },
                 { key: 'PO Date', label: 'PO Date', w: '8%', isDate: true },
                 { key: 'Shipment Status', label: 'Shipment', w: '10%' },
@@ -839,6 +901,7 @@ const Reports = (function() {
                 { key: 'Customer', label: 'Customer', w: '15%' },
                 { key: 'Product', label: 'Product', w: '8%' },
                 { key: 'INQ', label: 'INQ', w: '10%' },
+                { key: 'INQ Date', label: 'INQ Date', w: '8%', isDate: true },
                 { key: 'PO Date', label: 'PO Date', w: '8%', isDate: true },
                 { key: 'Invoice Date', label: 'Invoice', w: '8%', isDate: true },
                 { key: 'Amount', label: 'Amount', w: '8%', isNum: true },
@@ -853,12 +916,16 @@ const Reports = (function() {
         },
         ordersByCustomer: {
             cols: [
-                { key: 'Customer', label: 'Customer', w: '30%' },
+                { key: 'Customer', label: 'Customer', w: '25%' },
                 { key: 'Orders', label: 'Orders', w: '10%', isNum: true },
-                { key: 'USD', label: 'USD', w: '15%', isNum: true },
-                { key: 'EUR', label: 'EUR', w: '15%', isNum: true },
-                { key: 'Rial', label: 'Rial', w: '15%', isNum: true },
-                { key: 'AED', label: 'AED', w: '15%', isNum: true }
+                { key: 'GC', label: 'GC', w: '5%', isNum: true },
+                { key: 'MainSys', label: 'MainSys', w: '8%', isNum: true },
+                { key: 'S/P', label: 'S/P', w: '5%', isNum: true },
+                { key: 'Proj', label: 'Proj', w: '5%', isNum: true },
+                { key: 'USD', label: 'USD', w: '10%', isNum: true },
+                { key: 'EUR', label: 'EUR', w: '10%', isNum: true },
+                { key: 'Rial', label: 'Rial', w: '12%', isNum: true },
+                { key: 'AED', label: 'AED', w: '10%', isNum: true }
             ]
         },
         ordersByProduct: {
@@ -893,15 +960,20 @@ const Reports = (function() {
     };
 
     function parsePrice(val) {
-        if (!val) return 0;
-        const num = parseFloat(String(val).replace(/,/g, ''));
+        if (val === null || val === undefined || val === '') return 0;
+        if (typeof val === 'number') return isNaN(val) ? 0 : val;
+        // حذف کاما، فاصله، و هر کاراکتر غیرعددی به جز نقطه و منفی
+        const cleanNum = String(val).replace(/[^\d.-]/g, '').trim();
+        if (cleanNum === '' || cleanNum === '-' || cleanNum === '.') return 0;
+        const num = parseFloat(cleanNum);
         return isNaN(num) ? 0 : num;
     }
 
     function getCurrency(row) {
-        let cur = row['Price Unit'] || '';
-        const isOut = cur.includes('(Out)');
-        cur = cur.replace(' (Out)', '').trim().toLowerCase();
+        let cur = String(row['Price Unit'] || '').trim();
+        const isOut = cur.includes('(Out)') || cur.includes('(out)');
+        // حذف (Out) با هر شکل و فاصله
+        cur = cur.replace(/\(out\)/gi, '').trim().toUpperCase();
         return { name: cur, isOut: isOut };
     }
 
@@ -914,21 +986,41 @@ const Reports = (function() {
         const fCur = document.getElementById('rep-f-currency').value;
         const fReg = document.getElementById('rep-f-region').value;
         const fTerms = document.getElementById('rep-f-terms').value;
+        
+        // ? خواندن فیلتر تاریخ جدید
+        const fDateCol = document.getElementById('rep-f-date-col').value;
+        const fDateFrom = document.getElementById('rep-f-date-from').value;
+        const fDateTo = document.getElementById('rep-f-date-to').value;
 
         let filtered = rows.filter(r => {
-            if (fCust && r.Customer !== fCust) return false;
+            if (fCust && r.Customer.toLowerCase() !== fCust.toLowerCase()) return false;
             const curObj = getCurrency(r);
-            if (fCur && curObj.name !== fCur) return false;
+            if (fCur && curObj.name !== fCur.toUpperCase()) return false;
             if (fReg === 'domestic' && curObj.isOut) return false;
             if (fReg === 'foreign' && !curObj.isOut) return false;
-            if (fTerms && r['Terms of Delivery'] !== fTerms) return false;
-            if (String(r['The order was sent']).includes('Canceled by ESA')) return false;
+            if (fTerms && String(r['Terms of Delivery'] || '').trim().toLowerCase() !== fTerms.trim().toLowerCase()) return false;
+
+            // ? اعمال فیلتر تاریخ جدید
+            if (fDateCol && (fDateFrom || fDateTo)) {
+                const rawDate = r[fDateCol];
+                if (!rawDate) return false; // این خط فقط زمانی که فیلتر تاریخ فعال است، رکورد بدون تاریخ را حذف می‌کند.
+                
+                const d = new Date(rawDate);
+                if (isNaN(d.getTime())) return false; // تاریخ نامعتبر
+
+                const dDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+                if (fDateFrom && dDay < new Date(fDateFrom + 'T00:00:00')) return false;
+                if (fDateTo && dDay > new Date(fDateTo + 'T00:00:00')) return false;
+            }
+            
             return true;
         });
+        // ... بقیه کدها
 
         let data = [];
         let title = "";
         let subtitle = ""; // ? اضافه کردن این خط
+        let totalRowData = null;
         const getTime = (d) => d ? new Date(d).getTime() : 0;
         const getPrice = (p) => parseFloat(String(p).replace(/,/g, '')) || 0;
 
@@ -938,6 +1030,8 @@ const Reports = (function() {
                 'Product': r.Product || '',
                 'INQ': String(r['Inquiry No'] || '').split('\n')[0],
                 'PI': (r['PI-C'] || '') + (r['PI-T'] ? ' / ' + r['PI-T'] : ''),
+                'INQ Date': r['Date Of Inquiry Customer'] ? new Date(r['Date Of Inquiry Customer']).toLocaleDateString('en-GB', {month:'short', year:'numeric'}) : '',
+                _rawINQDate: getTime(r['Date Of Inquiry Customer']),
                 'PO Date': r['Date-Ordered'] ? new Date(r['Date-Ordered']).toLocaleDateString('en-GB', {month:'short', year:'numeric'}) : '',
                 'Shipment Status': (() => {
                     const s = String(r['The order was sent'] || '');
@@ -964,17 +1058,27 @@ const Reports = (function() {
             filtered.filter(r => String(r.Status || '').toLowerCase() === 'ordered').forEach(r => { data.push(extractRow(r)); });
         } 
         else if (type === 'delayedOrders') {
-            title = "Delayed Orders";
-            subtitle = "Calculated based on PO Date (older than 180 days & not fully shipped)"; // ? اضافه کردن این خط
+            title = "Delayed Orders (> 180 days, not shipped)";
+            subtitle = "Calculated based on PO Date (older than 180 days & not fully shipped)";
             const cutoff = Date.now() - (180 * 86400000);
+            
             filtered.filter(r => {
-                if (String(r.Status || '').toLowerCase() !== 'ordered') return false;
-                if (String(r['The order was sent']).includes('Complete')) return false;
+                const status = String(r.Status || '').toLowerCase();
+                const ship = String(r['The order was sent'] || '');
                 const d = getTime(r['Date-Ordered']);
-                return d > 0 && d < cutoff;
+                
+                // ? دقیقاً مطابق منطق VBA
+                if (status !== 'ordered') return false;
+                if (ship.includes('Canceled by ESA')) return false;
+                if (ship.includes('(Complete)')) return false;
+                if (!d || d >= cutoff) return false; // اگر تاریخ خالی یا جدیدتر از 180 روز بود
+                
+                return true;
             }).forEach(r => {
                 let row = extractRow(r);
-                row['Months Overdue'] = Math.floor((Date.now() - getTime(r['Date-Ordered'])) / (30 * 86400000));
+                // ? نمایش ماه‌های تاخیر دقیقاً مثل اکسل (مثلاً 6 Month)
+                const months = Math.floor((Date.now() - getTime(r['Date-Ordered'])) / (30 * 86400000));
+                row['Months Overdue'] = months + ' Mon'; 
                 data.push(row);
             });
         }
@@ -991,7 +1095,11 @@ const Reports = (function() {
             filtered.filter(r => {
                 const status = String(r.Status || '').toLowerCase();
                 const ship = String(r['The order was sent'] || '');
-                return status === 'ordered' && !ship.includes('Complete');
+                
+                // ? دقیقاً مطابق منطق VBA (حذف Complete و Canceled)
+                return status === 'ordered' 
+                    && !ship.includes('(Complete)') 
+                    && !ship.includes('Canceled by ESA');
             }).forEach(r => { data.push(extractRow(r)); });
         }
         else if (type === 'awaitingInvoice') {
@@ -1006,126 +1114,186 @@ const Reports = (function() {
             title = "Awaiting Payment (Invoice Sent, Not Fully Paid)";
             filtered.filter(r => !!r['sent invoice'] && (parseFloat(r['Payment Received']) || 0) < 1).forEach(r => { data.push(extractRow(r)); });
         }
-        else if (type === 'ordersByCustomer' || type === 'ordersByProduct') {
-            const isCust = (type === 'ordersByCustomer');
-            title = isCust ? "Orders by Customer (Grouped)" : "Orders by Product (Grouped)";
-            let summary = {};
-            filtered.filter(r => String(r.Status || '').toLowerCase() === 'ordered').forEach(r => {
-                const keyName = isCust ? (r.Customer || 'Unknown') : (r.Product || 'Unknown');
-                const cur = getCurrency(r).name;
-                if (!cur) return;
-                const key = `${keyName}|${cur}`;
-                if (!summary[key]) summary[key] = { name: keyName, cur, total: 0, count: 0 };
-                summary[key].count++;
-                summary[key].total += getPrice(r.Price);
-            });
-            
+        else if (type === 'ordersByCustomer') {
+            title = "Orders by Customer (Grouped)";
             let groups = {};
-            Object.values(summary).forEach(s => {
-                if (!groups[s.name]) groups[s.name] = { 'name': s.name, 'Orders': 0, 'USD': 0, 'EUR': 0, 'Rial': 0, 'AED': 0 };
-                groups[s.name]['Orders'] += s.count;
-                let cName = s.cur.charAt(0).toUpperCase() + s.cur.slice(1);
-                if (cName === 'Rial') cName = 'Rial';
-                if (groups[s.name][cName] !== undefined) groups[s.name][cName] += s.total;
+            
+            filtered.filter(r => String(r.Status || '').toLowerCase() === 'ordered').forEach(r => {
+                const cust = r.Customer || 'Unknown';
+                const curObj = getCurrency(r);
+                const curRaw = curObj.name;
+                const price = parsePrice(r.Price);
+                
+                if (!groups[cust]) {
+                    groups[cust] = { 
+                        name: cust, Orders: 0, 
+                        GC: 0, MainSys: 0, S_P: 0, Proj: 0,
+                        USD: 0, EUR: 0, RIAL: 0, AED: 0
+                    };
+                }
+                
+                const g = groups[cust];
+                g.Orders += 1;
+                
+                const prod = String(r.Product || '').toLowerCase();
+                if (prod === 'gc') g.GC++;
+                else if (prod === 'main system') g.MainSys++;
+                else if (prod === 'spare part') g.S_P++;
+                else if (prod === 'project') g.Proj++;
+                
+                const curKey = String(curRaw || '').trim().toUpperCase();
+                
+                if (curKey === 'USD') g.USD += price;
+                else if (curKey === 'EUR') g.EUR += price;
+                else if (curKey === 'RIAL') g.RIAL += price;
+                else if (curKey === 'AED') g.AED += price;
             });
             
             Object.values(groups).forEach(c => {
-                let row = {
-                    [isCust ? 'Customer' : 'Product']: c.name,
+                data.push({
+                    'Customer': c.name,
                     'Orders': c.Orders,
-                    'USD': c.USD > 0 ? fmtNum(c.USD) : '',
-                    'EUR': c.EUR > 0 ? fmtNum(c.EUR) : '',
-                    'Rial': c.Rial > 0 ? fmtNum(c.Rial) : '',
-                    'AED': c.AED > 0 ? fmtNum(c.AED) : '',
-                    _rawOrders: c.Orders, _rawUSD: c.USD, _rawEUR: c.EUR, _rawRial: c.Rial, _rawAED: c.AED
-                };
-                data.push(row);
-            });
-        }
-        else if (type === 'paymentSummary') {
-            title = "Payment Summary";
-            let summary = {};
-            filtered.forEach(r => {
-                if (String(r.Status || '').toLowerCase() !== 'ordered') return;
-                const pay = parseFloat(r['Payment Received']) || 0;
-                const price = getPrice(r.Price);
-                const cur = getCurrency(r).name;
-                if (!cur) return;
-                if (!summary[cur]) summary[cur] = { paid: 0, paidAmt: 0, partial: 0, partialAmt: 0, unpaid: 0, unpaidAmt: 0, totalAmt: 0 };
-                summary[cur].totalAmt += price;
-                if (pay >= 1) { summary[cur].paid++; summary[cur].paidAmt += price; }
-                else if (pay > 0) { summary[cur].partial++; summary[cur].partialAmt += (price * pay); }
-                else { summary[cur].unpaid++; summary[cur].unpaidAmt += price; }
-            });
-            Object.keys(summary).forEach(cur => {
-                data.push({
-                    'Currency': cur.toUpperCase(),
-                    'Total Orders': summary[cur].paid + summary[cur].partial + summary[cur].unpaid,
-                    'Total Amount': fmtNum(summary[cur].totalAmt),
-                    'Paid Amount': fmtNum(summary[cur].paidAmt + summary[cur].partialAmt),
-                    'Unpaid Amount': fmtNum(summary[cur].unpaidAmt),
-                    _rawOrders: summary[cur].paid + summary[cur].partial + summary[cur].unpaid,
-                    _rawTotal: summary[cur].totalAmt, _rawPaid: summary[cur].paidAmt + summary[cur].partialAmt, _rawUnpaid: summary[cur].unpaidAmt
+                    'GC': c.GC > 0 ? c.GC : '',
+                    'MainSys': c.MainSys > 0 ? c.MainSys : '',
+                    'S/P': c.S_P > 0 ? c.S_P : '',
+                    'Proj': c.Proj > 0 ? c.Proj : '',
+                    'USD': c.USD > 0 ? c.USD : '',       // عدد خام، نه فرمت‌شده
+                    'EUR': c.EUR > 0 ? c.EUR : '',
+                    'Rial': c.RIAL > 0 ? c.RIAL : '',
+                    'AED': c.AED > 0 ? c.AED : '',
+                    _rawOrders: c.Orders
                 });
             });
-        } 
-        else if (type === 'customerSales') {
-            title = "Customer Sales Summary";
-            let summary = {};
-            filtered.forEach(r => {
-                if (String(r.Status || '').toLowerCase() !== 'ordered') return;
-                const cust = r.Customer || 'Unknown';
-                const pay = parseFloat(r['Payment Received']) || 0;
-                const price = getPrice(r.Price);
-                const cur = getCurrency(r).name;
-                if (!cur) return;
-                const key = `${cust}|${cur}`;
-                if (!summary[key]) summary[key] = { cust, cur, total: 0, paid: 0, unpaid: 0, count: 0 };
-                summary[key].count++;
-                summary[key].total += price;
-                summary[key].paid += (price * pay);
-                summary[key].unpaid += (price * (1 - pay));
-            });
-            Object.values(summary).forEach(s => {
-                data.push({
-                    'Customer': s.cust,
-                    'Currency': s.cur.toUpperCase(),
-                    'Orders': s.count,
-                    'Total Sales': fmtNum(s.total),
-                    'Paid': fmtNum(s.paid),
-                    'Unpaid': fmtNum(s.unpaid),
-                    _rawOrders: s.count, _rawTotal: s.total, _rawPaid: s.paid, _rawUnpaid: s.unpaid
-                });
-            });
-        }
+            // ? محاسبه Grand Totals
+            let totalOrders = 0, totalGC = 0, totalMainSys = 0, totalSP = 0, totalProj = 0;
+            let totalUSD = 0, totalEUR = 0, totalRIAL = 0, totalAED = 0;
 
-        return { data, title, subtitle, schema: REPORT_SCHEMAS[type] }; // ? subtitle اضافه شد
+            Object.values(groups).forEach(c => {
+                totalOrders += c.Orders;
+                totalGC += c.GC;
+                totalMainSys += c.MainSys;
+                totalSP += c.S_P;
+                totalProj += c.Proj;
+                totalUSD += c.USD;
+                totalEUR += c.EUR;
+                totalRIAL += c.RIAL;
+                totalAED += c.AED;
+            });
+
+            // ? افزودن ردیف TOTAL
+            // ? ردیف TOTAL در data قرار نگیرد، جداگانه برگردانده شود
+            totalRowData = {
+                'Customer': 'TOTAL',
+                'Orders': totalOrders,
+                'GC': totalGC > 0 ? totalGC : '',
+                'MainSys': totalMainSys > 0 ? totalMainSys : '',
+                'S/P': totalSP > 0 ? totalSP : '',
+                'Proj': totalProj > 0 ? totalProj : '',
+                'USD': totalUSD > 0 ? totalUSD : '',
+                'EUR': totalEUR > 0 ? totalEUR : '',
+                'Rial': totalRIAL > 0 ? totalRIAL : '',
+                'AED': totalAED > 0 ? totalAED : '',
+                _isTotal: true
+            };
+        }
+        return { data, title, subtitle, schema: REPORT_SCHEMAS[type], totalRow: (typeof totalRowData !== 'undefined' ? totalRowData : null) };
     }
+    function getActiveFiltersText() {
+        const filters = [];
+        const cust = document.getElementById('rep-f-customer').value;
+        const cur = document.getElementById('rep-f-currency').value;
+        const reg = document.getElementById('rep-f-region').value;
+        const terms = document.getElementById('rep-f-terms').value;
+        const dCol = document.getElementById('rep-f-date-col').value;
+        const dFrom = document.getElementById('rep-f-date-from').value;
+        const dTo = document.getElementById('rep-f-date-to').value;
 
+        // تابع کمکی برای تبدیل تاریخ به DDMMMYY
+        const fmt = (dStr) => {
+            if (!dStr) return '';
+            const d = new Date(dStr);
+            if (isNaN(d.getTime())) return dStr;
+            const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            return String(d.getDate()).padStart(2, '0') + months[d.getMonth()] + String(d.getFullYear()).slice(-2);
+        };
+
+        if (cust) filters.push(`Customer: ${cust}`);
+        if (cur) filters.push(`Currency: ${cur.toUpperCase()}`);
+        if (reg === 'domestic') filters.push(`Region: Domestic`);
+        if (reg === 'foreign') filters.push(`Region: Foreign (Out)`);
+        if (terms) filters.push(`Terms: ${terms}`);
+        
+        if (dCol && (dFrom || dTo)) {
+            let dateStr = `Date (${dCol === 'Date-Ordered' ? 'PO Date' : dCol === 'Date Of Inquiry Customer' ? 'INQ Date' : dCol}): `;
+            if (dFrom && dTo) dateStr += `${fmt(dFrom)} to ${fmt(dTo)}`;
+            else if (dFrom) dateStr += `From ${fmt(dFrom)}`;
+            else if (dTo) dateStr += `Up to ${fmt(dTo)}`;
+            filters.push(dateStr);
+        }
+        
+        if (filters.length === 0) return '';
+        
+        // استایل پررنگ‌تر برای نمایش در جدول
+        return `<div style="font-size: 0.75rem; color: #1f2937; margin-top: 4px; line-height: 1.4;"><b style="color:#2563eb;">Applied Filters:</b> ${filters.join(' &nbsp;|&nbsp; ')}</div>`;
+    }
     function renderTable() {
-        const { data, title, subtitle, schema } = prepareData(currentReport, App.getState().rows);
-        const titleEl = document.getElementById('report-title');
-        if (subtitle) {
-            titleEl.innerHTML = `<div>${title}</div><div style="font-size:0.7rem; font-weight:normal; color:#6b7280; margin-top:2px;">${subtitle}</div>`;
-        } else {
-            titleEl.textContent = title;
+        // ==========================================
+        // ? ۱. اعتبارسنجی فیلتر تاریخ (در ابتدای تابع)
+        // ==========================================
+        const dateColInput = document.getElementById('rep-f-date-col');
+        const dateFromInput = document.getElementById('rep-f-date-from');
+        const dateToInput = document.getElementById('rep-f-date-to');
+        
+        // ریست کردن رنگ‌ها
+        dateColInput.style.borderColor = '#d1d5db';
+        dateFromInput.style.borderColor = '#d1d5db';
+        dateToInput.style.borderColor = '#d1d5db';
+
+        // اگر تاریخ وارد شده ولی نوع ستون انتخاب نشده
+        if ((dateFromInput.value || dateToInput.value) && !dateColInput.value) {
+            dateColInput.style.borderColor = '#dc2626';
+            dateColInput.style.outline = '1px solid #dc2626';
+            alert('Please select the Date Column type (e.g., PO Date) when using the date range filter.');
+            return; // توقف رندر
         }
 
+        // ==========================================
+        // ? ۲. آماده‌سازی داده‌ها و عنوان
+        // ==========================================
+        const { data, title, subtitle, schema, totalRow } = prepareData(currentReport, App.getState().filteredRows);
+        const titleEl = document.getElementById('report-title');
+        const activeFiltersHtml = getActiveFiltersText();
+        
+        let titleContent = '';
+        if (subtitle) {
+            titleContent = `<div>${title}</div><div style="font-size:0.7rem; font-weight:normal; color:#6b7280; margin-top:2px;">${subtitle}</div>`;
+        } else {
+            titleContent = title;
+        }
+        
+        if (activeFiltersHtml) {
+            titleEl.innerHTML = titleContent + activeFiltersHtml;
+        } else {
+            titleEl.innerHTML = titleContent;
+        }
+
+        // ==========================================
+        // ? ۳. سورت کردن داده‌ها
+        // ==========================================
         let sortedData = [...data];
         if (sortKey) {
             const colDef = schema.cols.find(c => c.key === sortKey);
             sortedData.sort((a, b) => {
                 let va = a[sortKey], vb = b[sortKey];
                 
-                // ? سورت دقیق تاریخ‌ها و اعداد
                 if (colDef && colDef.isDate) {
                     let ta = 0, tb = 0;
                     if (sortKey === 'PO Date') { ta = a._rawPODate || 0; tb = b._rawPODate || 0; }
                     else if (sortKey === 'Ship Date') { ta = a._rawShipDate || 0; tb = b._rawShipDate || 0; }
                     else if (sortKey === 'Invoice Date') { ta = a._rawInvDate || 0; tb = b._rawInvDate || 0; }
                     else if (sortKey === 'Payment Date') { ta = a._rawPayDate || 0; tb = b._rawPayDate || 0; }
+                    else if (sortKey === 'INQ Date') { ta = a._rawINQDate || 0; tb = b._rawINQDate || 0; }
                     else { 
-                        // پشتیبانی از حالت پیش‌فرض
                         ta = new Date(va).getTime() || 0; 
                         tb = new Date(vb).getTime() || 0; 
                     }
@@ -1138,12 +1306,6 @@ const Reports = (function() {
                     return sortAsc ? na - nb : nb - na;
                 }
                 
-                if (colDef && colDef.isNum) {
-                    const na = parseFloat(String(va).replace(/,/g, '')) || 0;
-                    const nb = parseFloat(String(vb).replace(/,/g, '')) || 0;
-                    return sortAsc ? na - nb : nb - na;
-                }
-                
                 const sa = String(va).toUpperCase();
                 const sb = String(vb).toUpperCase();
                 if (sa < sb) return sortAsc ? -1 : 1;
@@ -1152,15 +1314,13 @@ const Reports = (function() {
             });
         }
 
-        // ? مرجع ترتیب دقیق ستون‌ها (مطابق شیت مادر)
+        // ==========================================
+        // ? ۴. مرتب‌سازی ستون‌ها (مطابق شیت مادر)
+        // ==========================================
         const MASTER_ORDER = [
-            'Customer', 'Product', 'INQ', 'PI', 'PO Date', 'Shipment Status', 
-            'Ship Date', 'Invoice Date', 'Amount', 'Currency', 'Terms', 
-            'Payment %', 'Payment Date', 'Months Overdue', 'Orders', 'USD', 'EUR', 'Rial', 'AED',
-            'Total Orders', 'Total Amount', 'Paid Amount', 'Unpaid Amount', 'Total Sales', 'Paid', 'Unpaid'
+            'Customer', 'Orders', 'GC', 'MainSys', 'S/P', 'Proj', 'USD', 'EUR', 'Rial', 'AED'
         ];
 
-        // مرتب‌سازی ستون‌ها بر اساس ترتیب مرجع، و سپس فیلتر کردن ستون‌های مخفی
         const sortedCols = [...schema.cols].sort((a, b) => {
             let idxA = MASTER_ORDER.indexOf(a.key);
             let idxB = MASTER_ORDER.indexOf(b.key);
@@ -1171,6 +1331,7 @@ const Reports = (function() {
 
         const visibleCols = sortedCols.filter(c => !hiddenCols.has(c.key));
 
+        // ? ساخت هدر
         let theadHtml = '<tr><th style="width: 40px; text-align: center;">#</th>';
         visibleCols.forEach(c => {
             const icon = sortKey === c.key ? (sortAsc ? ' ▲' : ' ▼') : '';
@@ -1178,40 +1339,86 @@ const Reports = (function() {
         });
         theadHtml += '</tr>';
 
+        // ? ساخت بدنه با فرمت‌دهی دقیق
         let tbodyHtml = '';
         if (sortedData.length === 0) {
             tbodyHtml = `<tr><td colspan="${visibleCols.length + 1}" style="text-align:center; padding:20px; color:#6b7280;">No data found.</td></tr>`;
         } else {
             sortedData.forEach((row, index) => {
                 tbodyHtml += '<tr>';
-                // ? اضافه کردن سلول شماره ردیف
                 tbodyHtml += `<td style="text-align:center; color:#9ca3af;">${index + 1}</td>`;
                 visibleCols.forEach(c => {
                     let val = row[c.key];
-                    if (c.isNum && typeof val === 'number') val = val.toLocaleString('en-US');
+                    
+                    // ? فرمت کردن مبالغ
+                    if (['USD', 'EUR', 'Rial', 'AED'].includes(c.key)) {
+                        // هم عدد و هم رشته را بپذیر
+                        const num = typeof val === 'number' ? val : parseFloat(String(val).replace(/,/g, ''));
+                        if (!isNaN(num) && num > 0) {
+                            val = num.toLocaleString('en-US', { maximumFractionDigits: 0 });
+                        } else {
+                            val = '';
+                        }
+                    }
+                    if (c.key === 'Amount') {
+                        const num = typeof val === 'number' ? val : parseFloat(String(val).replace(/,/g, ''));
+                        if (!isNaN(num) && num > 0) {
+                            val = num.toLocaleString('en-US', { maximumFractionDigits: 0 });
+                        }
+                    }                    
                     tbodyHtml += `<td style="text-align:${c.isNum ? 'right' : 'left'};" title="${val}">${val}</td>`;
                 });
                 tbodyHtml += '</tr>';
             });
         }
 
-        // 1. تزریق کادر خلاصه در بالای جدول (ثابت)
+        // ? استفاده از colgroup با عرض‌های ثابت و متناسب
+        let colgroupHtml = '<colgroup><col style="width: 44px;">';
+        visibleCols.forEach(c => {
+            let w = c.w || 'auto';
+            if (c.key === 'Customer') w = '200px';
+            else if (c.key === 'Orders') w = '70px';
+            else if (['GC','MainSys','S/P','Proj'].includes(c.key)) w = '70px';
+            else if (['USD','EUR','Rial','AED'].includes(c.key)) w = '120px';
+            colgroupHtml += `<col style="width:${w}">`;
+        });
+        colgroupHtml += '</colgroup>';
+
+        // 1. تزریق کادر خلاصه
         document.getElementById('report-summary-container').innerHTML = `
             <div class="report-summary" style="margin-bottom: 12px;">
-                Total Records: <b>${data.length}</b>
+                Total Records: <b>${data.filter(r => !r._isTotal).length}</b>
             </div>
         `;
 
-        // 2. تزریق جدول در کادر اسکرول‌شونده
+        // 2. تزریق جدول
+        let tfootHtml = '';
+        if (totalRow) {
+            tfootHtml = '<tfoot><tr>';
+            tfootHtml += `<td style="text-align:center;color:#6b7280;">—</td>`;
+            visibleCols.forEach(c => {
+                let val = totalRow[c.key];
+                if (['USD','EUR','Rial','AED'].includes(c.key)) {
+                    const num = typeof val === 'number' ? val : parseFloat(String(val).replace(/,/g,''));
+                    val = (!isNaN(num) && num > 0) ? num.toLocaleString('en-US',{maximumFractionDigits:0}) : '';
+                } else if (val === 0 || val === undefined || val === null) {
+                    val = '';
+                }
+                tfootHtml += `<td style="text-align:${c.isNum?'right':'left'};">${val}</td>`;
+            });
+            tfootHtml += '</tr></tfoot>';
+        }
+
         const tableHtml = `
             <table class="report-table">
+                ${colgroupHtml}
                 <thead>${theadHtml}</thead>
                 <tbody>${tbodyHtml}</tbody>
+                ${tfootHtml}
             </table>
         `;
-        
         document.getElementById('report-content').innerHTML = tableHtml;
-
+        // ? ردیف TOTAL چسبیده به پایین باکس نمایش
         document.querySelectorAll('#report-content th').forEach(th => {
             th.addEventListener('click', () => {
                 const key = th.getAttribute('data-key');
@@ -1222,9 +1429,7 @@ const Reports = (function() {
         });
 
         updateColsPanel(schema);
-    }
-
-    function updateColsPanel(schema) {
+    }    function updateColsPanel(schema) {
         const panel = document.getElementById('rep-cols-panel');
         const btn = document.getElementById('rep-cols-btn');
         
@@ -1236,9 +1441,7 @@ const Reports = (function() {
 
         // ? مرجع ترتیب ستون‌ها دقیقاً مطابق شیت مادر
         const MASTER_ORDER = [
-            'Customer', 'Product', 'INQ', 'PI', 'PO Date', 'Shipment Status', 
-            'Ship Date', 'Invoice Date', 'Amount', 'Currency', 'Terms', 
-            'Payment %', 'Payment Date', 'Months Overdue'
+            'Customer', 'Orders', 'GC', 'MainSys', 'S/P', 'Proj', 'USD', 'EUR', 'Rial', 'AED'
         ];
 
         // مرتب‌سازی ستون‌های فعلی بر اساس ترتیب مرجع
@@ -1315,19 +1518,58 @@ const Reports = (function() {
             document.getElementById('rep-f-currency').value = '';
             document.getElementById('rep-f-region').value = '';
             document.getElementById('rep-f-terms').value = '';
+            
+            // ? پاک کردن فیلتر تاریخ
+            document.getElementById('rep-f-date-col').value = '';
+            document.getElementById('rep-f-date-from').value = '';
+            document.getElementById('rep-f-date-to').value = '';
+            
             renderTable();
         });
 
         btnExpand.addEventListener('click', () => {
             isExpanded = !isExpanded;
+            
+            const contentBox = document.getElementById('report-content');
+            const mainContent = document.getElementById('report-main-content');
+            const titleBox = document.getElementById('report-title').parentElement;
+            const summaryBox = document.getElementById('report-summary-container');
+
             if (isExpanded) {
-                modalBox.style.width = '100vw'; modalBox.style.maxWidth = '100vw';
-                modalBox.style.height = '100vh'; modalBox.style.borderRadius = '0';
-                btnExpand.textContent = '🗗'; btnExpand.title = 'Restore';
+                // حالت تمام صفحه (Maximize)
+                modalBox.style.width = '100vw'; 
+                modalBox.style.maxWidth = '100vw';
+                modalBox.style.height = '100vh'; 
+                modalBox.style.borderRadius = '0';
+                
+                // ? استفاده از موقعیت دهی مطلق برای قفل کردن جدول
+                mainContent.style.position = 'relative';
+                contentBox.style.position = 'absolute';
+                contentBox.style.top = (titleBox.offsetHeight + summaryBox.offsetHeight) + 'px';
+                contentBox.style.bottom = '16px'; // فاصله از پایین
+                contentBox.style.left = '16px';
+                contentBox.style.right = '16px';
+                contentBox.style.flex = 'none'; // غیرفعال کردن flex
+                
+                btnExpand.textContent = '🗗'; 
+                btnExpand.title = 'Restore';
             } else {
-                modalBox.style.width = '90%'; modalBox.style.maxWidth = '1100px';
-                modalBox.style.height = '85vh'; modalBox.style.borderRadius = '8px';
-                btnExpand.textContent = '⛶'; btnExpand.title = 'Maximize';
+                // حالت عادی
+                modalBox.style.width = '90%'; 
+                modalBox.style.maxWidth = '1100px';
+                modalBox.style.height = '85vh'; 
+                modalBox.style.borderRadius = '8px';
+                
+                // ? برگشت به حالت اولیه
+                contentBox.style.position = 'static';
+                contentBox.style.top = '';
+                contentBox.style.bottom = '';
+                contentBox.style.left = '';
+                contentBox.style.right = '';
+                contentBox.style.flex = '1';
+                
+                btnExpand.textContent = '⛶'; 
+                btnExpand.title = 'Maximize';
             }
         });
 
@@ -1368,6 +1610,101 @@ const Reports = (function() {
                 document.body.style.userSelect = '';
             }
         });
+        // ? منطق چاپ و خروجی PDF تمیز
+        function printReport() {
+            const titleEl = document.getElementById('report-title');
+            // استخراج عنوان اصلی (بدون زیرنویس)
+            const title = titleEl.innerText.split('\n')[0]; 
+            const summary = document.getElementById('report-summary-container').innerHTML;
+            const table = document.querySelector('#report-content table').outerHTML;
+            
+            // گرفتن فیلترهای فعال
+            const filtersHtml = getActiveFiltersText();
+            
+            // ساخت نام فایل کوتاه و گویا
+            const reportNames = {
+                'allOrdered': 'All_Ordered',
+                'delayedOrders': 'Delayed_Orders',
+                'completedOrders': 'Completed_Orders',
+                'openOrders': 'Open_Orders',
+                'awaitingShipment': 'Awaiting_Shipment',
+                'awaitingInvoice': 'Awaiting_Invoice',
+                'awaitingPayment': 'Awaiting_Payment',
+                'ordersByCustomer': 'Orders_By_Customer',
+                'ordersByProduct': 'Orders_By_Product',
+                'paymentSummary': 'Payment_Summary',
+                'customerSales': 'Customer_Sales'
+            };
+            
+            const shortName = reportNames[currentReport] || 'Report';
+            const d = new Date();
+            const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            const dateStr = String(d.getDate()).padStart(2, '0') + months[d.getMonth()] + String(d.getFullYear()).slice(-2);
+            const fileName = `${shortName}_${dateStr}`;
+
+            // باز کردن پنجره چاپ
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html dir="ltr">
+                <head>
+                    <title>${fileName}</title>
+                    <style>
+                        /* تنظیمات کاغذ A4 افقی */
+                        @page { size: A4 landscape; margin: 10mm; }
+                        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 9pt; color: #1f2937; margin: 0; padding: 0; }
+                        #report-content { position: relative; }
+                        #report-content > div:last-child { margin-top: -1px; }
+                        /* استایل هدر گزارش */
+                        .print-header { text-align: center; margin-bottom: 15px; border-bottom: 2px solid #2563eb; padding-bottom: 10px; }
+                        .print-header h1 { font-size: 16pt; margin: 0 0 5px 0; color: #1e3a8a; }
+                        .print-header p { font-size: 9pt; margin: 0; color: #6b7280; }
+                        
+                        /* استایل فیلترها */
+                        .print-filters { font-size: 9pt; font-weight: bold; color: #4b5563; margin-bottom: 15px; text-align: left; background: #f8fafc; padding: 8px; border-radius: 4px; border: 1px solid #e2e8f0; }
+                        .print-filters div { font-size: 9pt !important; color: #1f2937 !important; }
+
+                        /* استایل خلاصه */
+                        .print-summary { margin-bottom: 15px; font-size: 10pt; font-weight: bold; background: #f3f4f6; padding: 8px; border-radius: 4px; }
+                        
+                        /* استایل جدول */
+                        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                        th, td { border: 1px solid #d1d5db; padding: 6px 8px; text-align: left; }
+                        th { background-color: #e5e7eb; font-weight: bold; font-size: 8pt; text-transform: uppercase; color: #374151; }
+                        td { font-size: 8.5pt; }
+                        tr:nth-child(even) { background-color: #f9fafb; }
+                    </style>
+                </head>
+                <body>
+                    <div class="print-header">
+                        <h1>${title}</h1>
+                        <p>Generated on: ${new Date().toLocaleString('en-GB')}</p>
+                    </div>
+                    
+                    <!-- درج فیلترها -->
+                    ${filtersHtml ? `<div class="print-filters">${filtersHtml}</div>` : ''}
+                    
+                    <!-- درج خلاصه تعداد رکوردها -->
+                    <div class="print-summary">
+                        ${summary}
+                    </div>
+                    
+                    <!-- درج جدول -->
+                    ${table}
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            printWindow.focus();
+            // صبر کوتاه برای لود شدن استایل‌ها و سپس چاپ
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 500);
+        }
+
+        document.getElementById('rep-print-btn').addEventListener('click', printReport);
+        document.getElementById('rep-pdf-btn').addEventListener('click', printReport);
     }
 
     function populateFilters() {
@@ -1450,6 +1787,157 @@ async function initApp() {
 }
 
 window.addEventListener('DOMContentLoaded', initApp);
+</script>
+<script>
+const Help = (function () {
+  const SECTIONS = [
+    {
+      id: 'quickstart', title: '1. Quick Start',
+      html: `
+        <h3>Layout</h3>
+        <ul>
+          <li><b>Top card</b> — filters (Customer, Product, Status, Currency, Payment Type, Terms, Global Search). Applied live.</li>
+          <li><b>Middle</b> — main results table. Click headers to sort; click ▾ to filter by date.</li>
+          <li><b>Bottom bar</b> — Quick Filters (preset filters) + 📊 Reports / 📖 Help / Reset / Print.</li>
+        </ul>
+        <h3>Typical flow</h3>
+        <ol>
+          <li>Pick a Customer (or leave "All").</li>
+          <li>Use a Quick Filter (e.g., <b>Open Orders</b>).</li>
+          <li>Open 📊 Reports for aggregated views.</li>
+        </ol>
+        <p><i>All calculations happen in your browser. The source is the master Excel file.</i></p>`
+    },
+    {
+      id: 'columns', title: '2. Table Columns',
+      html: `
+        <table style="width:100%; border-collapse:collapse;">
+          <tr><th style="text-align:left; padding:6px; border-bottom:1px solid #e5e7eb;">Column</th><th style="text-align:left; padding:6px; border-bottom:1px solid #e5e7eb;">Meaning</th></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Customer</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Inquiring company.</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Product</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">GC · Main System · Spare Part · Project · Accessory.</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>INQ</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Inquiry number. Brand info shown only when enabled.</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>INQ Date</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Date the customer issued the inquiry.</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>PI</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Proforma Invoice (PI-C = commercial, PI-T = technical).</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Status</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Ordered · Canceled · Rejected · Lost · Hold · Regret Letter · empty (= Pending / In Progress).</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>PO Date</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Purchase order date (= Date-Ordered).</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Amount</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Total price of the order (before payment).</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Currency</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">USD · EUR · Rial · AED. Suffix <b>(Out)</b> = paid to a foreign account.</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Terms</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Delivery terms: DDP · CPT · CFR.</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Shipment</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">(Not sent) · (Partial) · (Complete) · (Canceled by ESA).</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Ship Date</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Date goods were dispatched.</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Invoice</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Date invoice was issued. Empty = not invoiced yet.</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Paid %</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Payment received (0% … 100%).</td></tr>
+          <tr><td style="padding:6px;"><b>Pay Date</b></td><td style="padding:6px;">Date payment was received.</td></tr>
+        </table>`
+    },
+    {
+      id: 'filters', title: '3. Filters',
+      html: `
+        <ul>
+          <li><b>Customer</b> — exact customer name.</li>
+          <li><b>Product</b> — GC / Main System / Spare Part / Project / Accessory.</li>
+          <li><b>Status</b> — Ordered, Canceled, Rejected, Lost, Hold, Regret Letter, or special presets <i>Pending</i> (Status empty, offer sent) and <i>In Progress</i> (no offer yet).</li>
+          <li><b>Currency</b> — matches base currency, ignores <b>(Out)</b>.</li>
+          <li><b>Payment Type</b> — <i>Domestic</i> (no <b>(Out)</b>) / <i>Foreign</i> (only <b>(Out)</b>).</li>
+          <li><b>Terms</b> — DDP / CPT / CFR.</li>
+          <li><b>Order Date</b> — appears only when Status = Ordered.</li>
+          <li><b>Search</b> — free text across all columns.</li>
+        </ul>
+        <p><i>All filters combine with AND.</i></p>`
+    },
+    {
+      id: 'quick', title: '4. Quick Filters',
+      html: `
+        <table style="width:100%; border-collapse:collapse;">
+          <tr><th style="text-align:left; padding:6px; border-bottom:1px solid #e5e7eb;">Preset</th><th style="text-align:left; padding:6px; border-bottom:1px solid #e5e7eb;">Logic</th></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Open Orders</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Status = Ordered AND Payment &lt; 100%.</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Completed Orders</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Payment = 100%.</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Delayed Orders</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Ordered &gt; 180 days ago AND not fully shipped.</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Awaiting Shipment</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Ordered AND shipment not Complete.</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Awaiting Invoice</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Shipped (Complete or Partial) AND invoice not sent.</td></tr>
+          <tr><td style="padding:6px;"><b>Awaiting Payment</b></td><td style="padding:6px;">Invoice sent AND Payment &lt; 100%.</td></tr>
+        </table>`
+    },
+    {
+      id: 'reports', title: '5. Reports',
+      html: `
+        <ul>
+          <li><b>All Ordered</b> — every Status = Ordered row.</li>
+          <li><b>Delayed Orders</b> — Ordered &gt; 180 days, not shipped.</li>
+          <li><b>Completed Orders</b> — fully paid.</li>
+          <li><b>Open Orders</b> — Ordered &amp; unpaid.</li>
+          <li><b>Awaiting Shipment / Invoice / Payment</b> — pipeline stages.</li>
+          <li><b>Orders by Customer</b> — grouped by customer, broken down by product and currency. A <b>TOTAL</b> row stays pinned at the bottom.</li>
+          <li><b>Orders by Product</b> — grouped by product (planned).</li>
+          <li><b>Payment Summary</b> — Paid vs. Unpaid per currency.</li>
+          <li><b>Customer Sales Summary</b> — Total / Paid / Unpaid per customer per currency.</li>
+        </ul>
+        <p><i>Each report has its own date filter and column toggles (⚙️ Columns).</i></p>`
+    },
+    {
+      id: 'glossary', title: '6. Glossary',
+      html: `
+        <table style="width:100%; border-collapse:collapse;">
+          <tr><th style="text-align:left; padding:6px; border-bottom:1px solid #e5e7eb;">Term</th><th style="text-align:left; padding:6px; border-bottom:1px solid #e5e7eb;">Meaning</th></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>(Out)</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Foreign-currency payment (foreign bank account).</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>BG</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Bank Guarantee (value or date as recorded).</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Cover Bid</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Formal submission on behalf of a partner company. Tracked in Notes.</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Canceled by ESA</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Order canceled by Ervin Shimi Azma. Excluded from amount totals in most reports.</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Pending</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Status empty, but at least one offer was sent.</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>In Progress</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Status empty and no offer yet.</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Success %</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Ordered / (Offers with commercial offer sent). Shown in the status bar.</td></tr>
+          <tr><td style="padding:6px;"><b>TOTAL</b></td><td style="padding:6px;">Aggregate of the grouped report. Not counted in "Total Records".</td></tr>
+        </table>`
+    },
+    {
+      id: 'tips', title: '7. Tips for Managers',
+      html: `
+        <ul>
+          <li>Use <b>Columns</b> to hide noisy fields and <b>Print</b> to export what you see.</li>
+          <li>Click a column header to sort; click ▾ to filter by a date range.</li>
+          <li><b>Canceled by ESA</b> rows are kept in the table for transparency but excluded from monetary totals.</li>
+          <li>Filter by <b>Currency</b> alone to compare USD / EUR / Rial / AED performance side by side.</li>
+          <li>In grouped reports, the pinned <b>TOTAL</b> row always reflects the current filters.</li>
+        </ul>`
+    }
+  ];
+
+  function init() {
+    const modal = document.getElementById('help-modal');
+    const nav = document.getElementById('help-nav');
+    const body = document.getElementById('help-body');
+    const btn = document.getElementById('help-btn');
+    const close = document.getElementById('close-help');
+    if (!modal || !btn) return;
+
+    nav.innerHTML = SECTIONS.map(s =>
+      `<button data-id="${s.id}" style="display:block; width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#374151; border-radius:4px; font-size:0.8rem; cursor:pointer; margin-bottom:2px;">${s.title}</button>`
+    ).join('');
+
+    function show(id) {
+      const sec = SECTIONS.find(s => s.id === id) || SECTIONS[0];
+      body.innerHTML = `<h2 style="margin:0 0 10px; font-size:1.05rem; color:#1e3a8a;">${sec.title}</h2>${sec.html}`;
+      nav.querySelectorAll('button').forEach(b => {
+        const active = b.getAttribute('data-id') === sec.id;
+        b.style.background = active ? '#e0e7ff' : 'transparent';
+        b.style.color = active ? '#3730a3' : '#374151';
+        b.style.fontWeight = active ? '700' : '500';
+      });
+    }
+
+    nav.addEventListener('click', e => {
+      const b = e.target.closest('button[data-id]');
+      if (b) show(b.getAttribute('data-id'));
+    });
+
+    btn.addEventListener('click', () => { modal.style.display = 'flex'; show(SECTIONS[0].id); });
+    close.addEventListener('click', () => { modal.style.display = 'none'; });
+    modal.addEventListener('click', e => { if (e.target === modal) modal.style.display = 'none'; });
+  }
+
+  return { init };
+})();
+document.addEventListener('DOMContentLoaded', () => Help.init());
 </script>
 </body>
 </html>
