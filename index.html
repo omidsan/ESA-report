@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>Sales Inquiry Report — Ervin Shimi Azma</title>
+<title>Sales Dashboard — Ervin Shimi Azma</title>
 <style>
   :root { --bg: #f7f8fa; --surface: #ffffff; --border: #e5e7eb; --text: #1f2937; --text-muted: #6b7280; --primary: #2563eb; --primary-hover: #1d4ed8; --success: #16a34a; --warning: #d97706; --danger: #dc2626; --radius: 6px; --font: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -15,6 +15,14 @@
   .card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 12px 14px; margin-bottom: 10px; }
   .page-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 2px; }
   .page-subtitle { font-size: 0.85rem; color: var(--text-muted); }
+      #print-filters-summary {
+      display: block !important;
+      font-size: 8.5pt !important;
+      color: #1f2937 !important;
+      border-top: 1px solid #d1d5db !important;
+      padding-top: 4px !important;
+      margin-top: 4px !important;
+    }
   .filters-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
   .filter-group { flex: 0 1 130px; min-width: 100px; }
   .filter-group:first-child { flex: 0 1 200px; min-width: 150px; }
@@ -102,12 +110,79 @@
   .col-settings-panel label { display: flex; align-items: center; gap: 6px; padding: 4px 0; font-size: 0.75rem; cursor: pointer; }
   #sidebar-resizer:hover, #sidebar-resizer:active { background: #c7d2fe; }
   @media print {
-    body * { visibility: hidden; }
-    #report-content, #report-content *, #report-summary-container, #report-summary-container *, #report-title, #report-title * { visibility: visible; }
-    #report-content { position: absolute; left: 0; top: 100px; width: 100%; height: auto !important; max-height: none !important; overflow: visible !important; border: none !important; }
-    #report-summary-container { position: absolute; left: 0; top: 40px; width: 100%; }
-    #report-title { position: absolute; left: 0; top: 0; width: 100%; }
+    /* فقط وقتی مودال Analytics باز است (body.print-analytics) */
+    body.print-analytics * { visibility: hidden; }
+    body.print-analytics #report-content,
+    body.print-analytics #report-content *,
+    body.print-analytics #report-summary-container,
+    body.print-analytics #report-summary-container *,
+    body.print-analytics #report-title,
+    body.print-analytics #report-title * { visibility: visible; }
+    body.print-analytics #report-content { position: absolute; left: 0; top: 100px; width: 100%; height: auto !important; max-height: none !important; overflow: visible !important; border: none !important; }
+    body.print-analytics #report-summary-container { position: absolute; left: 0; top: 40px; width: 100%; }
+    body.print-analytics #report-title { position: absolute; left: 0; top: 0; width: 100%; }
     #reports-sidebar, #sidebar-resizer, .col-settings-btn, #rep-print-btn, #rep-pdf-btn { display: none !important; }
+  }
+  /* === Print: Dashboard (main table) === */
+  @media print {
+    /* مخفی کردن عناصر غیرضروری */
+    .no-print,
+    #filter-card,
+    #quick-filters,
+    #login-overlay,
+    #columns-panel,
+    #reports-modal,
+    #help-modal,
+    #active-filters,
+    #search-chip-wrap,
+    #filtered-stats,
+    #header-actions {        /* ← این خط اضافه شد */
+      display: none !important;
+    }
+    /* نمایش کارت‌ها و جدول */
+    body { background: #fff !important; padding: 0 !important; }
+    .container { max-width: 100% !important; }
+    .card { border: none !important; padding: 0 !important; margin-bottom: 8px !important; box-shadow: none !important; }
+    .page-title { font-size: 16pt !important; }
+    .page-subtitle { font-size: 9pt !important; }
+    .table-wrap {
+      max-height: none !important;
+      overflow: visible !important;
+      border: none !important;
+      border-radius: 0 !important;
+    }
+    #report-table { font-size: 8.5pt !important; width: 100% !important; }
+    #report-table th,
+    #report-table td {
+      white-space: normal !important;
+      overflow: visible !important;
+      text-overflow: clip !important;
+      padding: 4px 6px !important;
+      border: 1px solid #d1d5db !important;
+    }
+    #report-table th {
+      background: #f3f4f6 !important;
+      position: static !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    #report-table thead { display: table-header-group; }
+    #report-table tr { page-break-inside: avoid; }
+    /* ردیف‌های detail (expand) چاپ نشوند */
+    .detail-row { display: none !important; }
+    .expand-btn { display: none !important; }
+    /* رنگ وضعیت‌ها حفظ شود */
+    .status-ordered, .status-in-progress, .status-canceled,
+    .status-rejected, .status-lost, .status-hold {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    /* کارت عنوان صفحه */
+    .card:first-child {
+      border-bottom: 2px solid #2563eb !important;
+      padding-bottom: 6px !important;
+      margin-bottom: 12px !important;
+    }
   }
 </style>
 </head>
@@ -138,11 +213,17 @@
   </div>
 </div>
 
-<div class="container" id="main-app">
-  <div class="card">
-    <div class="page-title">Sales Inquiry Report</div>
+<div class="card" style="display:flex; justify-content:space-between; align-items:flex-end; gap:12px;">
+  <div style="flex:1;">
+    <div class="page-title">Sales Dashboard</div>
     <div class="page-subtitle" id="page-subtitle">Loading data…</div>
+    <div id="print-filters-summary" style="display:none; margin-top:6px; padding-top:6px; border-top:1px dashed #d1d5db; font-size:0.75rem; color:#374151; line-height:1.5;"></div>
   </div>
+  <div id="header-actions" style="display:flex; gap:6px; align-items:center;">
+    <button class="btn btn-secondary" id="analytics-btn" style="background:#fef3c7; color:#92400e; border:1px solid #add2e7;">📊 Analytics</button>
+    <button class="btn btn-secondary" id="help-btn" style="background:#e0f2fe; color:#a2c8dd; border:1px solid #7dd3fc;">📖 Help</button>
+  </div>
+</div>
 
   <div class="card no-print" id="filter-card">
     <div class="filters-row">
@@ -178,14 +259,12 @@
     <div class="quick-actions">
       <div style="position:relative;">
         <button class="btn btn-secondary" id="columns-btn">Columns</button>
-        <button class="btn btn-secondary" id="reports-btn" style="background:#fef3c7; color:#92400e; border:1px solid #fcd34d;">📊 Reports</button>
-        <button class="btn btn-secondary" id="help-btn" style="background:#e0f2fe; color:#075985; border:1px solid #7dd3fc;">📖 Help</button>
         <div id="columns-panel" style="display:none;position:absolute;top:100%;right:0;margin-top:6px;background:#fff;border:1px solid var(--border);border-radius:6px;padding:10px;box-shadow:0 4px 16px rgba(0,0,0,0.1);z-index:300;min-width:200px;max-height:320px;overflow-y:auto;text-align:left;">
           <!-- چک‌باکس‌ها توسط JS اضافه می‌شوند -->
         </div>
       </div>
       <button class="btn btn-secondary" onclick="App.resetFilters()">Reset</button>
-      <button class="btn btn-primary" onclick="window.print()">Print</button>
+      <button class="btn btn-primary" onclick="App.printDashboard()">Print</button>
     </div>
   </div>
 
@@ -230,7 +309,7 @@
         <button id="back-to-dashboard" class="btn btn-secondary" style="padding:4px 10px; font-size:0.75rem; background:#fff; border:1px solid #d1d5db; display:flex; align-items:center; gap:4px;">
           <span style="font-size:1rem;">⬅</span> Dashboard
         </button>
-        <div style="font-weight:700; font-size:1.1rem; color:#1f2937;">Management Reports</div>
+        <div style="font-weight:700; font-size:1.1rem; color:#1f2937;">📈 Sales Analytics</div>
       </div>
       
       <!-- سمت راست: دکمه‌های تمام صفحه و بستن -->
@@ -359,7 +438,19 @@
       <button id="close-help" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#6b7280;">&times;</button>
     </div>
     <div style="display:flex; flex:1; overflow:hidden;">
-      <div id="help-nav" style="width:200px; border-right:1px solid #e5e7eb; background:#f8fafc; padding:10px; overflow-y:auto;"></div>
+      <div style="width:200px; border-right:1px solid #e5e7eb; background:#f8fafc; display:flex; flex-direction:column;">
+        <div style="padding:10px 10px 6px 10px;">
+          <div style="position:relative;">
+            <input type="text" id="help-search" placeholder="🔍 Search help…"
+                  style="width:100%; padding:5px 24px 5px 8px; border:1px solid #d1d5db; border-radius:4px; font-size:0.78rem; outline:none; font-family:inherit; background:#fff;">
+            <button type="button" id="help-search-clear" title="Clear"
+                    style="display:none; position:absolute; right:4px; top:50%; transform:translateY(-50%);
+                          background:none; border:none; cursor:pointer; color:#6b7280; font-size:0.9rem;
+                          line-height:1; padding:2px 4px;">&times;</button>
+          </div>
+        </div>
+        <div id="help-nav" style="flex:1; padding:4px 10px 10px 10px; overflow-y:auto;"></div>
+      </div>
       <div id="help-body" style="flex:1; padding:16px 20px; overflow-y:auto; font-size:0.85rem; line-height:1.55;"></div>
     </div>
   </div>
@@ -577,6 +668,8 @@ const App = (function () {
     state.filteredRows = state.rows.filter(r => rowMatches(r, f));
     renderActiveFilters(f);
     renderFilteredStats();
+    const ps = document.getElementById('print-filters-summary');
+    if (ps) ps.innerHTML = buildPrintFiltersSummary();
     render();
   }
 
@@ -630,7 +723,35 @@ const App = (function () {
     const rate = uniqueWithC.size ? ((uniqueOrderedWithC.size / uniqueWithC.size) * 100).toFixed(1) : '0.0';
     dom.filteredStats().innerHTML = `<span>Filtered: <b>${total}</b></span><span>Ordered: <b>${ordered}</b></span><span>Success: <b>${rate}%</b></span>`;
   }
-
+  function buildPrintFiltersSummary() {
+    const f = readFilters();
+    const parts = [];
+    const labels = { customer: 'Customer', product: 'Product', status: 'Status', currency: 'Currency', paymentType: 'Payment Type', terms: 'Terms' };
+    Object.keys(labels).forEach(k => {
+      if (f[k]) {
+        let val = f[k];
+        if (k === 'paymentType') val = val === 'domestic' ? 'Domestic' : 'Foreign (Out)';
+        parts.push(`${labels[k]}: ${val}`);
+      }
+    });
+    if (f.globalSearch) parts.push(`Search: "${f.globalSearch}"`);
+    if (state.orderFrom || state.orderTo) {
+      parts.push(`Order Date: ${state.orderFrom || '…'} → ${state.orderTo || '…'}`);
+    }
+    const dateLabels = { 'Date Of Inquiry Customer': 'INQ Date', 'Date-Ordered': 'PO Date', 'date sent': 'Ship Date', 'sent invoice': 'Invoice Date', 'Date Payment Received': 'Payment Date' };
+    Object.keys(state.dateFilters).forEach(key => {
+      const r = state.dateFilters[key];
+      if (!r || (!r.from && !r.to)) return;
+      parts.push(`${dateLabels[key] || key}: ${r.from || '…'} → ${r.to || '…'}`);
+    });
+    if (state.quickPreset) {
+      const presetLabels = { openOrders: 'Open Orders', completedOrders: 'Completed Orders', overdueOrders: 'Delayed Orders', awaitingShipment: 'Awaiting Shipment', awaitingInvoice: 'Awaiting Invoice', awaitingPayment: 'Awaiting Payment' };
+      parts.push(`Quick Filter: ${presetLabels[state.quickPreset] || state.quickPreset}`);
+    }
+    const stats = `Filtered: <b>${state.filteredRows.length}</b> of ${state.rows.length}`;
+    if (!parts.length) return stats;
+    return `${stats}<br><b>Active Filters:</b> ${parts.join(' &nbsp;|&nbsp; ')}`;
+  }
   function sortTable(key) {
     if (state.sortKey === key) state.sortAsc = !state.sortAsc; else { state.sortKey = key; state.sortAsc = true; }
     render();
@@ -754,7 +875,12 @@ const App = (function () {
       return state; 
   }
 
-  return { init, sortTable, resetFilters, getState }; 
+  function printDashboard() {
+    document.body.classList.remove('print-analytics');
+    window.print();
+  }
+
+  return { init, sortTable, resetFilters, getState, printDashboard }; 
 })();
 </script>
 
@@ -1474,7 +1600,7 @@ const Reports = (function() {
     function init() {
         const modal = document.getElementById('reports-modal');
         const modalBox = document.getElementById('reports-modal-box');
-        const btnOpen = document.getElementById('reports-btn');
+        const btnOpen = document.getElementById('analytics-btn');
         const btnClose = document.getElementById('close-reports');
         const btnApply = document.getElementById('btn-apply-rep-filters');
         const btnReset = document.getElementById('reset-reports');
@@ -1612,7 +1738,8 @@ const Reports = (function() {
         });
         // ? منطق چاپ و خروجی PDF تمیز
         function printReport() {
-            const titleEl = document.getElementById('report-title');
+            document.body.classList.add('print-analytics');
+            // ... بقیه کد
             // استخراج عنوان اصلی (بدون زیرنویس)
             const title = titleEl.innerText.split('\n')[0]; 
             const summary = document.getElementById('report-summary-container').innerHTML;
@@ -1798,13 +1925,14 @@ const Help = (function () {
         <ul>
           <li><b>Top card</b> — filters (Customer, Product, Status, Currency, Payment Type, Terms, Global Search). Applied live.</li>
           <li><b>Middle</b> — main results table. Click headers to sort; click ▾ to filter by date.</li>
-          <li><b>Bottom bar</b> — Quick Filters (preset filters) + 📊 Reports / 📖 Help / Reset / Print.</li>
+          <li><b>Top-right of header card</b> — 📊 Analytics / 📖 Help buttons.</li>
+          <li><b>Bottom bar</b> — Quick Filters (preset filters) + Columns / Reset / Print.</li>
         </ul>
         <h3>Typical flow</h3>
         <ol>
           <li>Pick a Customer (or leave "All").</li>
           <li>Use a Quick Filter (e.g., <b>Open Orders</b>).</li>
-          <li>Open 📊 Reports for aggregated views.</li>
+          <li>Open 📊 Analytics (top-right) for aggregated views.</li>
         </ol>
         <p><i>All calculations happen in your browser. The source is the master Excel file.</i></p>`
     },
@@ -1872,7 +2000,7 @@ const Help = (function () {
           <li><b>Payment Summary</b> — Paid vs. Unpaid per currency.</li>
           <li><b>Customer Sales Summary</b> — Total / Paid / Unpaid per customer per currency.</li>
         </ul>
-        <p><i>Each report has its own date filter and column toggles (⚙️ Columns).</i></p>`
+        <p><i>Each analytic view has its own date filter and column toggles (⚙️ Columns).</i></p>`
     },
     {
       id: 'glossary', title: '6. Glossary',
@@ -1893,7 +2021,7 @@ const Help = (function () {
       id: 'tips', title: '7. Tips for Managers',
       html: `
         <ul>
-          <li>Use <b>Columns</b> to hide noisy fields and <b>Print</b> to export what you see.</li>
+          <li>Use <b>Columns</b> to hide noisy fields and <b>Print</b> to export what you see. Open <b>📊 Analytics</b> (top-right) for grouped and pipeline views.</li>
           <li>Click a column header to sort; click ▾ to filter by a date range.</li>
           <li><b>Canceled by ESA</b> rows are kept in the table for transparency but excluded from monetary totals.</li>
           <li>Filter by <b>Currency</b> alone to compare USD / EUR / Rial / AED performance side by side.</li>
@@ -1913,10 +2041,69 @@ const Help = (function () {
     nav.innerHTML = SECTIONS.map(s =>
       `<button data-id="${s.id}" style="display:block; width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#374151; border-radius:4px; font-size:0.8rem; cursor:pointer; margin-bottom:2px;">${s.title}</button>`
     ).join('');
+    const searchInput = document.getElementById('help-search');
+    const searchClear = document.getElementById('help-search-clear');
 
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+    function highlight(text, q) {
+      if (!q) return text;
+      // روی HTML اعمال نکن — فقط روی متن خالص سایدبار امن است؛ برای بدنه از highlightHtml استفاده می‌شود
+      const safe = escapeHtml(text);
+      const re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+      return safe.replace(re, '<mark style="background:#fde68a; color:inherit; padding:0 1px; border-radius:2px;">$1</mark>');
+    }
+    function highlightHtml(html, q) {
+      if (!q) return html;
+      const re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+      // فقط متن بین تگ‌ها را هایلایت کن
+      return html.replace(/>([^<]+)</g, (m, txt) =>
+        '>' + txt.replace(re, '<mark style="background:#fde68a; color:inherit; padding:0 1px; border-radius:2px;">$1</mark>') + '<'
+      );
+    }
+
+    function filterNav(query) {
+      const q = query.trim();
+      const ql = q.toLowerCase();
+      let firstMatch = null;
+      nav.querySelectorAll('button[data-id]').forEach(b => {
+        const id = b.getAttribute('data-id');
+        const sec = SECTIONS.find(s => s.id === id);
+        if (!sec) return;
+        const hay = (sec.title + ' ' + sec.html).toLowerCase();
+        const match = !ql || hay.includes(ql);
+        b.style.display = match ? 'block' : 'none';
+        // هایلایت در عنوان سایدبار
+        b.innerHTML = ql ? highlight(sec.title, q) : sec.title;
+        if (match && !firstMatch) firstMatch = b;
+      });
+      // دکمه ×
+      searchClear.style.display = q ? 'block' : 'none';
+      // اگر بخش فعال فیلتر شد، اولین نتیجه را فعال کن
+      let activeId = null;
+      nav.querySelectorAll('button[data-id]').forEach(b => {
+        if (b.style.background === 'rgb(224, 231, 255)' || b.style.background === '#e0e7ff') activeId = b.getAttribute('data-id');
+      });
+      const activeBtn = activeId ? nav.querySelector(`button[data-id="${activeId}"]`) : null;
+      if (ql && (!activeBtn || activeBtn.style.display === 'none') && firstMatch) {
+        show(firstMatch.getAttribute('data-id'));
+      } else if (ql && activeBtn && activeBtn.style.display !== 'none') {
+        const sec = SECTIONS.find(s => s.id === activeId);
+        if (sec) body.innerHTML = `<h2 style="margin:0 0 10px; font-size:1.05rem; color:#1e3a8a;">${highlight(sec.title, q)}</h2>${highlightHtml(sec.html, q)}`;
+      }
+    }
+
+    searchInput.addEventListener('input', () => filterNav(searchInput.value));
+    searchClear.addEventListener('click', () => {
+      searchInput.value = '';
+      filterNav('');
+      searchInput.focus();
+    });
     function show(id) {
       const sec = SECTIONS.find(s => s.id === id) || SECTIONS[0];
-      body.innerHTML = `<h2 style="margin:0 0 10px; font-size:1.05rem; color:#1e3a8a;">${sec.title}</h2>${sec.html}`;
+      const q = searchInput ? searchInput.value.trim() : '';
+      body.innerHTML = `<h2 style="margin:0 0 10px; font-size:1.05rem; color:#1e3a8a;">${highlight(sec.title, q)}</h2>${highlightHtml(sec.html, q)}`;
       nav.querySelectorAll('button').forEach(b => {
         const active = b.getAttribute('data-id') === sec.id;
         b.style.background = active ? '#e0e7ff' : 'transparent';
@@ -1930,7 +2117,18 @@ const Help = (function () {
       if (b) show(b.getAttribute('data-id'));
     });
 
-    btn.addEventListener('click', () => { modal.style.display = 'flex'; show(SECTIONS[0].id); });
+    btn.addEventListener('click', () => {
+      modal.style.display = 'flex';
+      searchInput.value = '';
+      searchClear.style.display = 'none';
+      // ریست هایلایت عنوان‌های سایدبار
+      nav.querySelectorAll('button[data-id]').forEach(b => {
+        const id = b.getAttribute('data-id');
+        const sec = SECTIONS.find(s => s.id === id);
+        if (sec) { b.style.display = 'block'; b.innerHTML = sec.title; }
+      });
+      show(SECTIONS[0].id);
+    });
     close.addEventListener('click', () => { modal.style.display = 'none'; });
     modal.addEventListener('click', e => { if (e.target === modal) modal.style.display = 'none'; });
   }
