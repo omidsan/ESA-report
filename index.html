@@ -3,22 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Sales Inquiry Report — Ervin Shimi Azma</title>
-
 <style>
-  :root {
-    --bg: #f7f8fa; --surface: #ffffff; --border: #e5e7eb; --text: #1f2937;
-    --text-muted: #6b7280; --primary: #2563eb; --primary-hover: #1d4ed8;
-    --success: #16a34a; --warning: #d97706; --danger: #dc2626;
-    --radius: 6px; --font: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
-  }
+  :root { --bg: #f7f8fa; --surface: #ffffff; --border: #e5e7eb; --text: #1f2937; --text-muted: #6b7280; --primary: #2563eb; --primary-hover: #1d4ed8; --success: #16a34a; --warning: #d97706; --danger: #dc2626; --radius: 6px; --font: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.45; padding: 20px 16px; min-height: 100vh; }
   .container { max-width: 100%; margin: 0 auto; }
   .card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 12px 14px; margin-bottom: 10px; }
   .page-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 2px; }
   .page-subtitle { font-size: 0.85rem; color: var(--text-muted); }
-  
   .filters-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
   .filter-group { flex: 0 1 130px; min-width: 100px; }
   .filter-group:first-child { flex: 0 1 200px; min-width: 150px; }
@@ -34,40 +30,32 @@
   .filter-group-search { flex: 1 1 3000px; min-width: 200px; max-width: 500px; margin: 0 auto; }
   .filter-group-search .search-input { width: 100%; padding: 5px 10px; border: 1px solid #dbeafe; border-radius: 4px; font-size: 0.8rem; background: #f8fbff; color: var(--text); outline: none; text-align: left; }
   .filter-group-search .search-input:focus { border-color: var(--primary); background: #fff; }
-
   .active-filters { display: flex; flex-wrap: wrap; gap: 4px; padding: 6px 0 0; }
   .active-filters:empty { display: none; }
   .filter-chip { display: inline-flex; align-items: center; gap: 4px; background: #eef2ff; color: #3730a3; border: 1px solid #c7d2fe; border-radius: 10px; padding: 2px 8px; font-size: 0.7rem; font-weight: 500; }
   .filter-chip .chip-key { color: #6366f1; font-weight: 600; }
   .filter-chip button { background: none; border: none; color: #6366f1; cursor: pointer; font-size: 0.8rem; line-height: 1; padding: 0; }
-  
   .search-chip-wrap { display: flex; justify-content: center; padding: 4px 0 0; }
   .search-chip-wrap:empty { display: none; }
   .search-chip { display: inline-flex; align-items: center; gap: 6px; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; border-radius: 10px; padding: 3px 10px; font-size: 0.75rem; font-weight: 600; }
   .search-chip .chip-key { color: #3b82f6; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.04em; }
-
   .filtered-stats { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 0.75rem; color: var(--text-muted); padding: 6px 0 0; border-top: 1px dashed var(--border); margin-top: 6px; }
   .filtered-stats b { color: var(--text); }
-
   .btn { padding: 6px 14px; border: none; border-radius: 4px; font-size: 0.78rem; font-weight: 600; cursor: pointer; }
   .btn-primary { background: var(--primary); color: #fff; }
   .btn-secondary { background: #e5e7eb; color: var(--text); }
-
-  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); }
-  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
-  th, td { padding: 8px 10px; text-align: left; white-space: nowrap; border-bottom: 1px solid var(--border); }
-  th { background: #f9fafb; color: var(--text-muted); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; position: sticky; top: 0; cursor: pointer; user-select: none; }
-  th { position: relative; padding: 6px 10px; }
+  .table-wrap { max-height: 50vh; overflow-y: auto; overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); }
+  th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  th { background: #f9fafb; color: var(--text-muted); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; position: sticky; top: 0; cursor: pointer; user-select: none; z-index: 2; padding: 6px 10px; }
   tbody tr:hover { background: #f9fafb; }
+  td:first-child, th:first-child { overflow: visible; text-overflow: clip; }
   tbody tr:last-child td { border-bottom: none; }
-  
   .status-ordered { color: var(--success); font-weight: 600; }
   .status-canceled, .status-rejected { color: var(--danger); }
   .status-lost, .status-hold { color: var(--warning); }
-  
+  .status-in-progress { color: var(--primary); font-weight: 600; }
   .date-filter-btn { display: inline-block; margin-left: 4px; padding: 0 3px; font-size: 0.7rem; color: var(--text-muted); cursor: pointer; border: 1px solid transparent; border-radius: 3px; line-height: 1; vertical-align: middle; }
   .date-filter-btn.active { color: #fff; background: var(--primary); border-color: var(--primary); }
-  
   .date-popup { position: absolute; z-index: 200; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); font-size: 0.8rem; min-width: 200px; top: 100%; right: 0; margin-top: 4px; }
   .date-popup label { display: block; font-size: 0.7rem; color: var(--text-muted); font-weight: 600; margin-bottom: 2px; }
   .date-popup input[type="date"] { width: 100%; padding: 4px 6px; border: 1px solid var(--border); border-radius: 4px; font-size: 0.78rem; margin-bottom: 6px; outline: none; font-family: var(--font); }
@@ -75,23 +63,85 @@
   .date-popup .popup-actions button { flex: 1; padding: 5px; border: none; border-radius: 4px; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
   .date-popup .popup-actions .apply { background: var(--primary); color: #fff; }
   .date-popup .popup-actions .clear { background: #e5e7eb; color: var(--text); }
-  
   .empty-state { text-align: center; padding: 32px 20px; color: var(--text-muted); font-size: 0.9rem; }
-
   .quick-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 5px 10px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; }
   .quick-title { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-right: 4px; }
   .quick-btn { padding: 4px 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 12px; font-size: 0.72rem; font-weight: 600; cursor: pointer; }
   .quick-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
   .quick-actions { margin-left: auto; display: flex; gap: 4px; }
   .quick-actions .btn { padding: 4px 10px; font-size: 0.72rem; }
+  .main-row { cursor: pointer; }
+  .detail-row td { border-bottom: 1px solid var(--border); }
+  @media print {
+    .table-wrap { max-height: none; overflow: visible; }
+    .detail-row { display: none !important; }
+    .expand-btn { display: none !important; }
+  }
+  #columns-panel label { display: flex; align-items: center; gap: 6px; padding: 4px 2px; font-size: 0.78rem; color: var(--text); cursor: pointer; user-select: none; }
+  #columns-panel label:hover { background: #f3f4f6; border-radius: 3px; }
+  #columns-panel input[type="checkbox"] { cursor: pointer; }
+  
+  /* تنظیمات جدول اصلی */
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; table-layout: auto; }
+  th:nth-child(4), td:nth-child(4) { width: 100px !important; max-width: 100px !important; }
+
+  /* تنظیمات جدول گزارشات */
+  .report-table { width:100%; border-collapse:collapse; font-size:0.8rem; table-layout: auto; }
+  .report-table th, .report-table td { padding:8px 6px; }
+  .report-table th, .report-table td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .report-table th { background:#f3f4f6; color:#374151; font-weight:600; padding:8px; text-align:left; border-bottom:2px solid #e5e7eb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .report-table td { padding:8px; border-bottom:1px solid #e5e7eb; color:#4b5563; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .report-table tfoot tr { position: sticky; bottom: 0; z-index: 4; }
+  .report-table tfoot td { background: #f3f4f6; border-top: 2px solid #6b7280; padding: 8px 6px; white-space: nowrap; }
+  #report-content { position: relative; padding: 0 !important; }
+
+  /* استایل دکمه تنظیمات ستون‌ها در گزارش */
+  .col-settings-btn { position: absolute; right: 16px; top: 12px; background: #fff; border: 1px solid #d1d5db; border-radius: 4px; padding: 4px 8px; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); z-index: 20; }
+  .col-settings-btn:hover { background: #f9fafb; }
+  .col-settings-panel { position: absolute; right: 16px; top: 40px; background: #fff; border: 1px solid #d1d5db; border-radius: 6px; padding: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 30; width: 200px; max-height: 300px; overflow-y: auto; display: none; text-align: left; }
+  .col-settings-panel label { display: flex; align-items: center; gap: 6px; padding: 4px 0; font-size: 0.75rem; cursor: pointer; }
+  #sidebar-resizer:hover, #sidebar-resizer:active { background: #c7d2fe; }
+  @media print {
+    body * { visibility: hidden; }
+    #report-content, #report-content *, #report-summary-container, #report-summary-container *, #report-title, #report-title * { visibility: visible; }
+    #report-content { position: absolute; left: 0; top: 100px; width: 100%; height: auto !important; max-height: none !important; overflow: visible !important; border: none !important; }
+    #report-summary-container { position: absolute; left: 0; top: 40px; width: 100%; }
+    #report-title { position: absolute; left: 0; top: 0; width: 100%; }
+    #reports-sidebar, #sidebar-resizer, .col-settings-btn, #rep-print-btn, #rep-pdf-btn { display: none !important; }
+  }
 </style>
 </head>
 <body>
 
+<div id="login-overlay" style="position:fixed;inset:0;background:#f7f8fa;display:flex;align-items:center;justify-content:center;z-index:9999;">
+  <div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:24px;width:320px;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,0.06);">
+    <div style="font-weight:700;font-size:1.1rem;margin-bottom:4px;">Sales Inquiry Report</div>
+    <div style="font-size:0.8rem;color:#6b7280;margin-bottom:18px;">Enter password to access data</div>
+
+    <input type="password" id="login-password" placeholder="Password"
+           style="width:100%;padding:9px 10px;border:1px solid #e5e7eb;border-radius:4px;font-size:0.9rem;font-family:inherit;outline:none;margin-bottom:8px;"
+           autocomplete="current-password">
+
+    <label style="display:flex;align-items:center;gap:6px;font-size:0.78rem;color:#374151;margin-bottom:12px;cursor:pointer;user-select:none;">
+      <input type="checkbox" id="login-show" style="cursor:pointer;">
+      Show password
+    </label>
+
+    <button id="login-btn"
+            style="width:100%;padding:9px;background:#2563eb;color:#fff;border:none;border-radius:4px;font-weight:600;font-size:0.85rem;cursor:pointer;">
+      Sign in
+    </button>
+
+    <div id="login-error" style="color:#dc2626;font-size:0.78rem;margin-top:10px;display:none;">
+      Incorrect password.
+    </div>
+  </div>
+</div>
+
 <div class="container" id="main-app">
   <div class="card">
     <div class="page-title">Sales Inquiry Report</div>
-    <div class="page-subtitle" id="page-subtitle">در حال بارگذاری داده‌ها…</div>
+    <div class="page-subtitle" id="page-subtitle">Loading data…</div>
   </div>
 
   <div class="card no-print" id="filter-card">
@@ -126,6 +176,13 @@
     <button class="quick-btn" data-preset="awaitingInvoice">Awaiting Invoice</button>
     <button class="quick-btn" data-preset="awaitingPayment">Awaiting Payment</button>
     <div class="quick-actions">
+      <div style="position:relative;">
+        <button class="btn btn-secondary" id="columns-btn">Columns</button>
+        <button class="btn btn-secondary" id="reports-btn" style="background:#fef3c7; color:#92400e; border:1px solid #fcd34d;">📊 Reports</button>
+        <div id="columns-panel" style="display:none;position:absolute;top:100%;right:0;margin-top:6px;background:#fff;border:1px solid var(--border);border-radius:6px;padding:10px;box-shadow:0 4px 16px rgba(0,0,0,0.1);z-index:300;min-width:200px;max-height:320px;overflow-y:auto;text-align:left;">
+          <!-- چک‌باکس‌ها توسط JS اضافه می‌شوند -->
+        </div>
+      </div>
       <button class="btn btn-secondary" onclick="App.resetFilters()">Reset</button>
       <button class="btn btn-primary" onclick="window.print()">Print</button>
     </div>
@@ -134,9 +191,162 @@
   <div class="card">
     <div class="table-wrap">
       <table id="report-table">
+        <colgroup>
+          <col style="width: 48px;">
+          <col style="width: 14%;">
+          <col style="width: 8%;">
+          <col style="width: 8%;">
+          <col style="width: 8%;">
+          <col style="width: 8%;">
+          <col style="width: 10%;">
+          <col style="width: 8%;">
+          <col style="width: 8%;">
+          <col style="width: 7%;">
+          <col style="width: 5%;">
+          <col style="width: 6%;">
+          <col style="width: 8%;">
+          <col style="width: 7%;">
+          <col style="width: 6%;">
+          <col style="width: 6%;">
+          <col style="width: 7%;">
+        </colgroup>
         <thead></thead>
         <tbody></tbody>
       </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for Reports -->
+<div id="reports-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+  <div id="reports-modal-box" style="background:#fff; border-radius:8px; width:90%; max-width:1100px; height:85vh; display:flex; flex-direction:column; box-shadow:0 10px 25px rgba(0,0,0,0.2); transition: all 0.2s ease;">
+    
+    <!-- Header -->
+    <div style="padding:10px 16px; border-bottom:1px solid #e5e7eb; display:flex; justify-content:space-between; align-items:center; background:#f9fafb; border-radius:8px 8px 0 0;">
+      
+      <!-- سمت چپ: دکمه بازگشت و عنوان -->
+      <div style="display:flex; align-items:center; gap:12px;">
+        <button id="back-to-dashboard" class="btn btn-secondary" style="padding:4px 10px; font-size:0.75rem; background:#fff; border:1px solid #d1d5db; display:flex; align-items:center; gap:4px;">
+          <span style="font-size:1rem;">⬅</span> Dashboard
+        </button>
+        <div style="font-weight:700; font-size:1.1rem; color:#1f2937;">Management Reports</div>
+      </div>
+      
+      <!-- سمت راست: دکمه‌های تمام صفحه و بستن -->
+      <div style="display:flex; gap:8px; align-items:center;">
+        <button id="expand-reports" style="background:none; border:none; font-size:1.3rem; cursor:pointer; color:#6b7280; line-height:1; margin-right:4px;" title="Maximize / Restore">⛶</button>
+        <button id="close-reports" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#6b7280; line-height:1;">&times;</button>
+      </div>
+    </div>
+
+    <!-- Body (Split into Sidebar and Content) -->
+    <div style="display:flex; flex:1; overflow:hidden;">
+      
+      <!-- ================= سایدبار (منو و فیلترها) ================= -->
+      <div id="reports-sidebar" style="width:260px; min-width:200px; max-width:450px; border-right:1px solid #e5e7eb; background:#f8fafc; display:flex; flex-direction:column;">
+        
+        <!-- منوی انتخاب گزارش -->
+        <div style="padding:12px; border-bottom:1px solid #e5e7eb; overflow-y:auto;">
+          <div style="font-size:0.7rem; font-weight:700; color:#6b7280; text-transform:uppercase; margin-bottom:8px;">1. Select Report</div>
+          
+          <details open style="margin-bottom:8px;">
+            <summary style="font-size:0.7rem; font-weight:700; color:#6b7280; text-transform:uppercase; cursor:pointer; outline:none; margin-bottom:4px;">▼ Sales & Orders</summary>
+            <div style="padding-left:4px; margin-top:4px;">
+              <button class="report-btn active" data-report="allOrdered" style="width:100%; text-align:left; padding:6px 8px; border:none; background:#e0e7ff; color:#3730a3; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">All Ordered</button>
+              <button class="report-btn" data-report="delayedOrders" style="width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#4b5563; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">Delayed Orders</button>
+              <button class="report-btn" data-report="completedOrders" style="width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#4b5563; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">Completed Orders</button>
+              <button class="report-btn" data-report="openOrders" style="width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#4b5563; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">Open Orders</button>
+              <button class="report-btn" data-report="awaitingShipment" style="width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#4b5563; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">Awaiting Shipment</button>
+              <button class="report-btn" data-report="awaitingInvoice" style="width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#4b5563; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">Awaiting Invoice</button>
+              <button class="report-btn" data-report="awaitingPayment" style="width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#4b5563; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">Awaiting Payment</button>
+              <button class="report-btn" data-report="ordersByCustomer" style="width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#4b5563; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">Orders by Customer</button>
+              <button class="report-btn" data-report="ordersByProduct" style="width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#4b5563; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">Orders by Product</button>
+            </div>
+          </details>
+
+          <details style="margin-bottom:8px;">
+            <summary style="font-size:0.7rem; font-weight:700; color:#6b7280; text-transform:uppercase; cursor:pointer; outline:none; margin-bottom:4px;">▶ Commercial & Currency</summary>
+            <div style="padding-left:4px; margin-top:4px;">
+              <button class="report-btn" data-report="paymentSummary" style="width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#4b5563; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">Payment Summary</button>
+              <button class="report-btn" data-report="customerSales" style="width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#4b5563; border-radius:4px; font-size:0.75rem; font-weight:600; cursor:pointer;">Customer Sales Summary</button>
+            </div>
+          </details>
+        </div>
+        
+        <!-- فیلترها -->
+        <div style="padding:12px; border-top:1px solid #e5e7eb; background:#fff; flex: 1; overflow-y: auto;">
+          <div style="font-size:0.7rem; font-weight:700; color:#6b7280; text-transform:uppercase; margin-bottom:8px;">2. Filters</div>
+          
+          <label style="font-size:0.75rem; font-weight:600; color:#374151;">Customer</label>
+          <select id="rep-f-customer" style="width:100%; margin-bottom:8px; padding:4px; border:1px solid #d1d5db; border-radius:4px; font-size:0.8rem;"><option value="">All</option></select>
+
+          <label style="font-size:0.75rem; font-weight:600; color:#374151;">Currency</label>
+          <select id="rep-f-currency" style="width:100%; margin-bottom:8px; padding:4px; border:1px solid #d1d5db; border-radius:4px; font-size:0.8rem;">
+            <option value="">All</option>
+            <option value="usd">USD</option>
+            <option value="eur">EUR</option>
+            <option value="rial">Rial</option>
+            <option value="aed">AED</option>
+          </select>
+
+          <label style="font-size:0.75rem; font-weight:600; color:#374151;">Region (Dom/For)</label>
+          <select id="rep-f-region" style="width:100%; margin-bottom:8px; padding:4px; border:1px solid #d1d5db; border-radius:4px; font-size:0.8rem;">
+            <option value="">All</option>
+            <option value="domestic">Domestic Only</option>
+            <option value="foreign">Foreign Only (Out)</option>
+          </select>
+
+          <label style="font-size:0.75rem; font-weight:600; color:#374151;">Terms of Delivery</label>
+          <select id="rep-f-terms" style="width:100%; margin-bottom:12px; padding:4px; border:1px solid #d1d5db; border-radius:4px; font-size:0.8rem;"><option value="">All</option></select>
+          <label style="font-size:0.75rem; font-weight:600; color:#374151;">Date Filter</label>
+          <div style="display: flex; gap: 4px; margin-bottom: 8px;">
+            <select id="rep-f-date-col" style="flex: 1; min-width: 0; padding: 4px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.7rem;">
+              <option value="">No Date</option>
+              <option value="Date Of Inquiry Customer">INQ Date</option>
+              <option value="Date-Ordered">PO Date</option>
+              <option value="date sent">Ship Date</option>
+              <option value="sent invoice">Invoice Date</option>
+            </select>
+            <input type="date" id="rep-f-date-from" style="flex: 1; min-width: 0; padding: 3px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.7rem;" title="From Date">
+            <input type="date" id="rep-f-date-to" style="flex: 1; min-width: 0; padding: 3px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.7rem;" title="To Date">
+          </div>
+          <button id="btn-apply-rep-filters" style="width:100%; padding:6px; background:#2563eb; color:#fff; border:none; border-radius:4px; font-weight:600; cursor:pointer; margin-bottom:6px;">Apply Filters</button>
+          <button id="reset-reports" style="width:100%; padding:6px; background:#f3f4f6; color:#374151; border:1px solid #d1d5db; border-radius:4px; font-weight:600; cursor:pointer;">Reset Filters</button>
+        </div>
+      </div>
+
+      <!-- ================= دسته‌گیر (Resizer) ================= -->
+      <div id="sidebar-resizer" style="width: 5px; cursor: col-resize; background: transparent; transition: background 0.2s; z-index: 100; flex-shrink: 0;"></div>
+
+      <!-- ================= محتوای اصلی (جدول) ================= -->
+      <!-- Content Area -->
+      <!-- Content Area -->
+      <div id="report-main-content" style="flex:1; display:flex; flex-direction:column; background:#fff; position: relative; overflow: hidden;">
+        
+        <!-- هدر جدول و دکمه ستون‌ها -->
+        <div style="padding:12px 16px; font-weight:700; font-size:1rem; color:#1f2937; border-bottom:1px solid #e5e7eb; background:#f9fafb; display: flex; justify-content: space-between; align-items: center;">
+          <span id="report-title">All Ordered</span>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <button id="rep-print-btn" class="btn btn-secondary" style="padding:4px 10px; font-size:0.75rem;">🖨️ Print</button>
+            <button id="rep-pdf-btn" class="btn btn-primary" style="padding:4px 10px; font-size:0.75rem;">📄 PDF</button>
+            <div style="position: relative;">
+              <button id="rep-cols-btn" class="col-settings-btn" style="position:static; box-shadow:none;">⚙️ Columns</button>
+              <div id="rep-cols-panel" class="col-settings-panel" style="right:0; top: 100%; margin-top: 4px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- کادر ثابت خلاصه تعداد رکوردها -->
+        <div id="report-summary-container" style="padding: 12px 16px 0 16px; background: #fff; flex-shrink: 0;">
+          <!-- محتوای Total Records توسط جاوااسکریپت اینجا قرار می‌گیرد -->
+        </div>
+
+        <!-- کادر اسکرول شونده جدول -->
+        <div id="report-content" style="flex:1; overflow-y:auto; overflow-x:auto; padding:0; height: calc(85vh - 160px); border: 1px solid #e5e7eb; border-radius: 6px; margin: 0 16px 16px 16px; background: #fff;">
+          <!-- Report Table -->
+        </div>
+      </div>
+      
     </div>
   </div>
 </div>
@@ -156,15 +366,33 @@ const App = (function () {
     { key: 'Date Payment Received', label: 'Payment Date' }
   ];
   
-  const state = { rows: [], filteredRows: [], sortKey: '', sortAsc: true, dateFilters: {}, quickPreset: '', orderFrom: '', orderTo: '' };
+  const DEFAULT_HIDDEN = ['Brand', 'Terms of Delivery', 'Date Payment Received'];
+  const LS_KEY = 'esa_hidden_columns_v1';
+  
+  function loadHidden() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
+      if (Array.isArray(saved)) return new Set(saved);
+    } catch (e) {}
+    return new Set(DEFAULT_HIDDEN);
+  }
+
+  const state = { 
+    rows: [], 
+    filteredRows: [], 
+    sortKey: '', 
+    sortAsc: true, 
+    dateFilters: {}, 
+    quickPreset: '', 
+    orderFrom: '', 
+    orderTo: '',
+    hiddenColumns: loadHidden()
+  };
 
   const dom = {
-    subtitle: () => document.getElementById('page-subtitle'),
-    filteredStats: () => document.getElementById('filtered-stats'),
-    activeFilters: () => document.getElementById('active-filters'),
-    searchChipWrap: () => document.getElementById('search-chip-wrap'),
-    tableHead: () => document.querySelector('#report-table thead'),
-    tableBody: () => document.querySelector('#report-table tbody'),
+    subtitle: () => document.getElementById('page-subtitle'), filteredStats: () => document.getElementById('filtered-stats'),
+    activeFilters: () => document.getElementById('active-filters'), searchChipWrap: () => document.getElementById('search-chip-wrap'),
+    tableHead: () => document.querySelector('#report-table thead'), tableBody: () => document.querySelector('#report-table tbody'),
     filters: {
       customer: () => document.getElementById('f-customer'), product: () => document.getElementById('f-product'),
       status: () => document.getElementById('f-status'), currency: () => document.getElementById('f-currency'),
@@ -178,7 +406,7 @@ const App = (function () {
   function formatDate(value) {
     if (!value) return '';
     let d = new Date(value); if (isNaN(d.getTime())) return String(value);
-    return `${String(d.getDate()).padStart(2, '0')}-${MONTHS[d.getMonth()]}-${String(d.getFullYear()).slice(-2)}`;
+    return `${MONTHS[d.getMonth()]}-${String(d.getFullYear()).slice(-2)}`;
   }
   function formatNumber(n) { if (!n) return ''; const num = parseFloat(String(n).replace(/,/g, '')); return isNaN(num) ? n : num.toLocaleString('en-US'); }
   function formatPayment(v) { if (v === undefined || v === '') return ''; const num = parseFloat(v); return isNaN(num) ? v : Math.round(num * 100) + '%'; }
@@ -191,12 +419,27 @@ const App = (function () {
     if (!window.allRows) { dom.subtitle().textContent = 'Error: Data not loaded.'; return; }
     
     state.rows = window.allRows.map(r => {
-      let pi = ''; const piC = (r['PI-C'] || '').trim(); const piT = (r['PI-T'] || '').trim();
+      let pi = ''; const piC = String(r['PI-C'] ?? '').trim(); const piT = String(r['PI-T'] ?? '').trim();
       if (piC && piT) pi = piC + ' / ' + piT; else if (piC) pi = piC; else if (piT) pi = piT;
-      let rawInq = String(r['Inquiry No'] || '').replace(/\n/g, ' ');
+      let rawInq = String(r['Inquiry No'] ?? '').replace(/\n/g, ' ');
       let inqNo = rawInq; let brand = '';
       if (rawInq.includes(' | ')) { const parts = rawInq.split(' | '); inqNo = parts[0].trim(); brand = parts.slice(1).join(' | ').trim(); }
-      return { ...r, PI: pi, 'Inquiry No': inqNo, Brand: brand };
+      
+      // ? استخراج مطمئن Price و Price Unit
+      let rawPrice = r['Price'];
+      let finalPrice = 0;
+      if (typeof rawPrice === 'number') {
+          finalPrice = rawPrice;
+      } else if (rawPrice) {
+          // حذف هر چیزی که عدد نیست
+          const cleanNum = String(rawPrice).replace(/[^\d.-]/g, '');
+          finalPrice = parseFloat(cleanNum) || 0;
+      }
+      
+      let finalUnit = r['Price Unit'] || '';
+      if (typeof finalUnit === 'string') finalUnit = finalUnit.trim();
+
+      return { ...r, PI: pi, 'Inquiry No': inqNo, Brand: brand, Price: finalPrice, 'Price Unit': finalUnit };
     });
 
     dom.subtitle().textContent = `Total records: ${state.rows.length} · Last updated: ${new Date().toLocaleString('en-US')}`;
@@ -206,7 +449,7 @@ const App = (function () {
   function populateDropdowns() {
     uniqueSorted(state.rows, 'Customer').forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; dom.filters.customer().appendChild(o); });
     uniqueSorted(state.rows, 'Product').forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; dom.filters.product().appendChild(o); });
-    const statusSet = new Set(uniqueSorted(state.rows, 'Status')); statusSet.add('Pending');
+    const statusSet = new Set(uniqueSorted(state.rows, 'Status')); statusSet.add('Pending'); statusSet.add('In Progress');
     Array.from(statusSet).sort().forEach(s => { const o = document.createElement('option'); o.value = s; o.textContent = s; dom.filters.status().appendChild(o); });
     const currencySet = new Set(); state.rows.forEach(r => { const c = getCleanCurrency(r['Price Unit']); if (c) currencySet.add(c); });
     Array.from(currencySet).sort().forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; dom.filters.currency().appendChild(o); });
@@ -220,6 +463,31 @@ const App = (function () {
     if (dom.filters.orderTo()) dom.filters.orderTo().addEventListener('change', (e) => { state.orderTo = e.target.value; applyFilters(); });
     document.querySelectorAll('.quick-btn').forEach(btn => btn.addEventListener('click', () => { state.quickPreset = btn.getAttribute('data-preset'); applyFilters(); }));
     dom.filters.status().addEventListener('change', updateOrderDateVisibility);
+    
+    // Columns Button Logic
+    const colsBtn = document.getElementById('columns-btn');
+    const colsPanel = document.getElementById('columns-panel');
+    if (colsBtn && colsPanel) {
+      colsPanel.innerHTML = COLUMNS.filter(c => c.key !== '__row__').map(c => {
+        const checked = state.hiddenColumns.has(c.key) ? '' : 'checked';
+        return `<label><input type="checkbox" data-key="${c.key}" ${checked}> ${c.label}</label>`;
+      }).join('');
+      colsPanel.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        cb.addEventListener('change', () => {
+          if (cb.checked) state.hiddenColumns.delete(cb.getAttribute('data-key'));
+          else state.hiddenColumns.add(cb.getAttribute('data-key'));
+          localStorage.setItem(LS_KEY, JSON.stringify([...state.hiddenColumns]));
+          render();
+        });
+      });
+      colsBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        colsPanel.style.display = colsPanel.style.display === 'none' ? 'block' : 'none';
+      });
+      document.addEventListener('click', (e) => {
+        if (!colsPanel.contains(e.target) && e.target !== colsBtn) colsPanel.style.display = 'none';
+      });
+    }
   }
 
   function updateOrderDateVisibility() {
@@ -248,7 +516,10 @@ const App = (function () {
   function rowMatches(r, f) {
     if (f.customer && r.Customer !== f.customer) return false;
     if (f.product && r.Product !== f.product) return false;
-    if (f.status && (r.Status || 'Pending') !== f.status) return false;
+    if (f.status === 'In Progress') {
+      if (String(r['Actions Final sent Offer'] ?? '').trim() !== '') return false;
+      if (String(r.Status ?? '').trim() !== '') return false;
+    } else if (f.status && (r.Status || 'Pending') !== f.status) return false;
     if (f.terms && r['Terms of Delivery'] !== f.terms) return false;
     if (f.currency && getCleanCurrency(r['Price Unit']) !== f.currency) return false;
     if (f.paymentType === 'domestic' && isForeignCurrency(r['Price Unit'])) return false;
@@ -357,13 +628,40 @@ const App = (function () {
     const rows = [...state.filteredRows].sort((a, b) => {
       if (!state.sortKey) return 0;
       const va = a[state.sortKey] ?? ''; const vb = b[state.sortKey] ?? '';
+
+      if (DATE_FILTER_KEYS.includes(state.sortKey)) {
+        const ta = va ? new Date(va).getTime() : NaN;
+        const tb = vb ? new Date(vb).getTime() : NaN;
+        if (isNaN(ta) && isNaN(tb)) return 0;
+        if (isNaN(ta)) return 1;
+        if (isNaN(tb)) return -1;
+        return state.sortAsc ? ta - tb : tb - ta;
+      }
+
       const fa = parseFloat(va), fb = parseFloat(vb);
-      if (!isNaN(fa) && !isNaN(fb) && !DATE_FILTER_KEYS.includes(state.sortKey)) return state.sortAsc ? fa - fb : fb - fa;
+      if (!isNaN(fa) && !isNaN(fb)) return state.sortAsc ? fa - fb : fb - fa;
       return state.sortAsc ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
     });
 
-    const isOrderedFilter = (dom.filters.status().value || '').toLowerCase() === 'ordered';
-    dom.tableHead().innerHTML = '<tr>' + COLUMNS.map(c => {
+    const visibleCols = COLUMNS.filter(c => c.key === '__row__' || !state.hiddenColumns.has(c.key));
+    const isOrderedFilter = (dom.filters.status().value || '').toLowerCase() === 'ordered' || state.quickPreset !== '';
+    
+    const tableEl = document.getElementById('report-table');
+    if (tableEl) {
+      if (tableEl.querySelector('colgroup')) tableEl.querySelector('colgroup').remove();
+      const colgroup = document.createElement('colgroup');
+      visibleCols.forEach(c => {
+        const col = document.createElement('col');
+        if (c.key === 'Inquiry No') col.style.maxWidth = '140px';
+        else if (c.key === 'Customer') col.style.maxWidth = '180px';
+        else if (c.key === 'PI') col.style.maxWidth = '120px';
+        else if (c.key === 'Product') col.style.maxWidth = '120px';
+        colgroup.appendChild(col);
+      });
+      tableEl.insertBefore(colgroup, tableEl.firstChild);
+    }
+    
+    dom.tableHead().innerHTML = '<tr>' + visibleCols.map(c => {
       const icon = state.sortKey === c.key ? (state.sortAsc ? ' ▲' : ' ▼') : '';
       const label = (c.key === 'Date-Ordered' && isOrderedFilter) ? 'PO Date' : c.label;
       const isDateCol = DATE_FILTER_KEYS.includes(c.key);
@@ -374,22 +672,60 @@ const App = (function () {
 
     dom.tableHead().querySelectorAll('.date-filter-btn').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); openDatePopup(btn.getAttribute('data-key'), btn.parentElement); }));
 
-    if (!rows.length) { dom.tableBody().innerHTML = `<tr><td colspan="${COLUMNS.length}" class="empty-state">No records found.</td></tr>`; return; }
+    if (!rows.length) { dom.tableBody().innerHTML = `<tr><td colspan="${visibleCols.length}" class="empty-state">No records found.</td></tr>`; return; }
 
-    dom.tableBody().innerHTML = rows.map((r, idx) => '<tr>' + COLUMNS.map(c => {
-      if (c.key === '__row__') return `<td style="color:#9ca3af;text-align:right;">${idx + 1}</td>`;
-      let val = r[c.key] ?? '';
-      if (DATE_FILTER_KEYS.includes(c.key)) val = formatDate(val);
-      else if (c.key === 'The order was sent') val = formatOrderSent(val);
-      else if (c.key === 'Payment Received') val = formatPayment(val);
-      else if (c.key === 'Price') val = formatNumber(val);
-      
-      if (c.key === 'Status') {
-        if (!val) val = 'Pending';
-        return `<td class="status-${String(val).toLowerCase().replace(/\s+/g, '')}">${val}</td>`;
-      }
-      return `<td>${val}</td>`;
-    }).join('') + '</tr>').join('');
+    dom.tableBody().innerHTML = rows.map((r, idx) => {
+      const mainRow = '<tr class="main-row" data-idx="' + idx + '">' + visibleCols.map(c => {
+        if (c.key === '__row__') return `<td style="color:#9ca3af;text-align:right;white-space:nowrap;"><span class="expand-btn" data-idx="${idx}" style="display:inline-block;width:14px;cursor:pointer;color:#2563eb;user-select:none;">▶</span> ${idx + 1}</td>`;
+        let val = r[c.key] ?? '';
+        if (DATE_FILTER_KEYS.includes(c.key)) val = formatDate(val);
+        else if (c.key === 'The order was sent') val = formatOrderSent(val);
+        else if (c.key === 'Payment Received') val = formatPayment(val);
+        else if (c.key === 'Price') val = formatNumber(val);
+
+        if (c.key === 'Status') {
+          if (!val) {
+            const hasOffer = String(r['Actions Final sent Offer'] ?? '').trim() !== '';
+            val = hasOffer ? 'Pending' : 'In Progress';
+          }
+          const cls = String(val).toLowerCase().replace(/\s+/g, '-');
+          return `<td class="status-${cls}">${val}</td>`;
+        }
+        return `<td title="${String(val).replace(/"/g, '&quot;')}">${val}</td>`;
+      }).join('') + '</tr>';
+
+      const detailRow = '<tr class="detail-row" data-idx="' + idx + '" style="display:none;background:#f9fafb;">' +
+        '<td colspan="' + visibleCols.length + '" style="padding:8px 12px;">' +
+          '<div style="display:flex;flex-wrap:wrap;gap:20px;font-size:0.78rem;">' +
+            '<div><div style="font-size:0.65rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.03em;">Last Offer to Customer</div><div>' + (r['Actions Final sent Offer'] || '—') + '</div></div>' +
+            '<div><div style="font-size:0.65rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.03em;">Last Action Date</div><div>' + (r['Date AF'] ? formatDate(r['Date AF']) : '—') + '</div></div>' +
+          '</div>' +
+        '</td>' +
+      '</tr>';
+
+      return mainRow + detailRow;
+    }).join('');
+
+    dom.tableBody().querySelectorAll('.expand-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const idx = btn.getAttribute('data-idx');
+        const detail = dom.tableBody().querySelector('.detail-row[data-idx="' + idx + '"]');
+        dom.tableBody().querySelectorAll('.detail-row').forEach(d => {
+          if (d !== detail) { d.style.display = 'none'; }
+        });
+        dom.tableBody().querySelectorAll('.expand-btn').forEach(b => {
+          if (b !== btn) b.textContent = '▶';
+        });
+        if (detail.style.display === 'none') {
+          detail.style.display = '';
+          btn.textContent = '▼';
+        } else {
+          detail.style.display = 'none';
+          btn.textContent = '▶';
+        }
+      });
+    });
 
     document.querySelectorAll('.quick-btn').forEach(btn => btn.classList.toggle('active', btn.getAttribute('data-preset') === state.quickPreset));
     updateOrderDateVisibility();
@@ -400,44 +736,1036 @@ const App = (function () {
     state.dateFilters = {}; state.quickPreset = ''; state.orderFrom = ''; state.orderTo = ''; state.sortKey = ''; state.sortAsc = true;
     applyFilters();
   }
+  
+  function getState() {
+      return state; 
+  }
 
-  return { init, sortTable, resetFilters };
+  return { init, sortTable, resetFilters, getState }; 
 })();
 </script>
 
-<!-- اسکریپت رمزگشایی (باید بعد از App باشد) -->
+<!-- REPORTING MODULE -->
 <script>
+const Reports = (function() {
+    let currentReport = 'allOrdered'; 
+    let isExpanded = false;
+    let sortKey = '';
+    let sortAsc = true;
+    let currentRawData = [];
+    let hiddenCols = new Set(); 
+    
+    function loadHiddenCols() {
+        try {
+            const saved = JSON.parse(localStorage.getItem('rep_hidden_cols') || '{}');
+            if (saved[currentReport]) {
+                hiddenCols = new Set(saved[currentReport]);
+            } else {
+                hiddenCols = new Set();
+                if (REPORT_SCHEMAS[currentReport]) {
+                    REPORT_SCHEMAS[currentReport].cols.forEach(c => {
+                        if (c.defaultHidden) hiddenCols.add(c.key);
+                    });
+                }
+            }
+        } catch(e) { hiddenCols = new Set(); }
+    }
+    function saveHiddenCols() {
+        try {
+            const saved = JSON.parse(localStorage.getItem('rep_hidden_cols') || '{}');
+            saved[currentReport] = [...hiddenCols];
+            localStorage.setItem('rep_hidden_cols', JSON.stringify(saved));
+        } catch(e) {}
+    }
+
+    const REPORT_SCHEMAS = {
+        allOrdered: {
+            cols: [
+                { key: 'Customer', label: 'Customer', w: '15%' },
+                { key: 'Product', label: 'Product', w: '8%' },
+                { key: 'INQ', label: 'INQ', w: '10%' },
+                { key: 'INQ Date', label: 'INQ Date', w: '8%', isDate: true },
+                { key: 'PI', label: 'PI', w: '10%' },
+                { key: 'PO Date', label: 'PO Date', w: '8%', isDate: true },
+                { key: 'Shipment Status', label: 'Shipment', w: '10%' },
+                { key: 'Ship Date', label: 'Ship Date', w: '8%', isDate: true },
+                { key: 'Invoice Date', label: 'Invoice', w: '8%', isDate: true },
+                { key: 'Amount', label: 'Amount', w: '8%', isNum: true },
+                { key: 'Currency', label: 'Currency', w: '5%' },
+                { key: 'Terms', label: 'Terms', w: '5%' },
+                { key: 'Payment %', label: 'Paid %', w: '5%', isNum: true },
+                { key: 'Payment Date', label: 'Pay Date', w: '8%', isDate: true, defaultHidden: true }
+            ]
+        },
+        delayedOrders: {
+            cols: [
+                { key: 'Customer', label: 'Customer', w: '15%' },
+                { key: 'Product', label: 'Product', w: '8%' },
+                { key: 'INQ', label: 'INQ', w: '10%' },
+                { key: 'INQ Date', label: 'INQ Date', w: '8%', isDate: true },
+                { key: 'PI', label: 'PI', w: '10%' },
+                { key: 'PO Date', label: 'PO Date', w: '8%', isDate: true },
+                { key: 'Months Overdue', label: 'Months Late', w: '8%', isNum: true },
+                { key: 'Shipment Status', label: 'Shipment', w: '10%' },
+                { key: 'Amount', label: 'Amount', w: '8%', isNum: true },
+                { key: 'Currency', label: 'Currency', w: '5%' },
+                { key: 'Terms', label: 'Terms', w: '5%' },
+                { key: 'Payment %', label: 'Paid %', w: '5%', isNum: true }
+            ]
+        },
+        completedOrders: {
+            cols: [
+                { key: 'Customer', label: 'Customer', w: '15%' },
+                { key: 'Product', label: 'Product', w: '8%' },
+                { key: 'INQ', label: 'INQ', w: '10%' },
+                { key: 'INQ Date', label: 'INQ Date', w: '8%', isDate: true, defaultHidden: true },
+                { key: 'PI', label: 'PI', w: '10%' },
+                { key: 'PO Date', label: 'PO Date', w: '8%', isDate: true },
+                { key: 'Shipment Status', label: 'Shipment', w: '10%' },
+                { key: 'Ship Date', label: 'Ship Date', w: '8%', isDate: true },
+                { key: 'Invoice Date', label: 'Invoice', w: '8%', isDate: true },
+                { key: 'Amount', label: 'Amount', w: '8%', isNum: true },
+                { key: 'Currency', label: 'Currency', w: '5%' },
+                { key: 'Terms', label: 'Terms', w: '5%' },
+                { key: 'Payment %', label: 'Paid %', w: '5%', isNum: true },
+                { key: 'Payment Date', label: 'Pay Date', w: '8%', isDate: true }
+            ]
+        },
+        openOrders: {
+            cols: [
+                { key: 'Customer', label: 'Customer', w: '15%' },
+                { key: 'Product', label: 'Product', w: '8%' },
+                { key: 'INQ', label: 'INQ', w: '10%' },
+                { key: 'INQ Date', label: 'INQ Date', w: '8%', isDate: true },
+                { key: 'PI', label: 'PI', w: '10%' },
+                { key: 'PO Date', label: 'PO Date', w: '8%', isDate: true },
+                { key: 'Amount', label: 'Amount', w: '8%', isNum: true },
+                { key: 'Currency', label: 'Currency', w: '5%' },
+                { key: 'Terms', label: 'Terms', w: '5%' },
+                { key: 'Payment %', label: 'Paid %', w: '8%', isNum: true },
+                { key: 'Shipment Status', label: 'Shipment', w: '10%', defaultHidden: true },
+                { key: 'Ship Date', label: 'Ship Date', w: '8%', isDate: true, defaultHidden: true },
+                { key: 'Invoice Date', label: 'Invoice', w: '8%', isDate: true, defaultHidden: true },
+                { key: 'Payment Date', label: 'Pay Date', w: '8%', isDate: true, defaultHidden: true }
+            ]
+        },
+        awaitingShipment: {
+            cols: [
+                { key: 'Customer', label: 'Customer', w: '15%' },
+                { key: 'Product', label: 'Product', w: '8%' },
+                { key: 'INQ', label: 'INQ', w: '10%' },
+                { key: 'INQ Date', label: 'INQ Date', w: '8%', isDate: true, defaultHidden: true },
+                { key: 'PI', label: 'PI', w: '10%' },
+                { key: 'PO Date', label: 'PO Date', w: '8%', isDate: true },
+                { key: 'Shipment Status', label: 'Shipment', w: '10%' },
+                { key: 'Amount', label: 'Amount', w: '8%', isNum: true },
+                { key: 'Currency', label: 'Currency', w: '5%' },
+                { key: 'Terms', label: 'Terms', w: '5%' },
+                { key: 'Payment %', label: 'Paid %', w: '5%', isNum: true },
+                { key: 'Ship Date', label: 'Ship Date', w: '8%', isDate: true, defaultHidden: true }
+            ]
+        },
+        awaitingInvoice: {
+            cols: [
+                { key: 'Customer', label: 'Customer', w: '15%' },
+                { key: 'Product', label: 'Product', w: '8%' },
+                { key: 'INQ', label: 'INQ', w: '10%' },
+                { key: 'INQ Date', label: 'INQ Date', w: '8%', isDate: true, defaultHidden: true },
+                { key: 'PI', label: 'PI', w: '10%' },
+                { key: 'PO Date', label: 'PO Date', w: '8%', isDate: true },
+                { key: 'Shipment Status', label: 'Shipment', w: '10%' },
+                { key: 'Ship Date', label: 'Ship Date', w: '8%', isDate: true },
+                { key: 'Amount', label: 'Amount', w: '8%', isNum: true },
+                { key: 'Currency', label: 'Currency', w: '5%' },
+                { key: 'Terms', label: 'Terms', w: '5%' },
+                { key: 'Payment %', label: 'Paid %', w: '8%', isNum: true },
+                { key: 'Invoice Date', label: 'Invoice', w: '8%', isDate: true, defaultHidden: true },
+                { key: 'Payment Date', label: 'Pay Date', w: '8%', isDate: true, defaultHidden: true }
+            ]
+        },
+        awaitingPayment: {
+            cols: [
+                { key: 'Customer', label: 'Customer', w: '15%' },
+                { key: 'Product', label: 'Product', w: '8%' },
+                { key: 'INQ', label: 'INQ', w: '10%' },
+                { key: 'INQ Date', label: 'INQ Date', w: '8%', isDate: true },
+                { key: 'PO Date', label: 'PO Date', w: '8%', isDate: true },
+                { key: 'Invoice Date', label: 'Invoice', w: '8%', isDate: true },
+                { key: 'Amount', label: 'Amount', w: '8%', isNum: true },
+                { key: 'Currency', label: 'Currency', w: '5%' },
+                { key: 'Terms', label: 'Terms', w: '5%' },
+                { key: 'Payment %', label: 'Paid %', w: '8%', isNum: true },
+                { key: 'PI', label: 'PI', w: '10%', defaultHidden: true },
+                { key: 'Shipment Status', label: 'Shipment', w: '10%', defaultHidden: true },
+                { key: 'Ship Date', label: 'Ship Date', w: '8%', isDate: true, defaultHidden: true },
+                { key: 'Payment Date', label: 'Pay Date', w: '8%', isDate: true, defaultHidden: true }
+            ]
+        },
+        ordersByCustomer: {
+            cols: [
+                { key: 'Customer', label: 'Customer', w: '25%' },
+                { key: 'Orders', label: 'Orders', w: '10%', isNum: true },
+                { key: 'GC', label: 'GC', w: '5%', isNum: true },
+                { key: 'MainSys', label: 'MainSys', w: '8%', isNum: true },
+                { key: 'S/P', label: 'S/P', w: '5%', isNum: true },
+                { key: 'Proj', label: 'Proj', w: '5%', isNum: true },
+                { key: 'USD', label: 'USD', w: '10%', isNum: true },
+                { key: 'EUR', label: 'EUR', w: '10%', isNum: true },
+                { key: 'Rial', label: 'Rial', w: '12%', isNum: true },
+                { key: 'AED', label: 'AED', w: '10%', isNum: true }
+            ]
+        },
+        ordersByProduct: {
+            cols: [
+                { key: 'Product', label: 'Product', w: '30%' },
+                { key: 'Orders', label: 'Orders', w: '10%', isNum: true },
+                { key: 'USD', label: 'USD', w: '15%', isNum: true },
+                { key: 'EUR', label: 'EUR', w: '15%', isNum: true },
+                { key: 'Rial', label: 'Rial', w: '15%', isNum: true },
+                { key: 'AED', label: 'AED', w: '15%', isNum: true }
+            ]
+        },
+        paymentSummary: {
+            cols: [
+                { key: 'Currency', label: 'Currency', w: '20%' },
+                { key: 'Total Orders', label: 'Total Orders', w: '20%', isNum: true },
+                { key: 'Total Amount', label: 'Total Amount', w: '20%', isNum: true },
+                { key: 'Paid Amount', label: 'Paid Amount', w: '20%', isNum: true },
+                { key: 'Unpaid Amount', label: 'Unpaid Amount', w: '20%', isNum: true }
+            ]
+        },
+        customerSales: {
+            cols: [
+                { key: 'Customer', label: 'Customer', w: '30%' },
+                { key: 'Currency', label: 'Currency', w: '10%' },
+                { key: 'Orders', label: 'Orders', w: '10%', isNum: true },
+                { key: 'Total Sales', label: 'Total Sales', w: '20%', isNum: true },
+                { key: 'Paid', label: 'Paid', w: '15%', isNum: true },
+                { key: 'Unpaid', label: 'Unpaid', w: '15%', isNum: true }
+            ]
+        }
+    };
+
+    function parsePrice(val) {
+        if (val === null || val === undefined || val === '') return 0;
+        if (typeof val === 'number') return isNaN(val) ? 0 : val;
+        // حذف کاما، فاصله، و هر کاراکتر غیرعددی به جز نقطه و منفی
+        const cleanNum = String(val).replace(/[^\d.-]/g, '').trim();
+        if (cleanNum === '' || cleanNum === '-' || cleanNum === '.') return 0;
+        const num = parseFloat(cleanNum);
+        return isNaN(num) ? 0 : num;
+    }
+
+    function getCurrency(row) {
+        let cur = String(row['Price Unit'] || '').trim();
+        const isOut = cur.includes('(Out)') || cur.includes('(out)');
+        // حذف (Out) با هر شکل و فاصله
+        cur = cur.replace(/\(out\)/gi, '').trim().toUpperCase();
+        return { name: cur, isOut: isOut };
+    }
+
+    function fmtNum(n) {
+        return n.toLocaleString('en-US', { maximumFractionDigits: 0 });
+    }
+
+    function prepareData(type, rows) {
+        const fCust = document.getElementById('rep-f-customer').value;
+        const fCur = document.getElementById('rep-f-currency').value;
+        const fReg = document.getElementById('rep-f-region').value;
+        const fTerms = document.getElementById('rep-f-terms').value;
+        
+        // ? خواندن فیلتر تاریخ جدید
+        const fDateCol = document.getElementById('rep-f-date-col').value;
+        const fDateFrom = document.getElementById('rep-f-date-from').value;
+        const fDateTo = document.getElementById('rep-f-date-to').value;
+
+        let filtered = rows.filter(r => {
+            if (fCust && r.Customer.toLowerCase() !== fCust.toLowerCase()) return false;
+            const curObj = getCurrency(r);
+            if (fCur && curObj.name !== fCur.toUpperCase()) return false;
+            if (fReg === 'domestic' && curObj.isOut) return false;
+            if (fReg === 'foreign' && !curObj.isOut) return false;
+            if (fTerms && String(r['Terms of Delivery'] || '').trim().toLowerCase() !== fTerms.trim().toLowerCase()) return false;
+
+            // ? اعمال فیلتر تاریخ جدید
+            if (fDateCol && (fDateFrom || fDateTo)) {
+                const rawDate = r[fDateCol];
+                if (!rawDate) return false; // این خط فقط زمانی که فیلتر تاریخ فعال است، رکورد بدون تاریخ را حذف می‌کند.
+                
+                const d = new Date(rawDate);
+                if (isNaN(d.getTime())) return false; // تاریخ نامعتبر
+
+                const dDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+                if (fDateFrom && dDay < new Date(fDateFrom + 'T00:00:00')) return false;
+                if (fDateTo && dDay > new Date(fDateTo + 'T00:00:00')) return false;
+            }
+            
+            return true;
+        });
+        // ... بقیه کدها
+
+        let data = [];
+        let title = "";
+        let subtitle = ""; // ? اضافه کردن این خط
+        let totalRowData = null;
+        const getTime = (d) => d ? new Date(d).getTime() : 0;
+        const getPrice = (p) => parseFloat(String(p).replace(/,/g, '')) || 0;
+
+        const extractRow = (r) => {
+            return {
+                'Customer': r.Customer || '',
+                'Product': r.Product || '',
+                'INQ': String(r['Inquiry No'] || '').split('\n')[0],
+                'PI': (r['PI-C'] || '') + (r['PI-T'] ? ' / ' + r['PI-T'] : ''),
+                'INQ Date': r['Date Of Inquiry Customer'] ? new Date(r['Date Of Inquiry Customer']).toLocaleDateString('en-GB', {month:'short', year:'numeric'}) : '',
+                _rawINQDate: getTime(r['Date Of Inquiry Customer']),
+                'PO Date': r['Date-Ordered'] ? new Date(r['Date-Ordered']).toLocaleDateString('en-GB', {month:'short', year:'numeric'}) : '',
+                'Shipment Status': (() => {
+                    const s = String(r['The order was sent'] || '');
+                    const m = s.match(/\(([^)]+)\)/); // پیدا کردن محتوای داخل پرانتز
+                    return m ? m[1].trim() : s;       // اگر پرانتز بود، فقط داخلش را برگردان
+                })(),
+                'Ship Date': r['date sent'] ? new Date(r['date sent']).toLocaleDateString('en-GB', {month:'short', year:'numeric'}) : '',
+                'Invoice Date': r['sent invoice'] ? new Date(r['sent invoice']).toLocaleDateString('en-GB', {month:'short', year:'numeric'}) : '',
+                'Amount': getPrice(r.Price),
+                'Currency': r['Price Unit'] || '',
+                'Terms': r['Terms of Delivery'] || '',
+                'Payment %': Math.round((parseFloat(r['Payment Received']) || 0) * 100),
+                'Payment Date': r['Date Payment Received'] ? new Date(r['Date Payment Received']).toLocaleDateString('en-GB', {month:'short', year:'numeric'}) : '',
+                _rawPODate: getTime(r['Date-Ordered']),
+                _rawShipDate: getTime(r['date sent']),
+                _rawInvDate: getTime(r['sent invoice']),
+                _rawPayDate: getTime(r['Date Payment Received']),
+                _rawPrice: getPrice(r.Price)
+            };
+        };
+
+        if (type === 'allOrdered') {
+            title = "All Ordered (Regardless of Payment/Shipping)";
+            filtered.filter(r => String(r.Status || '').toLowerCase() === 'ordered').forEach(r => { data.push(extractRow(r)); });
+        } 
+        else if (type === 'delayedOrders') {
+            title = "Delayed Orders (> 180 days, not shipped)";
+            subtitle = "Calculated based on PO Date (older than 180 days & not fully shipped)";
+            const cutoff = Date.now() - (180 * 86400000);
+            
+            filtered.filter(r => {
+                const status = String(r.Status || '').toLowerCase();
+                const ship = String(r['The order was sent'] || '');
+                const d = getTime(r['Date-Ordered']);
+                
+                // ? دقیقاً مطابق منطق VBA
+                if (status !== 'ordered') return false;
+                if (ship.includes('Canceled by ESA')) return false;
+                if (ship.includes('(Complete)')) return false;
+                if (!d || d >= cutoff) return false; // اگر تاریخ خالی یا جدیدتر از 180 روز بود
+                
+                return true;
+            }).forEach(r => {
+                let row = extractRow(r);
+                // ? نمایش ماه‌های تاخیر دقیقاً مثل اکسل (مثلاً 6 Month)
+                const months = Math.floor((Date.now() - getTime(r['Date-Ordered'])) / (30 * 86400000));
+                row['Months Overdue'] = months + ' Mon'; 
+                data.push(row);
+            });
+        }
+        else if (type === 'completedOrders') {
+            title = "Completed Orders (100% Paid)";
+            filtered.filter(r => (parseFloat(r['Payment Received']) || 0) >= 1).forEach(r => { data.push(extractRow(r)); });
+        }
+        else if (type === 'openOrders') {
+            title = "Open Orders (Ordered & Unpaid)";
+            filtered.filter(r => String(r.Status || '').toLowerCase() === 'ordered' && (parseFloat(r['Payment Received']) || 0) < 1).forEach(r => { data.push(extractRow(r)); });
+        }
+        else if (type === 'awaitingShipment') {
+            title = "Awaiting Shipment (Ordered, not fully shipped)";
+            filtered.filter(r => {
+                const status = String(r.Status || '').toLowerCase();
+                const ship = String(r['The order was sent'] || '');
+                
+                // ? دقیقاً مطابق منطق VBA (حذف Complete و Canceled)
+                return status === 'ordered' 
+                    && !ship.includes('(Complete)') 
+                    && !ship.includes('Canceled by ESA');
+            }).forEach(r => { data.push(extractRow(r)); });
+        }
+        else if (type === 'awaitingInvoice') {
+            title = "Awaiting Invoice (Shipped, but not invoiced)";
+            filtered.filter(r => {
+                const ship = String(r['The order was sent'] || '');
+                const inv = !!r['sent invoice'];
+                return (ship.includes('Complete') || ship.includes('Partial')) && !inv;
+            }).forEach(r => { data.push(extractRow(r)); });
+        }
+        else if (type === 'awaitingPayment') {
+            title = "Awaiting Payment (Invoice Sent, Not Fully Paid)";
+            filtered.filter(r => !!r['sent invoice'] && (parseFloat(r['Payment Received']) || 0) < 1).forEach(r => { data.push(extractRow(r)); });
+        }
+        else if (type === 'ordersByCustomer') {
+            title = "Orders by Customer (Grouped)";
+            let groups = {};
+            
+            filtered.filter(r => String(r.Status || '').toLowerCase() === 'ordered').forEach(r => {
+                const cust = r.Customer || 'Unknown';
+                const curObj = getCurrency(r);
+                const curRaw = curObj.name;
+                const price = parsePrice(r.Price);
+                
+                if (!groups[cust]) {
+                    groups[cust] = { 
+                        name: cust, Orders: 0, 
+                        GC: 0, MainSys: 0, S_P: 0, Proj: 0,
+                        USD: 0, EUR: 0, RIAL: 0, AED: 0
+                    };
+                }
+                
+                const g = groups[cust];
+                g.Orders += 1;
+                
+                const prod = String(r.Product || '').toLowerCase();
+                if (prod === 'gc') g.GC++;
+                else if (prod === 'main system') g.MainSys++;
+                else if (prod === 'spare part') g.S_P++;
+                else if (prod === 'project') g.Proj++;
+                
+                const curKey = String(curRaw || '').trim().toUpperCase();
+                
+                if (curKey === 'USD') g.USD += price;
+                else if (curKey === 'EUR') g.EUR += price;
+                else if (curKey === 'RIAL') g.RIAL += price;
+                else if (curKey === 'AED') g.AED += price;
+            });
+            
+            Object.values(groups).forEach(c => {
+                data.push({
+                    'Customer': c.name,
+                    'Orders': c.Orders,
+                    'GC': c.GC > 0 ? c.GC : '',
+                    'MainSys': c.MainSys > 0 ? c.MainSys : '',
+                    'S/P': c.S_P > 0 ? c.S_P : '',
+                    'Proj': c.Proj > 0 ? c.Proj : '',
+                    'USD': c.USD > 0 ? c.USD : '',       // عدد خام، نه فرمت‌شده
+                    'EUR': c.EUR > 0 ? c.EUR : '',
+                    'Rial': c.RIAL > 0 ? c.RIAL : '',
+                    'AED': c.AED > 0 ? c.AED : '',
+                    _rawOrders: c.Orders
+                });
+            });
+            // ? محاسبه Grand Totals
+            let totalOrders = 0, totalGC = 0, totalMainSys = 0, totalSP = 0, totalProj = 0;
+            let totalUSD = 0, totalEUR = 0, totalRIAL = 0, totalAED = 0;
+
+            Object.values(groups).forEach(c => {
+                totalOrders += c.Orders;
+                totalGC += c.GC;
+                totalMainSys += c.MainSys;
+                totalSP += c.S_P;
+                totalProj += c.Proj;
+                totalUSD += c.USD;
+                totalEUR += c.EUR;
+                totalRIAL += c.RIAL;
+                totalAED += c.AED;
+            });
+
+            // ? افزودن ردیف TOTAL
+            // ? ردیف TOTAL در data قرار نگیرد، جداگانه برگردانده شود
+            totalRowData = {
+                'Customer': 'TOTAL',
+                'Orders': totalOrders,
+                'GC': totalGC > 0 ? totalGC : '',
+                'MainSys': totalMainSys > 0 ? totalMainSys : '',
+                'S/P': totalSP > 0 ? totalSP : '',
+                'Proj': totalProj > 0 ? totalProj : '',
+                'USD': totalUSD > 0 ? totalUSD : '',
+                'EUR': totalEUR > 0 ? totalEUR : '',
+                'Rial': totalRIAL > 0 ? totalRIAL : '',
+                'AED': totalAED > 0 ? totalAED : '',
+                _isTotal: true
+            };
+        }
+        return { data, title, subtitle, schema: REPORT_SCHEMAS[type], totalRow: (typeof totalRowData !== 'undefined' ? totalRowData : null) };
+    }
+    function getActiveFiltersText() {
+        const filters = [];
+        const cust = document.getElementById('rep-f-customer').value;
+        const cur = document.getElementById('rep-f-currency').value;
+        const reg = document.getElementById('rep-f-region').value;
+        const terms = document.getElementById('rep-f-terms').value;
+        const dCol = document.getElementById('rep-f-date-col').value;
+        const dFrom = document.getElementById('rep-f-date-from').value;
+        const dTo = document.getElementById('rep-f-date-to').value;
+
+        // تابع کمکی برای تبدیل تاریخ به DDMMMYY
+        const fmt = (dStr) => {
+            if (!dStr) return '';
+            const d = new Date(dStr);
+            if (isNaN(d.getTime())) return dStr;
+            const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            return String(d.getDate()).padStart(2, '0') + months[d.getMonth()] + String(d.getFullYear()).slice(-2);
+        };
+
+        if (cust) filters.push(`Customer: ${cust}`);
+        if (cur) filters.push(`Currency: ${cur.toUpperCase()}`);
+        if (reg === 'domestic') filters.push(`Region: Domestic`);
+        if (reg === 'foreign') filters.push(`Region: Foreign (Out)`);
+        if (terms) filters.push(`Terms: ${terms}`);
+        
+        if (dCol && (dFrom || dTo)) {
+            let dateStr = `Date (${dCol === 'Date-Ordered' ? 'PO Date' : dCol === 'Date Of Inquiry Customer' ? 'INQ Date' : dCol}): `;
+            if (dFrom && dTo) dateStr += `${fmt(dFrom)} to ${fmt(dTo)}`;
+            else if (dFrom) dateStr += `From ${fmt(dFrom)}`;
+            else if (dTo) dateStr += `Up to ${fmt(dTo)}`;
+            filters.push(dateStr);
+        }
+        
+        if (filters.length === 0) return '';
+        
+        // استایل پررنگ‌تر برای نمایش در جدول
+        return `<div style="font-size: 0.75rem; color: #1f2937; margin-top: 4px; line-height: 1.4;"><b style="color:#2563eb;">Applied Filters:</b> ${filters.join(' &nbsp;|&nbsp; ')}</div>`;
+    }
+    function renderTable() {
+        // ==========================================
+        // ? ۱. اعتبارسنجی فیلتر تاریخ (در ابتدای تابع)
+        // ==========================================
+        const dateColInput = document.getElementById('rep-f-date-col');
+        const dateFromInput = document.getElementById('rep-f-date-from');
+        const dateToInput = document.getElementById('rep-f-date-to');
+        
+        // ریست کردن رنگ‌ها
+        dateColInput.style.borderColor = '#d1d5db';
+        dateFromInput.style.borderColor = '#d1d5db';
+        dateToInput.style.borderColor = '#d1d5db';
+
+        // اگر تاریخ وارد شده ولی نوع ستون انتخاب نشده
+        if ((dateFromInput.value || dateToInput.value) && !dateColInput.value) {
+            dateColInput.style.borderColor = '#dc2626';
+            dateColInput.style.outline = '1px solid #dc2626';
+            alert('Please select the Date Column type (e.g., PO Date) when using the date range filter.');
+            return; // توقف رندر
+        }
+
+        // ==========================================
+        // ? ۲. آماده‌سازی داده‌ها و عنوان
+        // ==========================================
+        const { data, title, subtitle, schema, totalRow } = prepareData(currentReport, App.getState().filteredRows);
+        const titleEl = document.getElementById('report-title');
+        const activeFiltersHtml = getActiveFiltersText();
+        
+        let titleContent = '';
+        if (subtitle) {
+            titleContent = `<div>${title}</div><div style="font-size:0.7rem; font-weight:normal; color:#6b7280; margin-top:2px;">${subtitle}</div>`;
+        } else {
+            titleContent = title;
+        }
+        
+        if (activeFiltersHtml) {
+            titleEl.innerHTML = titleContent + activeFiltersHtml;
+        } else {
+            titleEl.innerHTML = titleContent;
+        }
+
+        // ==========================================
+        // ? ۳. سورت کردن داده‌ها
+        // ==========================================
+        let sortedData = [...data];
+        if (sortKey) {
+            const colDef = schema.cols.find(c => c.key === sortKey);
+            sortedData.sort((a, b) => {
+                let va = a[sortKey], vb = b[sortKey];
+                
+                if (colDef && colDef.isDate) {
+                    let ta = 0, tb = 0;
+                    if (sortKey === 'PO Date') { ta = a._rawPODate || 0; tb = b._rawPODate || 0; }
+                    else if (sortKey === 'Ship Date') { ta = a._rawShipDate || 0; tb = b._rawShipDate || 0; }
+                    else if (sortKey === 'Invoice Date') { ta = a._rawInvDate || 0; tb = b._rawInvDate || 0; }
+                    else if (sortKey === 'Payment Date') { ta = a._rawPayDate || 0; tb = b._rawPayDate || 0; }
+                    else if (sortKey === 'INQ Date') { ta = a._rawINQDate || 0; tb = b._rawINQDate || 0; }
+                    else { 
+                        ta = new Date(va).getTime() || 0; 
+                        tb = new Date(vb).getTime() || 0; 
+                    }
+                    return sortAsc ? ta - tb : tb - ta;
+                }
+                
+                if (colDef && colDef.isNum) {
+                    const na = (a._rawPrice !== undefined && sortKey === 'Amount') ? a._rawPrice : (parseFloat(String(va).replace(/,/g, '')) || 0);
+                    const nb = (b._rawPrice !== undefined && sortKey === 'Amount') ? b._rawPrice : (parseFloat(String(vb).replace(/,/g, '')) || 0);
+                    return sortAsc ? na - nb : nb - na;
+                }
+                
+                const sa = String(va).toUpperCase();
+                const sb = String(vb).toUpperCase();
+                if (sa < sb) return sortAsc ? -1 : 1;
+                if (sa > sb) return sortAsc ? 1 : -1;
+                return 0;
+            });
+        }
+
+        // ==========================================
+        // ? ۴. مرتب‌سازی ستون‌ها (مطابق شیت مادر)
+        // ==========================================
+        const MASTER_ORDER = [
+            'Customer', 'Orders', 'GC', 'MainSys', 'S/P', 'Proj', 'USD', 'EUR', 'Rial', 'AED'
+        ];
+
+        const sortedCols = [...schema.cols].sort((a, b) => {
+            let idxA = MASTER_ORDER.indexOf(a.key);
+            let idxB = MASTER_ORDER.indexOf(b.key);
+            if (idxA === -1) idxA = 999;
+            if (idxB === -1) idxB = 999;
+            return idxA - idxB;
+        });
+
+        const visibleCols = sortedCols.filter(c => !hiddenCols.has(c.key));
+
+        // ? ساخت هدر
+        let theadHtml = '<tr><th style="width: 40px; text-align: center;">#</th>';
+        visibleCols.forEach(c => {
+            const icon = sortKey === c.key ? (sortAsc ? ' ▲' : ' ▼') : '';
+            theadHtml += `<th data-key="${c.key}" style="text-align:${c.isNum ? 'right' : 'left'}; white-space: nowrap;">${c.label}${icon}</th>`;
+        });
+        theadHtml += '</tr>';
+
+        // ? ساخت بدنه با فرمت‌دهی دقیق
+        let tbodyHtml = '';
+        if (sortedData.length === 0) {
+            tbodyHtml = `<tr><td colspan="${visibleCols.length + 1}" style="text-align:center; padding:20px; color:#6b7280;">No data found.</td></tr>`;
+        } else {
+            sortedData.forEach((row, index) => {
+                tbodyHtml += '<tr>';
+                tbodyHtml += `<td style="text-align:center; color:#9ca3af;">${index + 1}</td>`;
+                visibleCols.forEach(c => {
+                    let val = row[c.key];
+                    
+                    // ? فرمت کردن مبالغ
+                    if (['USD', 'EUR', 'Rial', 'AED'].includes(c.key)) {
+                        // هم عدد و هم رشته را بپذیر
+                        const num = typeof val === 'number' ? val : parseFloat(String(val).replace(/,/g, ''));
+                        if (!isNaN(num) && num > 0) {
+                            val = num.toLocaleString('en-US', { maximumFractionDigits: 0 });
+                        } else {
+                            val = '';
+                        }
+                    }
+                    
+                    tbodyHtml += `<td style="text-align:${c.isNum ? 'right' : 'left'};" title="${val}">${val}</td>`;
+                });
+                tbodyHtml += '</tr>';
+            });
+        }
+
+        // ? استفاده از colgroup با عرض‌های ثابت و متناسب
+        let colgroupHtml = '<colgroup><col style="width: 44px;">';
+        visibleCols.forEach(c => {
+            let w = c.w || 'auto';
+            if (c.key === 'Customer') w = '200px';
+            else if (c.key === 'Orders') w = '70px';
+            else if (['GC','MainSys','S/P','Proj'].includes(c.key)) w = '70px';
+            else if (['USD','EUR','Rial','AED'].includes(c.key)) w = '120px';
+            colgroupHtml += `<col style="width:${w}">`;
+        });
+        colgroupHtml += '</colgroup>';
+
+        // 1. تزریق کادر خلاصه
+        document.getElementById('report-summary-container').innerHTML = `
+            <div class="report-summary" style="margin-bottom: 12px;">
+                Total Records: <b>${data.filter(r => !r._isTotal).length}</b>
+            </div>
+        `;
+
+        // 2. تزریق جدول
+        let tfootHtml = '';
+        if (totalRow) {
+            tfootHtml = '<tfoot><tr>';
+            tfootHtml += `<td style="text-align:center;color:#6b7280;">—</td>`;
+            visibleCols.forEach(c => {
+                let val = totalRow[c.key];
+                if (['USD','EUR','Rial','AED'].includes(c.key)) {
+                    const num = typeof val === 'number' ? val : parseFloat(String(val).replace(/,/g,''));
+                    val = (!isNaN(num) && num > 0) ? num.toLocaleString('en-US',{maximumFractionDigits:0}) : '';
+                } else if (val === 0 || val === undefined || val === null) {
+                    val = '';
+                }
+                tfootHtml += `<td style="text-align:${c.isNum?'right':'left'};">${val}</td>`;
+            });
+            tfootHtml += '</tr></tfoot>';
+        }
+
+        const tableHtml = `
+            <table class="report-table">
+                ${colgroupHtml}
+                <thead>${theadHtml}</thead>
+                <tbody>${tbodyHtml}</tbody>
+                ${tfootHtml}
+            </table>
+        `;
+        document.getElementById('report-content').innerHTML = tableHtml;
+        // ? ردیف TOTAL چسبیده به پایین باکس نمایش
+        document.querySelectorAll('#report-content th').forEach(th => {
+            th.addEventListener('click', () => {
+                const key = th.getAttribute('data-key');
+                if (sortKey === key) sortAsc = !sortAsc;
+                else { sortKey = key; sortAsc = true; }
+                renderTable();
+            });
+        });
+
+        updateColsPanel(schema);
+    }    function updateColsPanel(schema) {
+        const panel = document.getElementById('rep-cols-panel');
+        const btn = document.getElementById('rep-cols-btn');
+        
+        if (!schema || schema.cols.length === 0) {
+            btn.style.display = 'none';
+            return;
+        }
+        btn.style.display = 'flex';
+
+        // ? مرجع ترتیب ستون‌ها دقیقاً مطابق شیت مادر
+        const MASTER_ORDER = [
+            'Customer', 'Orders', 'GC', 'MainSys', 'S/P', 'Proj', 'USD', 'EUR', 'Rial', 'AED'
+        ];
+
+        // مرتب‌سازی ستون‌های فعلی بر اساس ترتیب مرجع
+        const sortedCols = [...schema.cols].sort((a, b) => {
+            let idxA = MASTER_ORDER.indexOf(a.key);
+            let idxB = MASTER_ORDER.indexOf(b.key);
+            
+            // اگر ستونی در مرجع نبود، به آخر لیست می‌رود
+            if (idxA === -1) idxA = 999;
+            if (idxB === -1) idxB = 999;
+            
+            return idxA - idxB;
+        });
+
+        panel.innerHTML = sortedCols.map(c => {
+            const checked = hiddenCols.has(c.key) ? '' : 'checked';
+            return `<label><input type="checkbox" data-key="${c.key}" ${checked}> ${c.label}</label>`;
+        }).join('');
+
+        panel.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+            cb.addEventListener('change', () => {
+                if (cb.checked) hiddenCols.delete(cb.getAttribute('data-key'));
+                else hiddenCols.add(cb.getAttribute('data-key'));
+                saveHiddenCols();
+                renderTable(); 
+            });
+        });
+    }
+
+    function init() {
+        const modal = document.getElementById('reports-modal');
+        const modalBox = document.getElementById('reports-modal-box');
+        const btnOpen = document.getElementById('reports-btn');
+        const btnClose = document.getElementById('close-reports');
+        const btnApply = document.getElementById('btn-apply-rep-filters');
+        const btnReset = document.getElementById('reset-reports');
+        const btnExpand = document.getElementById('expand-reports');
+        const btnCols = document.getElementById('rep-cols-btn');
+        const panelCols = document.getElementById('rep-cols-panel');
+        const btns = document.querySelectorAll('.report-btn');
+
+        btnOpen.addEventListener('click', () => {
+            modal.style.display = 'flex';
+            populateFilters();
+            loadHiddenCols();
+            sortKey = ''; sortAsc = true; 
+            renderTable();
+        });
+        // دکمه بازگشت به داشبورد
+        document.getElementById('back-to-dashboard').addEventListener('click', () => {
+            modal.style.display = 'none';
+            if (isExpanded) btnExpand.click(); // اگر تمام صفحه بود، به حالت عادی برگردد
+        });
+        btnClose.addEventListener('click', () => {
+            modal.style.display = 'none';
+            if (isExpanded) btnExpand.click(); 
+        });
+
+        btns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                btns.forEach(b => { b.style.background = 'transparent'; b.style.color = '#4b5563'; });
+                btn.style.background = '#e0e7ff'; btn.style.color = '#3730a3';
+                currentReport = btn.getAttribute('data-report');
+                loadHiddenCols();
+                sortKey = ''; sortAsc = true; 
+                renderTable();
+            });
+        });
+
+        btnApply.addEventListener('click', renderTable);
+
+        btnReset.addEventListener('click', () => {
+            document.getElementById('rep-f-customer').value = '';
+            document.getElementById('rep-f-currency').value = '';
+            document.getElementById('rep-f-region').value = '';
+            document.getElementById('rep-f-terms').value = '';
+            
+            // ? پاک کردن فیلتر تاریخ
+            document.getElementById('rep-f-date-col').value = '';
+            document.getElementById('rep-f-date-from').value = '';
+            document.getElementById('rep-f-date-to').value = '';
+            
+            renderTable();
+        });
+
+        btnExpand.addEventListener('click', () => {
+            isExpanded = !isExpanded;
+            
+            const contentBox = document.getElementById('report-content');
+            const mainContent = document.getElementById('report-main-content');
+            const titleBox = document.getElementById('report-title').parentElement;
+            const summaryBox = document.getElementById('report-summary-container');
+
+            if (isExpanded) {
+                // حالت تمام صفحه (Maximize)
+                modalBox.style.width = '100vw'; 
+                modalBox.style.maxWidth = '100vw';
+                modalBox.style.height = '100vh'; 
+                modalBox.style.borderRadius = '0';
+                
+                // ? استفاده از موقعیت دهی مطلق برای قفل کردن جدول
+                mainContent.style.position = 'relative';
+                contentBox.style.position = 'absolute';
+                contentBox.style.top = (titleBox.offsetHeight + summaryBox.offsetHeight) + 'px';
+                contentBox.style.bottom = '16px'; // فاصله از پایین
+                contentBox.style.left = '16px';
+                contentBox.style.right = '16px';
+                contentBox.style.flex = 'none'; // غیرفعال کردن flex
+                
+                btnExpand.textContent = '🗗'; 
+                btnExpand.title = 'Restore';
+            } else {
+                // حالت عادی
+                modalBox.style.width = '90%'; 
+                modalBox.style.maxWidth = '1100px';
+                modalBox.style.height = '85vh'; 
+                modalBox.style.borderRadius = '8px';
+                
+                // ? برگشت به حالت اولیه
+                contentBox.style.position = 'static';
+                contentBox.style.top = '';
+                contentBox.style.bottom = '';
+                contentBox.style.left = '';
+                contentBox.style.right = '';
+                contentBox.style.flex = '1';
+                
+                btnExpand.textContent = '⛶'; 
+                btnExpand.title = 'Maximize';
+            }
+        });
+
+        btnCols.addEventListener('click', (e) => {
+            e.stopPropagation();
+            panelCols.style.display = panelCols.style.display === 'block' ? 'none' : 'block';
+        });
+        document.addEventListener('click', (e) => {
+            if (!panelCols.contains(e.target) && e.target !== btnCols) panelCols.style.display = 'none';
+        });
+        // ? منطق تغییر عرض سایدبار با کشیدن ماوس
+        const resizer = document.getElementById('sidebar-resizer');
+        const sidebar = document.getElementById('reports-sidebar');
+        let isResizing = false;
+
+        resizer.addEventListener('mousedown', (e) => {
+            isResizing = true;
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none'; // جلوگیری از انتخاب متن هنگام کشیدن
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+            const modalBox = document.getElementById('reports-modal-box').getBoundingClientRect();
+            let newWidth = e.clientX - modalBox.left;
+            
+            // محدودیت‌های حداقل و حداکثر عرض سایدبار
+            if (newWidth < 200) newWidth = 200;
+            if (newWidth > 450) newWidth = 450;
+            
+            sidebar.style.width = newWidth + 'px';
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isResizing) {
+                isResizing = false;
+                document.body.style.cursor = '';
+                document.body.style.userSelect = '';
+            }
+        });
+        // ? منطق چاپ و خروجی PDF تمیز
+        function printReport() {
+            const titleEl = document.getElementById('report-title');
+            // استخراج عنوان اصلی (بدون زیرنویس)
+            const title = titleEl.innerText.split('\n')[0]; 
+            const summary = document.getElementById('report-summary-container').innerHTML;
+            const table = document.querySelector('#report-content table').outerHTML;
+            
+            // گرفتن فیلترهای فعال
+            const filtersHtml = getActiveFiltersText();
+            
+            // ساخت نام فایل کوتاه و گویا
+            const reportNames = {
+                'allOrdered': 'All_Ordered',
+                'delayedOrders': 'Delayed_Orders',
+                'completedOrders': 'Completed_Orders',
+                'openOrders': 'Open_Orders',
+                'awaitingShipment': 'Awaiting_Shipment',
+                'awaitingInvoice': 'Awaiting_Invoice',
+                'awaitingPayment': 'Awaiting_Payment',
+                'ordersByCustomer': 'Orders_By_Customer',
+                'ordersByProduct': 'Orders_By_Product',
+                'paymentSummary': 'Payment_Summary',
+                'customerSales': 'Customer_Sales'
+            };
+            
+            const shortName = reportNames[currentReport] || 'Report';
+            const d = new Date();
+            const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            const dateStr = String(d.getDate()).padStart(2, '0') + months[d.getMonth()] + String(d.getFullYear()).slice(-2);
+            const fileName = `${shortName}_${dateStr}`;
+
+            // باز کردن پنجره چاپ
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html dir="ltr">
+                <head>
+                    <title>${fileName}</title>
+                    <style>
+                        /* تنظیمات کاغذ A4 افقی */
+                        @page { size: A4 landscape; margin: 10mm; }
+                        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 9pt; color: #1f2937; margin: 0; padding: 0; }
+                        #report-content { position: relative; }
+                        #report-content > div:last-child { margin-top: -1px; }
+                        /* استایل هدر گزارش */
+                        .print-header { text-align: center; margin-bottom: 15px; border-bottom: 2px solid #2563eb; padding-bottom: 10px; }
+                        .print-header h1 { font-size: 16pt; margin: 0 0 5px 0; color: #1e3a8a; }
+                        .print-header p { font-size: 9pt; margin: 0; color: #6b7280; }
+                        
+                        /* استایل فیلترها */
+                        .print-filters { font-size: 9pt; font-weight: bold; color: #4b5563; margin-bottom: 15px; text-align: left; background: #f8fafc; padding: 8px; border-radius: 4px; border: 1px solid #e2e8f0; }
+                        .print-filters div { font-size: 9pt !important; color: #1f2937 !important; }
+
+                        /* استایل خلاصه */
+                        .print-summary { margin-bottom: 15px; font-size: 10pt; font-weight: bold; background: #f3f4f6; padding: 8px; border-radius: 4px; }
+                        
+                        /* استایل جدول */
+                        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                        th, td { border: 1px solid #d1d5db; padding: 6px 8px; text-align: left; }
+                        th { background-color: #e5e7eb; font-weight: bold; font-size: 8pt; text-transform: uppercase; color: #374151; }
+                        td { font-size: 8.5pt; }
+                        tr:nth-child(even) { background-color: #f9fafb; }
+                    </style>
+                </head>
+                <body>
+                    <div class="print-header">
+                        <h1>${title}</h1>
+                        <p>Generated on: ${new Date().toLocaleString('en-GB')}</p>
+                    </div>
+                    
+                    <!-- درج فیلترها -->
+                    ${filtersHtml ? `<div class="print-filters">${filtersHtml}</div>` : ''}
+                    
+                    <!-- درج خلاصه تعداد رکوردها -->
+                    <div class="print-summary">
+                        ${summary}
+                    </div>
+                    
+                    <!-- درج جدول -->
+                    ${table}
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            printWindow.focus();
+            // صبر کوتاه برای لود شدن استایل‌ها و سپس چاپ
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 500);
+        }
+
+        document.getElementById('rep-print-btn').addEventListener('click', printReport);
+        document.getElementById('rep-pdf-btn').addEventListener('click', printReport);
+    }
+
+    function populateFilters() {
+        const rows = App.getState().rows;
+        const custSelect = document.getElementById('rep-f-customer');
+        const termsSelect = document.getElementById('rep-f-terms');
+        if (custSelect.options.length > 1) return; 
+
+        const customers = [...new Set(rows.map(r => r.Customer).filter(Boolean))].sort();
+        const terms = [...new Set(rows.map(r => r['Terms of Delivery']).filter(Boolean))].sort();
+
+        customers.forEach(c => custSelect.add(new Option(c, c)));
+        terms.forEach(t => termsSelect.add(new Option(t, t)));
+    }
+
+    return { init };
+})();
+</script>
+
+<!-- اسکریپت رمزگشایی -->
+<script>
+async function tryDecrypt(password) {
+  const resp = await fetch('./data.enc.json?v=' + Date.now());
+  if (!resp.ok) throw new Error('data not found');
+  const enc = await resp.json();
+  const b64 = (s) => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']
+  );
+  const key = await crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt: b64(enc.salt), iterations: 300000, hash: 'SHA-256' },
+    keyMaterial, { name: 'AES-GCM', length: 256 }, false, ['decrypt']
+  );
+
+  const cipherText = b64(enc.data), tag = b64(enc.tag);
+  const combined = new Uint8Array(cipherText.length + tag.length);
+  combined.set(cipherText); combined.set(tag, cipherText.length);
+
+  const decrypted = await crypto.subtle.decrypt(
+    { name: 'AES-GCM', iv: b64(enc.iv) }, key, combined
+  );
+  return JSON.parse(new TextDecoder().decode(decrypted));
+}
+
 async function initApp() {
-  const password = '1235'; // رمز مستقیماً اینجاست
-  const subtitle = document.getElementById('page-subtitle');
-  subtitle.textContent = 'در حال بارگذاری داده‌ها…';
+  const overlay = document.getElementById('login-overlay');
+  const input = document.getElementById('login-password');
+  const btn = document.getElementById('login-btn');
+  const err = document.getElementById('login-error');
+  const show = document.getElementById('login-show');
 
-  try {
-    const resp = await fetch('./data.enc.json');
-    if (!resp.ok) throw new Error('فایل داده یافت نشد');
-    const enc = await resp.json();
-    
-    const b64 = (s) => Uint8Array.from(atob(s), c => c.charCodeAt(0));
-    const salt = b64(enc.salt), iv = b64(enc.iv), tag = b64(enc.tag), cipherText = b64(enc.data);
+  show.addEventListener('change', () => {
+    input.type = show.checked ? 'text' : 'password';
+    input.focus();
+  });
 
-    const enc2 = new TextEncoder();
-    const keyMaterial = await crypto.subtle.importKey('raw', enc2.encode(password), 'PBKDF2', false, ['deriveKey']);
-    const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 300000, hash: 'SHA-256' }, keyMaterial, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
-
-    const combined = new Uint8Array(cipherText.length + tag.length);
-    combined.set(cipherText); combined.set(tag, cipherText.length);
-
-    const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, combined);
-    
-    window.allRows = JSON.parse(new TextDecoder().decode(decrypted));
-    
-    // حالا که App ساخته شده، تابع init را صدا می‌زنیم
-    App.init();
-    
-  } catch (e) {
-    console.error("خطای رمزگشایی:", e);
-    subtitle.innerHTML = "<span style='color:red;'>خطا در بارگذاری داده‌ها. لطفا به پشتیبان اطلاع دهید.</span>";
+  async function attempt() {
+    err.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = 'Checking...';
+    try {
+      window.allRows = await tryDecrypt(input.value);
+      overlay.remove();
+      App.init();
+      Reports.init(); // مقداردهی اولیه گزارشات
+    } catch (e) {
+      console.error('login error:', e);
+      err.style.display = 'block';
+      err.textContent = 'Incorrect password.';
+      btn.disabled = false;
+      btn.textContent = 'Sign in';
+      input.select();
+    }
   }
+
+  btn.addEventListener('click', attempt);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') attempt(); });
+  input.focus();
 }
 
 window.addEventListener('DOMContentLoaded', initApp);
