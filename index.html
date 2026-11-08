@@ -80,6 +80,52 @@
   .quick-actions .btn { padding: 4px 10px; font-size: 0.72rem; }
   .main-row { cursor: pointer; }
   .detail-row td { border-bottom: 1px solid var(--border); }
+  /* KPI Row 1 */
+  /* KPI Rows */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .kpi-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 5px;
+    padding: 7px 10px;
+    position: relative;
+    overflow: hidden;
+    cursor: default;
+  }
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: #2563eb;
+  }
+  .kpi-card[data-kpi="completed"]::before { background: #16a34a; }
+  .kpi-card[data-kpi="open"]::before { background: #d97706; }
+  .kpi-card[data-kpi="success"]::before { background: #1e40af; }
+  .kpi-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1f2937;
+    line-height: 1.1;
+  }
+  .kpi-label {
+    font-size: 0.65rem;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    font-weight: 600;
+    margin-top: 1px;
+  }
+  .kpi-sub {
+    font-size: 0.6rem;
+    color: #9ca3af;
+    margin-top: 0;
+  }
   @media print {
     .table-wrap { max-height: none; overflow: visible; }
     .detail-row { display: none !important; }
@@ -250,12 +296,12 @@
 
   <div class="quick-filters no-print" id="quick-filters">
     <span class="quick-title">Quick Filters</span>
-    <button class="quick-btn" data-preset="openOrders">Open Orders</button>
-    <button class="quick-btn" data-preset="completedOrders">Completed Orders</button>
-    <button class="quick-btn" data-preset="overdueOrders">Delayed Orders</button>
-    <button class="quick-btn" data-preset="awaitingShipment">Awaiting Shipment</button>
-    <button class="quick-btn" data-preset="awaitingInvoice">Awaiting Invoice</button>
-    <button class="quick-btn" data-preset="awaitingPayment">Awaiting Payment</button>
+    <button class="quick-btn" data-preset="openOrders" title="Ordered & not fully paid">Open Orders</button>
+    <button class="quick-btn" data-preset="completedOrders" title="100% payment received">Completed Orders</button>
+    <button class="quick-btn" data-preset="overdueOrders" title="Ordered > 180 days ago & not fully shipped">Delayed Orders</button>
+    <button class="quick-btn" data-preset="awaitingShipment" title="Ordered & shipment not Complete">Awaiting Shipment</button>
+    <button class="quick-btn" data-preset="awaitingInvoice" title="Shipped (Complete/Partial) & invoice not sent">Awaiting Invoice</button>
+    <button class="quick-btn" data-preset="awaitingPayment" title="Invoice sent & payment < 100%">Awaiting Payment</button>
     <div class="quick-actions">
       <div style="position:relative;">
         <button class="btn btn-secondary" id="columns-btn">Columns</button>
@@ -267,7 +313,31 @@
       <button class="btn btn-primary" onclick="App.printDashboard()">Print</button>
     </div>
   </div>
-
+  <!-- KPI Row 1 (fixed) -->
+  <div id="kpi-row-1" class="kpi-grid">
+    <div class="kpi-card" data-kpi="totalRecords" title="All rows matching current filters">
+      <div class="kpi-value" id="kpi-total-records">0</div>
+      <div class="kpi-label">Total Records</div>
+    </div>
+    <div class="kpi-card" data-kpi="totalOrders" title="Rows with Status = Ordered">
+      <div class="kpi-value" id="kpi-total-orders">0</div>
+      <div class="kpi-label">Total Orders</div>
+    </div>
+    <div class="kpi-card" data-kpi="completed" title="Orders with 100% payment received">
+      <div class="kpi-value" id="kpi-completed">0</div>
+      <div class="kpi-label">Completed</div>
+    </div>
+    <div class="kpi-card" data-kpi="open" title="Ordered but not fully paid yet">
+      <div class="kpi-value" id="kpi-open">0</div>
+      <div class="kpi-label">Open</div>
+    </div>
+    <div class="kpi-card" data-kpi="success" title="Orders won ÷ offers with commercial offer sent">
+      <div class="kpi-value" id="kpi-success">0.0%</div>
+      <div class="kpi-label">Success %</div>
+      <div class="kpi-sub">Offer win rate</div>
+    </div>
+  </div>
+  <div id="kpi-basis" style="font-size:0.65rem; color:#9ca3af; margin:-4px 0 8px 2px;">Basis: PO Date</div>
   <div class="card">
     <div class="table-wrap">
       <table id="report-table">
@@ -662,12 +732,65 @@ const App = (function () {
     if (f.globalSearch) { const haystack = Object.keys(r).map(k => String(r[k] ?? '')).join(' ').toLowerCase(); if (!haystack.includes(f.globalSearch)) return false; }
     return true;
   }
+  function renderKPIRow1() {
+    const rows = state.filteredRows;
+    const totalRecords = rows.length;
+    const totalOrders = rows.filter(r => String(r.Status || '').toLowerCase() === 'ordered').length;
+    const completed = rows.filter(r => (parseFloat(r['Payment Received']) || 0) >= 1).length;
+    const open = rows.filter(r => {
+      const status = String(r.Status || '').toLowerCase();
+      const paid = parseFloat(r['Payment Received']) || 0;
+      return status === 'ordered' && paid < 1;
+    }).length;
 
+    // Success %: Ordered ÷ Offers with C
+    const offersWithC = new Set();
+    const orderedWithC = new Set();
+    rows.forEach(r => {
+      const af = String(r['Actions Final sent Offer'] || '');
+      if (!af.includes('C') || af.includes('c')) return;
+      const key = (r.Customer || '') + '|' + (r['Inquiry No'] || '');
+      offersWithC.add(key);
+      if (String(r.Status || '').toLowerCase() === 'ordered') orderedWithC.add(key);
+    });
+    const successRate = offersWithC.size ? ((orderedWithC.size / offersWithC.size) * 100).toFixed(1) : '0.0';
+
+    document.getElementById('kpi-total-records').textContent = totalRecords.toLocaleString('en-US');
+    document.getElementById('kpi-total-orders').textContent = totalOrders.toLocaleString('en-US');
+    document.getElementById('kpi-completed').textContent = completed.toLocaleString('en-US');
+    document.getElementById('kpi-open').textContent = open.toLocaleString('en-US');
+    document.getElementById('kpi-success').textContent = successRate + '%';
+
+    // Basis line — پیش‌فرض: اولین PO تا امروز
+    const fmt = (v) => {
+      if (!v) return '';
+      const d = new Date(v);
+      if (isNaN(d.getTime())) return '';
+      const M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      return M[d.getMonth()] + ' ' + d.getFullYear();
+    };
+    let from = fmt(state.orderFrom);
+    let to = fmt(state.orderTo);
+    if (!from && !to) {
+      // پیش‌فرض: اولین PO تا امروز
+      let minTs = Infinity;
+      state.rows.forEach(r => {
+        const t = r['Date-Ordered'] ? new Date(r['Date-Ordered']).getTime() : NaN;
+        if (!isNaN(t) && t < minTs) minTs = t;
+      });
+      if (isFinite(minTs)) from = fmt(new Date(minTs).toISOString());
+      to = fmt(new Date().toISOString());
+    }
+    let basis = 'Basis: PO Date';
+    if (from || to) basis += ' · ' + (from || '…') + ' → ' + (to || '…');
+    document.getElementById('kpi-basis').textContent = basis;
+  }
   function applyFilters() {
     const f = readFilters();
     state.filteredRows = state.rows.filter(r => rowMatches(r, f));
     renderActiveFilters(f);
     renderFilteredStats();
+    renderKPIRow1();
     const ps = document.getElementById('print-filters-summary');
     if (ps) ps.innerHTML = buildPrintFiltersSummary();
     render();
