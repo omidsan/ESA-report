@@ -107,24 +107,58 @@
   .kpi-card[data-kpi="completed"]::before { background: #16a34a; }
   .kpi-card[data-kpi="open"]::before { background: #d97706; }
   .kpi-card[data-kpi="success"]::before { background: #1e40af; }
+  .kpi-card[data-kpi="openTotal"]::before { background: #1e40af; }
+  .kpi-card[data-kpi="awaitingShip"]::before { background: #d97706; }
+  .kpi-card[data-kpi="awaitingInv"]::before { background: #2563eb; }
+  .kpi-card[data-kpi="awaitingPay"]::before { background: #16a34a; }
   .kpi-value {
-    font-size: 1.25rem;
+    font-size: 1.6rem;
     font-weight: 700;
     color: #1f2937;
     line-height: 1.1;
   }
   .kpi-label {
-    font-size: 0.65rem;
+    font-size: 0.78rem;
     color: #6b7280;
     text-transform: uppercase;
     letter-spacing: 0.03em;
     font-weight: 600;
-    margin-top: 1px;
+    margin-top: 2px;
   }
   .kpi-sub {
-    font-size: 0.6rem;
+    font-size: 0.7rem;
     color: #9ca3af;
     margin-top: 0;
+  }
+  .kpi-breakdown {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px dashed #e5e7eb;
+    font-size: 0.68rem;
+    line-height: 1.2;
+  }
+  .kpi-breakdown:empty { display: none; }
+  .kpi-breakdown .bd-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 24px;
+  }
+  .kpi-breakdown .bd-label {
+    color: #6b7280;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.6rem;
+    letter-spacing: 0.02em;
+  }
+  .kpi-breakdown .bd-value {
+    color: #1f2937;
+    font-weight: 700;
+    font-size: 0.8rem;
+    margin-top: 1px;
   }
   @media print {
     .table-wrap { max-height: none; overflow: visible; }
@@ -291,7 +325,6 @@
     </div>
     <div class="active-filters" id="active-filters"></div>
     <div class="search-chip-wrap" id="search-chip-wrap"></div>
-    <div class="filtered-stats" id="filtered-stats"></div>
   </div>
 
   <div class="quick-filters no-print" id="quick-filters">
@@ -335,6 +368,29 @@
       <div class="kpi-value" id="kpi-success">0.0%</div>
       <div class="kpi-label">Success %</div>
       <div class="kpi-sub">Offer win rate</div>
+    </div>
+  </div>
+  <!-- KPI Row for Open Orders (hidden by default) -->
+  <div id="kpi-row-open" class="kpi-grid" style="display:none; grid-template-columns: repeat(4, 1fr);">
+    <div class="kpi-card" data-kpi="openTotal" title="Ordered & not fully paid">
+      <div class="kpi-value" id="kpi-open-total">0</div>
+      <div class="kpi-label">Open Orders</div>
+      <div class="kpi-breakdown" id="kpi-bd-openTotal"></div>
+    </div>
+    <div class="kpi-card" data-kpi="awaitingShip" title="Open & not shipped yet">
+      <div class="kpi-value" id="kpi-open-awaiting-ship">0</div>
+      <div class="kpi-label">Awaiting Shipment</div>
+      <div class="kpi-breakdown" id="kpi-bd-awaitingShip"></div>
+    </div>
+    <div class="kpi-card" data-kpi="awaitingInv" title="Open & shipped but not invoiced">
+      <div class="kpi-value" id="kpi-open-awaiting-inv">0</div>
+      <div class="kpi-label">Awaiting Invoice</div>
+      <div class="kpi-breakdown" id="kpi-bd-awaitingInv"></div>
+    </div>
+    <div class="kpi-card" data-kpi="awaitingPay" title="Open & invoiced but not fully paid">
+      <div class="kpi-value" id="kpi-open-awaiting-pay">0</div>
+      <div class="kpi-label">Awaiting Payment</div>
+      <div class="kpi-breakdown" id="kpi-bd-awaitingPay"></div>
     </div>
   </div>
   <div id="kpi-basis" style="font-size:0.65rem; color:#9ca3af; margin:-4px 0 8px 2px;">Basis: PO Date</div>
@@ -755,6 +811,7 @@ const App = (function () {
     });
     const successRate = offersWithC.size ? ((orderedWithC.size / offersWithC.size) * 100).toFixed(1) : '0.0';
 
+    // پر کردن اعداد ردیف ۱
     document.getElementById('kpi-total-records').textContent = totalRecords.toLocaleString('en-US');
     document.getElementById('kpi-total-orders').textContent = totalOrders.toLocaleString('en-US');
     document.getElementById('kpi-completed').textContent = completed.toLocaleString('en-US');
@@ -772,7 +829,6 @@ const App = (function () {
     let from = fmt(state.orderFrom);
     let to = fmt(state.orderTo);
     if (!from && !to) {
-      // پیش‌فرض: اولین PO تا امروز
       let minTs = Infinity;
       state.rows.forEach(r => {
         const t = r['Date-Ordered'] ? new Date(r['Date-Ordered']).getTime() : NaN;
@@ -784,7 +840,8 @@ const App = (function () {
     let basis = 'Basis: PO Date';
     if (from || to) basis += ' · ' + (from || '…') + ' → ' + (to || '…');
     document.getElementById('kpi-basis').textContent = basis;
-    // تشخیص فیلتر فعال
+
+    // === تشخیص فیلتر فعال (شامل Quick Filter) ===
     const f = readFilters();
     const hasFilter = !!(
       f.customer || f.product || f.status || f.currency ||
@@ -794,22 +851,100 @@ const App = (function () {
       Object.keys(state.dateFilters).length
     );
 
-    // کنترل نمایش کارت‌ها
-    const others = ['totalOrders', 'completed', 'open', 'success'];
-    others.forEach(k => {
-      const el = document.getElementById('kpi-card-' + k);
-      if (el) el.style.display = hasFilter ? 'none' : '';
+    const isOpenPreset = state.quickPreset === 'openOrders';
+    const row1 = document.getElementById('kpi-row-1');
+    const rowOpen = document.getElementById('kpi-row-open');
+
+    if (isOpenPreset) {
+      // حالت Open Orders: ردیف ۱ مخفی، ردیف Open فعال
+      if (row1) row1.style.display = 'none';
+      if (rowOpen) {
+        rowOpen.style.display = 'grid';
+        rowOpen.style.gridTemplateColumns = 'repeat(4, 1fr)';
+      }
+      renderKPIOpenOrders(rows);
+    } else {
+      // حالت عادی: ردیف Open مخفی، ردیف ۱ فعال
+      if (rowOpen) rowOpen.style.display = 'none';
+      if (row1) {
+        row1.style.display = 'grid';
+        if (hasFilter) {
+          // فیلتر فعال: فقط Total Records (بقیه مخفی + گرید 1fr)
+          row1.style.gridTemplateColumns = '1fr';
+          ['totalOrders', 'completed', 'open', 'success'].forEach(k => {
+            const el = document.getElementById('kpi-card-' + k);
+            if (el) el.style.display = 'none';
+          });
+        } else {
+          // بدون فیلتر: هر ۵ کارت
+          row1.style.gridTemplateColumns = 'repeat(5, 1fr)';
+          ['totalOrders', 'completed', 'open', 'success'].forEach(k => {
+            const el = document.getElementById('kpi-card-' + k);
+            if (el) el.style.display = '';
+          });
+        }
+      }
+    }
+  }
+  function renderKPIOpenOrders(rows) {
+    const isOpen = r => {
+      const s = String(r.Status || '').toLowerCase();
+      const p = parseFloat(r['Payment Received']) || 0;
+      return s === 'ordered' && p < 1;
+    };
+    const openRows = rows.filter(isOpen);
+
+    const shipRows = [], invRows = [], payRows = [];
+    openRows.forEach(r => {
+      const ship = String(r['The order was sent'] || '');
+      const hasInv = !!r['sent invoice'];
+      const isComplete = ship.includes('(Complete)');
+      const isPartial = ship.includes('(Partial)');
+      const paid = parseFloat(r['Payment Received']) || 0;
+
+      if (!isComplete && !isPartial) shipRows.push(r);
+      else if ((isComplete || isPartial) && !hasInv) invRows.push(r);
+      if (hasInv && paid < 1) payRows.push(r);
     });
 
-    // تنظیم تعداد ستون‌های گرید
-    const grid = document.getElementById('kpi-row-1');
-    if (grid) grid.style.gridTemplateColumns = hasFilter ? '1fr' : 'repeat(5, 1fr)';
+    document.getElementById('kpi-open-total').textContent = openRows.length.toLocaleString('en-US');
+    document.getElementById('kpi-open-awaiting-ship').textContent = shipRows.length.toLocaleString('en-US');
+    document.getElementById('kpi-open-awaiting-inv').textContent = invRows.length.toLocaleString('en-US');
+    document.getElementById('kpi-open-awaiting-pay').textContent = payRows.length.toLocaleString('en-US');
+
+    renderKpiBreakdown('kpi-bd-openTotal', openRows);
+    renderKpiBreakdown('kpi-bd-awaitingShip', shipRows);
+    renderKpiBreakdown('kpi-bd-awaitingInv', invRows);
+    renderKpiBreakdown('kpi-bd-awaitingPay', payRows);
+  }
+  const PRODUCT_ABBR = {
+    'GC': 'GC',
+    'Main System': 'MainSys',
+    'Spare Part': 'S/P',
+    'Project': 'Proj',
+    'Accessory': 'Acc'
+  };
+
+  function renderKpiBreakdown(elId, rows) {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    const counts = {};
+    rows.forEach(r => {
+      const p = String(r.Product || '').trim();
+      const key = PRODUCT_ABBR[p] || p;
+      if (!key) return;
+      counts[key] = (counts[key] || 0) + 1;
+    });
+    const order = ['GC', 'MainSys', 'S/P', 'Proj', 'Acc'];
+    const items = order.filter(k => counts[k] > 0).map(k => {
+      return `<div class="bd-item"><div class="bd-label">${k}</div><div class="bd-value">${counts[k]}</div></div>`;
+    });
+    el.innerHTML = items.join('');
   }
   function applyFilters() {
     const f = readFilters();
     state.filteredRows = state.rows.filter(r => rowMatches(r, f));
     renderActiveFilters(f);
-    renderFilteredStats();
     renderKPIRow1();
     const ps = document.getElementById('print-filters-summary');
     if (ps) ps.innerHTML = buildPrintFiltersSummary();
@@ -901,7 +1036,6 @@ const App = (function () {
   }
 
   function render() {
-    renderFilteredStats();
     const rows = [...state.filteredRows].sort((a, b) => {
       if (!state.sortKey) return 0;
       const va = a[state.sortKey] ?? ''; const vb = b[state.sortKey] ?? '';
