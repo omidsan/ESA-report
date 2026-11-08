@@ -2031,7 +2031,13 @@ async function initApp() {
     input.type = show.checked ? 'text' : 'password';
     input.focus();
   });
-
+  function trackVisit() {
+    try {
+      const url = 'https://script.google.com/macros/s/AKfycbzh-iCLFFVIhg3naERMvCav6cX02Apyfk2RICwnmZT4MqEMfl2BoCbap5fBm8zxz5Gi/exec';
+      const payload = JSON.stringify({ userLabel: 'manager', time: new Date().toISOString() });
+      navigator.sendBeacon(url, new Blob([payload], { type: 'text/plain' }));
+    } catch (e) { /* هرگز برنامه را متوقف نکن */ }
+  }
   async function attempt() {
     err.style.display = 'none';
     btn.disabled = true;
@@ -2040,6 +2046,7 @@ async function initApp() {
       window.allRows = await tryDecrypt(input.value);
       overlay.remove();
       App.init();
+      trackVisit();   // ← این خط اضافه شود
       Reports.init(); // مقداردهی اولیه گزارشات
     } catch (e) {
       console.error('login error:', e);
