@@ -319,19 +319,19 @@
       <div class="kpi-value" id="kpi-total-records">0</div>
       <div class="kpi-label">Total Records</div>
     </div>
-    <div class="kpi-card" data-kpi="totalOrders" title="Rows with Status = Ordered">
+    <div class="kpi-card" data-kpi="totalOrders" id="kpi-card-totalOrders" title="Rows with Status = Ordered">
       <div class="kpi-value" id="kpi-total-orders">0</div>
       <div class="kpi-label">Total Orders</div>
     </div>
-    <div class="kpi-card" data-kpi="completed" title="Orders with 100% payment received">
+    <div class="kpi-card" data-kpi="completed" id="kpi-card-completed" title="Orders with 100% payment received">
       <div class="kpi-value" id="kpi-completed">0</div>
       <div class="kpi-label">Completed</div>
     </div>
-    <div class="kpi-card" data-kpi="open" title="Ordered but not fully paid yet">
+    <div class="kpi-card" data-kpi="open" id="kpi-card-open" title="Ordered but not fully paid yet">
       <div class="kpi-value" id="kpi-open">0</div>
       <div class="kpi-label">Open</div>
     </div>
-    <div class="kpi-card" data-kpi="success" title="Orders won ÷ offers with commercial offer sent">
+    <div class="kpi-card" data-kpi="success" id="kpi-card-success" title="Orders won ÷ offers with commercial offer sent">
       <div class="kpi-value" id="kpi-success">0.0%</div>
       <div class="kpi-label">Success %</div>
       <div class="kpi-sub">Offer win rate</div>
@@ -784,6 +784,26 @@ const App = (function () {
     let basis = 'Basis: PO Date';
     if (from || to) basis += ' · ' + (from || '…') + ' → ' + (to || '…');
     document.getElementById('kpi-basis').textContent = basis;
+    // تشخیص فیلتر فعال
+    const f = readFilters();
+    const hasFilter = !!(
+      f.customer || f.product || f.status || f.currency ||
+      f.paymentType || f.terms || f.globalSearch ||
+      state.orderFrom || state.orderTo ||
+      state.quickPreset ||
+      Object.keys(state.dateFilters).length
+    );
+
+    // کنترل نمایش کارت‌ها
+    const others = ['totalOrders', 'completed', 'open', 'success'];
+    others.forEach(k => {
+      const el = document.getElementById('kpi-card-' + k);
+      if (el) el.style.display = hasFilter ? 'none' : '';
+    });
+
+    // تنظیم تعداد ستون‌های گرید
+    const grid = document.getElementById('kpi-row-1');
+    if (grid) grid.style.gridTemplateColumns = hasFilter ? '1fr' : 'repeat(5, 1fr)';
   }
   function applyFilters() {
     const f = readFilters();
