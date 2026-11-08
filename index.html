@@ -2050,7 +2050,12 @@ async function initApp() {
       const send = () => {
         const now = document.visibilityState === 'visible' ? Date.now() - _lastVisible : 0;
         const duration = Math.round((_activeMs + now) / 1000);
-        const payload = JSON.stringify({ userLabel: 'manager', time: new Date().toISOString(), durationSeconds: duration });
+        const payload = JSON.stringify({
+          userLabel: 'manager',
+          time: new Date().toISOString(),
+          durationSeconds: duration,
+          host: location.host
+        });
         navigator.sendBeacon(url, new Blob([payload], { type: 'text/plain' }));
       };
       window.addEventListener('pagehide', send);
