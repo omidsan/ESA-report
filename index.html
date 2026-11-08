@@ -2031,11 +2031,30 @@ async function initApp() {
     input.type = show.checked ? 'text' : 'password';
     input.focus();
   });
+
+  let _visitStart = Date.now();
+  let _activeMs = 0;
+  let _lastVisible = Date.now();
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      _activeMs += Date.now() - _lastVisible;
+    } else {
+      _lastVisible = Date.now();
+    }
+  });
+
   function trackVisit() {
     try {
       const url = 'https://script.google.com/macros/s/AKfycbzh-iCLFFVIhg3naERMvCav6cX02Apyfk2RICwnmZT4MqEMfl2BoCbap5fBm8zxz5Gi/exec';
-      const payload = JSON.stringify({ userLabel: 'manager', time: new Date().toISOString() });
-      navigator.sendBeacon(url, new Blob([payload], { type: 'text/plain' }));
+      const send = () => {
+        const now = document.visibilityState === 'visible' ? Date.now() - _lastVisible : 0;
+        const duration = Math.round((_activeMs + now) / 1000);
+        const payload = JSON.stringify({ userLabel: 'manager', time: new Date().toISOString(), durationSeconds: duration });
+        navigator.sendBeacon(url, new Blob([payload], { type: 'text/plain' }));
+      };
+      window.addEventListener('pagehide', send);
+      window.addEventListener('beforeunload', send);
     } catch (e) { /* هرگز برنامه را متوقف نکن */ }
   }
   async function attempt() {
