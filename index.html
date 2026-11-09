@@ -2220,13 +2220,11 @@ async function initApp() {
       `;
       document.body.appendChild(devOverlay);
       
+      trackVisit(); // حالا قبل از return صدا زده می‌شود و لاگ ثبت می‌شود
+      
       return; // توقف اجرای برنامه در اینجا
-      // ==========================================
-      // ↑↑↑ پایان مسدودسازی ↑↑↑
-      // ==========================================
-
+      
       App.init();
-      trackVisit();
       Reports.init();
       
     } catch (e) {
