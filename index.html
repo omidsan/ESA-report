@@ -2203,9 +2203,32 @@ async function initApp() {
     try {
       window.allRows = await tryDecrypt(input.value);
       overlay.remove();
+      
+      // ==========================================
+      // ↓↓↓ مسدود کردن دسترسی به دلیل توسعه ↓↓↓
+      // ==========================================
+      const devOverlay = document.createElement('div');
+      devOverlay.style.cssText = 'position:fixed;inset:0;background:#f7f8fa;display:flex;align-items:center;justify-content:center;z-index:9999;font-family:"Segoe UI",Arial,sans-serif;';
+      devOverlay.innerHTML = `
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:40px;max-width:450px;text-align:center;box-shadow:0 10px 25px rgba(0,0,0,0.05);">
+          <div style="font-size:3rem;margin-bottom:15px;">🚧</div>
+          <div style="font-weight:700;font-size:1.3rem;color:#1f2937;margin-bottom:10px;">Under Development</div>
+          <div style="font-size:0.9rem;color:#6b7280;line-height:1.6;">
+            This dashboard is currently being updated.<br>Please check back later.
+          </div>
+        </div>
+      `;
+      document.body.appendChild(devOverlay);
+      
+      return; // توقف اجرای برنامه در اینجا
+      // ==========================================
+      // ↑↑↑ پایان مسدودسازی ↑↑↑
+      // ==========================================
+
       App.init();
-      trackVisit();   // ← این خط اضافه شود
-      Reports.init(); // مقداردهی اولیه گزارشات
+      trackVisit();
+      Reports.init();
+      
     } catch (e) {
       console.error('login error:', e);
       err.style.display = 'block';
