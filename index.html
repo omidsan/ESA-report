@@ -219,7 +219,8 @@
     #active-filters,
     #search-chip-wrap,
     #filtered-stats,
-    #header-actions {        /* ← این خط اضافه شد */
+    #header-actions,
+    #shift-click-hint {      /* ← این خط جدید */
       display: none !important;
     }
     /* نمایش کارت‌ها و جدول */
@@ -454,6 +455,9 @@
         <thead></thead>
         <tbody></tbody>
       </table>
+    </div>
+    <div id="shift-click-hint" style="font-size:0.72rem; color:#6b7280; margin-top:8px; padding:6px 4px; border-top:1px dashed #e5e7eb;">
+      💡 Tip: <b>Shift + Click</b> on a customer name to filter the table by that customer. A simple click opens the customer panel.
     </div>
   </div>
 </div>
@@ -1147,7 +1151,9 @@ const App = (function () {
           return `<td class="status-${cls}">${val}</td>`;
         }
         if (c.key === 'Customer') {
-          return `<td title="${String(val).replace(/"/g, '&quot;')}"><span class="link-clickable" onclick="App.openCustomer('${String(val).replace(/'/g, "\\'")}')">${val}</span></td>`;
+          const safeInq = String(r['Inquiry No'] || '').replace(/'/g, "\\'");
+          const safeCust = String(val).replace(/'/g, "\\'");
+          return `<td title="${String(val).replace(/"/g, '&quot;')} — Shift+Click = filter by this customer"><span class="link-clickable" onclick="App.onCustomerClick(event, '${safeInq}', '${safeCust}')">${val}</span></td>`;
         }
         if (c.key === 'Inquiry No') {
           return `<td title="${String(val).replace(/"/g, '&quot;')}"><span class="link-clickable" onclick="App.openInq('${String(r['Inquiry No']).replace(/'/g, "\\'")}')">${val}</span></td>`;
@@ -1299,19 +1305,53 @@ const App = (function () {
     togglePanel(true);
   }
 
-  let sortOtherCol = '';
-  let sortOtherAsc = true;
+  let sortCustCol = '';
+  let sortCustAsc = true;
+  let currentCustomerName = '';
 
   function openCustomer(customerName) {
+    currentCustomerName = customerName;
     const cRows = state.rows.filter(r => r.Customer === customerName);
+
+    // مرتب‌سازی
+    const sorted = [...cRows];
+    if (sortCustCol) {
+      sorted.sort((a, b) => {
+        let va, vb;
+        if (sortCustCol === 'inq') {
+          va = String(a['Inquiry No'] || '');
+          vb = String(b['Inquiry No'] || '');
+        } else if (sortCustCol === 'product') {
+          va = String(a.Product || '');
+          vb = String(b.Product || '');
+        } else if (sortCustCol === 'status') {
+          va = a.Status || (String(a['Actions Final sent Offer']||'').trim() ? 'Pending' : 'In Progress');
+          vb = b.Status || (String(b['Actions Final sent Offer']||'').trim() ? 'Pending' : 'In Progress');
+        } else {
+          return 0;
+        }
+        return sortCustAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+      });
+    }
+
     let html = `<div style="margin-bottom:16px; font-size:0.9rem; color:#374151;">Total Inquiries: <b>${cRows.length}</b></div>`;
-    html += `<table class="panel-table"><thead><tr><th>INQ</th><th>Product</th><th>Status</th></tr></thead><tbody>`;
-    
-    cRows.forEach(r => {
+    html += `<table class="panel-table"><thead><tr>`;
+
+    const iconInq = sortCustCol === 'inq' ? (sortCustAsc ? ' ▲' : ' ▼') : '';
+    const iconProd = sortCustCol === 'product' ? (sortCustAsc ? ' ▲' : ' ▼') : '';
+    const iconStat = sortCustCol === 'status' ? (sortCustAsc ? ' ▲' : ' ▼') : '';
+
+    html += `<th style="cursor:pointer; user-select:none;" onclick="App.sortCustomer('inq')">INQ${iconInq}</th>`;
+    html += `<th style="cursor:pointer; user-select:none;" onclick="App.sortCustomer('product')">Product${iconProd}</th>`;
+    html += `<th style="cursor:pointer; user-select:none;" onclick="App.sortCustomer('status')">Status${iconStat}</th>`;
+    html += `</tr></thead><tbody>`;
+
+    sorted.forEach(r => {
       const inqNo = String(r['Inquiry No'] || '');
       const status = r.Status || (String(r['Actions Final sent Offer']||'').trim() ? 'Pending' : 'In Progress');
+      const safeInq = inqNo.replace(/'/g, "\\'");
       html += `<tr>
-        <td><span class="link-clickable" onclick="App.openInq('${inqNo.replace(/'/g, "\\'")}')">${inqNo}</span></td>
+        <td><span class="link-clickable" data-inq="${safeInq}" onclick="App.openInq(this.getAttribute('data-inq'))">${inqNo}</span></td>
         <td>${r.Product || ''}</td>
         <td>${status}</td>
       </tr>`;
@@ -1320,6 +1360,51 @@ const App = (function () {
     renderPanelContent('Customer: ' + customerName, html);
   }
 
+  function sortCustomer(col) {
+    if (sortCustCol === col) sortCustAsc = !sortCustAsc;
+    else { sortCustCol = col; sortCustAsc = true; }
+    if (currentCustomerName) openCustomer(currentCustomerName);
+  }
+  function onCustomerClick(ev, inqNo, customerName) {
+    if (ev && ev.shiftKey) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      filterByCustomer(customerName);
+    } else {
+      openCustomer(customerName);   // ← کلیک ساده = پنل مشتری
+    }
+  }
+  function filterByCustomer(name) {
+    if (!name) return;
+
+    // 1) ست کردن dropdown فیلتر Customer (id واقعی: f-customer)
+    const sel = document.getElementById('f-customer');
+    if (sel) {
+      let found = false;
+      for (const opt of sel.options) {
+        if (opt.value === name) { sel.value = name; found = true; break; }
+      }
+      if (!found) {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        sel.appendChild(opt);
+        sel.value = name;
+      }
+    }
+
+    // 2) اعمال فیلترها
+    applyFilters();
+
+    // 3) اسکرول به جدول
+    const tableCard = document.getElementById('report-table');
+    if (tableCard) tableCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // 4) بستن پنل اگر باز است
+    if (typeof togglePanel === 'function') togglePanel(false);
+  }
+  let sortOtherCol = '';
+  let sortOtherAsc = true;
   function openInq(inqNo) {
     const row = getLatestRecord(inqNo);
     if (!row) return;
@@ -1421,7 +1506,9 @@ const App = (function () {
     const inqMatch = title.match(/INQ: ([^ ]+)/);
     if (inqMatch) openInq(inqMatch[1]);
   }
-  return { init, sortTable, resetFilters, getState, printDashboard, openCustomer, openInq, sortOther }; 
+  return { init, sortTable, resetFilters, getState, printDashboard,
+         openInq, sortOther, onCustomerClick, filterByCustomer,
+         openCustomer, sortCustomer }; 
 })();
 </script>
 
