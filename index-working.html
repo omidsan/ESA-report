@@ -858,7 +858,15 @@ const App = (function () {
             break;
 
           case 'overdueOrders': {
-            if (!awaitingShipment) return false;
+            if (status !== 'ordered') return false;
+
+            const orderSent = String(r['The order was sent'] || '').toLowerCase();
+
+            if (
+              orderSent.includes('complete') ||
+              orderSent.includes('canceled by esa') ||
+              orderSent.includes('(no items)')
+            ) return false;
 
             const raw = r['Date-Ordered'];
             if (!raw) return false;
@@ -866,7 +874,11 @@ const App = (function () {
             const d = new Date(raw);
             if (isNaN(d.getTime())) return false;
 
-            if ((Date.now() - d.getTime()) / 86400000 < 180) return false;
+            const sixMonthsAgo = new Date();
+            sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+            if (d >= sixMonthsAgo) return false;
+
             break;
           }
 
