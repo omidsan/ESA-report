@@ -367,7 +367,7 @@
     <span class="quick-title">Quick Filters</span>
     <button class="quick-btn" data-preset="openOrders" title="Ordered & not fully paid">Open Orders</button>
     <button class="quick-btn" data-preset="completedOrders" title="100% payment received">Completed Orders</button>
-    <button class="quick-btn" data-preset="overdueOrders" title="Ordered > 180 days ago & not fully shipped">Delayed Orders</button>
+    <button class="quick-btn" data-preset="overdueOrders" title="Ordered > 180 days ago & not fully shipped">Overdue Shipments</button>
     <button class="quick-btn" data-preset="awaitingShipment" title="Ordered & shipment not Complete">Awaiting Shipment</button>
     <button class="quick-btn" data-preset="awaitingInvoice" title="Shipped (Complete/Partial) & invoice not sent">Awaiting Invoice</button>
     <button class="quick-btn" data-preset="awaitingPayment" title="Invoice sent & payment < 100%">Awaiting Payment</button>
@@ -498,7 +498,7 @@
             <summary style="font-size:0.7rem; font-weight:700; color:#6b7280; text-transform:uppercase; cursor:pointer; outline:none; margin-bottom:4px;">▼ Sales & Orders</summary>
             <div style="padding-left:4px; margin-top:4px;">
               <button class="report-btn active" data-report="allOrdered" style="width:100%; text-align:left; padding:6px 8px; border:none; background:#e0e7ff; color:#3730a3; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">All Ordered</button>
-              <button class="report-btn" data-report="delayedOrders" style="width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#4b5563; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">Delayed Orders</button>
+              <button class="report-btn" data-report="delayedOrders" style="width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#4b5563; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">Overdue Shipments</button>
               <button class="report-btn" data-report="completedOrders" style="width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#4b5563; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">Completed Orders</button>
               <button class="report-btn" data-report="openOrders" style="width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#4b5563; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">Open Orders</button>
               <button class="report-btn" data-report="awaitingShipment" style="width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#4b5563; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">Awaiting Shipment</button>
@@ -882,9 +882,19 @@ const App = (function () {
             break;
           }
 
-          case 'awaitingShipment':
-            if (!awaitingShipment) return false;
+          case 'awaitingShipment': {
+            if (status !== 'ordered') return false;
+
+            const orderSent = String(r['The order was sent'] || '').toLowerCase();
+
+            if (
+              orderSent.includes('complete') ||
+              orderSent.includes('canceled by esa') ||
+              orderSent.includes('(no items)')
+            ) return false;
+
             break;
+          }
 
           case 'awaitingInvoice':
             if (!awaitingInvoice) return false;
@@ -1124,7 +1134,7 @@ const App = (function () {
       const x = document.createElement('button'); x.innerHTML = '&times;'; x.onclick = () => { delete state.dateFilters[key]; applyFilters(); }; chip.appendChild(x); wrap.appendChild(chip);
     });
     if (state.quickPreset) {
-      const presetLabels = { openOrders: 'Open Orders', completedOrders: 'Completed Orders', overdueOrders: 'Delayed Orders', awaitingShipment: 'Awaiting Shipment', awaitingInvoice: 'Awaiting Invoice', awaitingPayment: 'Awaiting Payment' };
+      const presetLabels = { openOrders: 'Open Orders', completedOrders: 'Completed Orders', overdueOrders: 'Overdue Shipments', awaitingShipment: 'Awaiting Shipment', awaitingInvoice: 'Awaiting Invoice', awaitingPayment: 'Awaiting Payment' };
       const chip = document.createElement('span'); chip.className = 'filter-chip'; chip.style.cssText = 'background:#dbeafe;border-color:#93c5fd;color:#1e40af;';
       chip.innerHTML = `<span class="chip-key" style="color:#3b82f6;">Preset:</span> ${presetLabels[state.quickPreset] || state.quickPreset}`;
       const x = document.createElement('button'); x.innerHTML = '&times;'; x.onclick = () => { state.quickPreset = ''; applyFilters(); }; chip.appendChild(x); wrap.appendChild(chip);
@@ -1169,7 +1179,7 @@ const App = (function () {
       parts.push(`${dateLabels[key] || key}: ${r.from || '…'} → ${r.to || '…'}`);
     });
     if (state.quickPreset) {
-      const presetLabels = { openOrders: 'Open Orders', completedOrders: 'Completed Orders', overdueOrders: 'Delayed Orders', awaitingShipment: 'Awaiting Shipment', awaitingInvoice: 'Awaiting Invoice', awaitingPayment: 'Awaiting Payment' };
+      const presetLabels = { openOrders: 'Open Orders', completedOrders: 'Completed Orders', overdueOrders: 'Overdue Shipments', awaitingShipment: 'Awaiting Shipment', awaitingInvoice: 'Awaiting Invoice', awaitingPayment: 'Awaiting Payment' };
       parts.push(`Quick Filter: ${presetLabels[state.quickPreset] || state.quickPreset}`);
     }
     const stats = `Filtered: <b>${state.filteredRows.length}</b> of ${state.rows.length}`;
@@ -1910,7 +1920,7 @@ const Reports = (function() {
             filtered.filter(r => String(r.Status || '').toLowerCase() === 'ordered').forEach(r => { data.push(extractRow(r)); });
         } 
         else if (type === 'delayedOrders') {
-            title = "Delayed Orders (> 180 days, not shipped)";
+            title = "Overdue Shipments (> 180 days, not shipped)";
             subtitle = "Calculated based on PO Date (older than 180 days & not fully shipped)";
             const cutoff = Date.now() - (180 * 86400000);
             
@@ -2740,7 +2750,7 @@ const Help = (function () {
           <tr><th style="text-align:left; padding:6px; border-bottom:1px solid #e5e7eb;">Preset</th><th style="text-align:left; padding:6px; border-bottom:1px solid #e5e7eb;">Logic</th></tr>
           <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Open Orders</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Status = Ordered AND Payment &lt; 100%.</td></tr>
           <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Completed Orders</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Payment = 100%.</td></tr>
-          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Delayed Orders</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Ordered &gt; 180 days ago AND not fully shipped.</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Overdue Shipments</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Ordered &gt; 180 days ago AND not fully shipped.</td></tr>
           <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Awaiting Shipment</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Ordered AND shipment not Complete.</td></tr>
           <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Awaiting Invoice</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Shipped (Complete or Partial) AND invoice not sent.</td></tr>
           <tr><td style="padding:6px;"><b>Awaiting Payment</b></td><td style="padding:6px;">Invoice sent AND Payment &lt; 100%.</td></tr>
@@ -2751,7 +2761,7 @@ const Help = (function () {
       html: `
         <ul>
           <li><b>All Ordered</b> — every Status = Ordered row.</li>
-          <li><b>Delayed Orders</b> — Ordered &gt; 180 days, not shipped.</li>
+          <li><b>Overdue Shipments</b> — Ordered &gt; 180 days, not shipped.</li>
           <li><b>Completed Orders</b> — fully paid.</li>
           <li><b>Open Orders</b> — Ordered &amp; unpaid.</li>
           <li><b>Awaiting Shipment / Invoice / Payment</b> — pipeline stages.</li>
