@@ -1,0 +1,2890 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Sales Dashboard — Ervin Shimi Azma</title>
+<style>
+  :root { --bg: #f7f8fa; --surface: #ffffff; --border: #e5e7eb; --text: #1f2937; --text-muted: #6b7280; --primary: #2563eb; --primary-hover: #1d4ed8; --success: #16a34a; --warning: #d97706; --danger: #dc2626; --radius: 6px; --font: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.45; padding: 20px 16px; min-height: 100vh; }
+  .container { max-width: 100%; margin: 0 auto; }
+  .card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 12px 14px; margin-bottom: 10px; }
+  .page-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 2px; }
+  .page-subtitle { font-size: 0.85rem; color: var(--text-muted); }
+      #print-filters-summary {
+      display: block !important;
+      font-size: 8.5pt !important;
+      color: #1f2937 !important;
+      border-top: 1px solid #d1d5db !important;
+      padding-top: 4px !important;
+      margin-top: 4px !important;
+    }
+  .filters-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .filter-group { flex: 0 1 130px; min-width: 100px; }
+  .filter-group:first-child { flex: 0 1 200px; min-width: 150px; }
+  .filter-group select, .filter-group input { width: 100%; padding: 5px 8px; border: 1px solid var(--border); border-radius: 4px; font-size: 0.8rem; background: var(--surface); color: var(--text); outline: none; }
+  .filter-group select:focus, .filter-group input:focus { border-color: var(--primary); }
+  .filter-group-label { font-size: 0.65rem; font-weight: 600; color: var(--text-muted); margin-right: 4px; text-transform: uppercase; letter-spacing: 0.03em; }
+  .filter-group-date { display: flex; align-items: center; flex: 0 1 auto; gap: 4px; padding: 2px 6px; background: #fef9f3; border: 1px solid #fde8cc; border-radius: 4px; }
+  .filter-group-date.hidden { display: none; }
+  .filter-group-date .filter-group-label { color: #b45309; }
+  .date-range-inline { display: flex; gap: 4px; }
+  .date-range-inline input { padding: 4px 6px; border: 1px solid #fde8cc; border-radius: 3px; font-size: 0.75rem; outline: none; font-family: var(--font); width: 110px; background: #fff; }
+  .date-range-inline input:focus { border-color: #d97706; }
+  .filter-group-search { flex: 1 1 3000px; min-width: 200px; max-width: 500px; margin: 0 auto; }
+  .filter-group-search .search-input { width: 100%; padding: 5px 10px; border: 1px solid #dbeafe; border-radius: 4px; font-size: 0.8rem; background: #f8fbff; color: var(--text); outline: none; text-align: left; }
+  .filter-group-search .search-input:focus { border-color: var(--primary); background: #fff; }
+  .active-filters { display: flex; flex-wrap: wrap; gap: 4px; padding: 6px 0 0; }
+  .active-filters:empty { display: none; }
+  .filter-chip { display: inline-flex; align-items: center; gap: 4px; background: #eef2ff; color: #3730a3; border: 1px solid #c7d2fe; border-radius: 10px; padding: 2px 8px; font-size: 0.7rem; font-weight: 500; }
+  .filter-chip .chip-key { color: #6366f1; font-weight: 600; }
+  .filter-chip button { background: none; border: none; color: #6366f1; cursor: pointer; font-size: 0.8rem; line-height: 1; padding: 0; }
+  .search-chip-wrap { display: flex; justify-content: center; padding: 4px 0 0; }
+  .search-chip-wrap:empty { display: none; }
+  .search-chip { display: inline-flex; align-items: center; gap: 6px; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; border-radius: 10px; padding: 3px 10px; font-size: 0.75rem; font-weight: 600; }
+  .search-chip .chip-key { color: #3b82f6; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  .filtered-stats { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 0.75rem; color: var(--text-muted); padding: 6px 0 0; border-top: 1px dashed var(--border); margin-top: 6px; }
+  .filtered-stats b { color: var(--text); }
+  .btn { padding: 6px 14px; border: none; border-radius: 4px; font-size: 0.78rem; font-weight: 600; cursor: pointer; }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-secondary { background: #e5e7eb; color: var(--text); }
+  .table-wrap { max-height: 50vh; overflow-y: auto; overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); }
+  th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  th { background: #f9fafb; color: var(--text-muted); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; position: sticky; top: 0; cursor: pointer; user-select: none; z-index: 2; padding: 6px 10px; }
+  tbody tr:hover { background: #f9fafb; }
+  td:first-child, th:first-child { overflow: visible; text-overflow: clip; }
+  tbody tr:last-child td { border-bottom: none; }
+  .status-ordered { color: var(--success); font-weight: 600; }
+  .status-canceled, .status-rejected { color: var(--danger); }
+  .status-lost, .status-hold { color: var(--warning); }
+  .status-in-progress { color: var(--primary); font-weight: 600; }
+  .date-filter-btn { display: inline-block; margin-left: 4px; padding: 0 3px; font-size: 0.7rem; color: var(--text-muted); cursor: pointer; border: 1px solid transparent; border-radius: 3px; line-height: 1; vertical-align: middle; }
+  .date-filter-btn.active { color: #fff; background: var(--primary); border-color: var(--primary); }
+  .date-popup { position: absolute; z-index: 200; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); font-size: 0.8rem; min-width: 200px; top: 100%; right: 0; margin-top: 4px; }
+  .date-popup label { display: block; font-size: 0.7rem; color: var(--text-muted); font-weight: 600; margin-bottom: 2px; }
+  .date-popup input[type="date"] { width: 100%; padding: 4px 6px; border: 1px solid var(--border); border-radius: 4px; font-size: 0.78rem; margin-bottom: 6px; outline: none; font-family: var(--font); }
+  .date-popup .popup-actions { display: flex; gap: 6px; margin-top: 4px; }
+  .date-popup .popup-actions button { flex: 1; padding: 5px; border: none; border-radius: 4px; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
+  .date-popup .popup-actions .apply { background: var(--primary); color: #fff; }
+  .date-popup .popup-actions .clear { background: #e5e7eb; color: var(--text); }
+  .empty-state { text-align: center; padding: 32px 20px; color: var(--text-muted); font-size: 0.9rem; }
+  .quick-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 5px 10px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; }
+  .quick-title { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-right: 4px; }
+  .quick-btn { padding: 4px 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 12px; font-size: 0.72rem; font-weight: 600; cursor: pointer; }
+  .quick-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .quick-actions { margin-left: auto; display: flex; gap: 4px; }
+  .quick-actions .btn { padding: 4px 10px; font-size: 0.72rem; }
+  .main-row { cursor: pointer; }
+  .detail-row td { border-bottom: 1px solid var(--border); }
+  /* مرحله پایانی موفق (وقتی همه چیز تکمیل شده) */
+  .stepper-step.paid-done .stepper-icon { background: #16a34a; color: #fff; border: 2px solid #15803d; }
+  .stepper-step.paid-done .stepper-label { color: #15803d; font-weight: 800; }
+  /* KPI Row 1 */
+  /* KPI Rows */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .kpi-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 5px;
+    padding: 7px 10px;
+    position: relative;
+    overflow: hidden;
+    cursor: default;
+  }
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: #2563eb;
+  }
+  .kpi-card[data-kpi="completed"]::before { background: #16a34a; }
+  .kpi-card[data-kpi="open"]::before { background: #d97706; }
+  .kpi-card[data-kpi="success"]::before { background: #1e40af; }
+  .kpi-card[data-kpi="openTotal"]::before { background: #1e40af; }
+  .kpi-card[data-kpi="awaitingShip"]::before { background: #d97706; }
+  .kpi-card[data-kpi="awaitingInv"]::before { background: #2563eb; }
+  .kpi-card[data-kpi="awaitingPay"]::before { background: #16a34a; }
+  .kpi-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #1f2937;
+    line-height: 1.1;
+  }
+  .kpi-label {
+    font-size: 0.78rem;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+  .kpi-sub {
+    font-size: 0.7rem;
+    color: #9ca3af;
+    margin-top: 0;
+  }
+  .kpi-breakdown {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px dashed #e5e7eb;
+    font-size: 0.68rem;
+    line-height: 1.2;
+  }
+  .kpi-breakdown:empty { display: none; }
+  .kpi-breakdown .bd-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 24px;
+  }
+  .kpi-breakdown .bd-label {
+    color: #6b7280;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.6rem;
+    letter-spacing: 0.02em;
+  }
+  .kpi-breakdown .bd-value {
+    color: #1f2937;
+    font-weight: 700;
+    font-size: 0.8rem;
+    margin-top: 1px;
+  }
+  @media print {
+    .table-wrap { max-height: none; overflow: visible; }
+    .detail-row { display: none !important; }
+    .expand-btn { display: none !important; }
+  }
+  #columns-panel label { display: flex; align-items: center; gap: 6px; padding: 4px 2px; font-size: 0.78rem; color: var(--text); cursor: pointer; user-select: none; }
+  #columns-panel label:hover { background: #f3f4f6; border-radius: 3px; }
+  #columns-panel input[type="checkbox"] { cursor: pointer; }
+  
+  /* تنظیمات جدول اصلی */
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; table-layout: auto; }
+  th:nth-child(4), td:nth-child(4) { width: 100px !important; max-width: 100px !important; }
+
+  /* تنظیمات جدول گزارشات */
+  .report-table { width:100%; border-collapse:collapse; font-size:0.8rem; table-layout: auto; }
+  .report-table th, .report-table td { padding:8px 6px; }
+  .report-table th, .report-table td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .report-table th { background:#f3f4f6; color:#374151; font-weight:600; padding:8px; text-align:left; border-bottom:2px solid #e5e7eb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .report-table td { padding:8px; border-bottom:1px solid #e5e7eb; color:#4b5563; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .report-table tfoot tr { position: sticky; bottom: 0; z-index: 4; }
+  .report-table tfoot td { background: #f3f4f6; border-top: 2px solid #6b7280; padding: 8px 6px; white-space: nowrap; }
+  #report-content { position: relative; padding: 0 !important; }
+
+  /* استایل دکمه تنظیمات ستون‌ها در گزارش */
+  .col-settings-btn { position: absolute; right: 16px; top: 12px; background: #fff; border: 1px solid #d1d5db; border-radius: 4px; padding: 4px 8px; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); z-index: 20; }
+  .col-settings-btn:hover { background: #f9fafb; }
+  .col-settings-panel { position: absolute; right: 16px; top: 40px; background: #fff; border: 1px solid #d1d5db; border-radius: 6px; padding: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 30; width: 200px; max-height: 300px; overflow-y: auto; display: none; text-align: left; }
+  .col-settings-panel label { display: flex; align-items: center; gap: 6px; padding: 4px 0; font-size: 0.75rem; cursor: pointer; }
+  #sidebar-resizer:hover, #sidebar-resizer:active { background: #c7d2fe; }
+  @media print {
+    /* فقط وقتی مودال Analytics باز است (body.print-analytics) */
+    body.print-analytics * { visibility: hidden; }
+    body.print-analytics #report-content,
+    body.print-analytics #report-content *,
+    body.print-analytics #report-summary-container,
+    body.print-analytics #report-summary-container *,
+    body.print-analytics #report-title,
+    body.print-analytics #report-title * { visibility: visible; }
+    body.print-analytics #report-content { position: absolute; left: 0; top: 100px; width: 100%; height: auto !important; max-height: none !important; overflow: visible !important; border: none !important; }
+    body.print-analytics #report-summary-container { position: absolute; left: 0; top: 40px; width: 100%; }
+    body.print-analytics #report-title { position: absolute; left: 0; top: 0; width: 100%; }
+    #reports-sidebar, #sidebar-resizer, .col-settings-btn, #rep-print-btn, #rep-pdf-btn { display: none !important; }
+  }
+  /* === Print: Dashboard (main table) === */
+  @media print {
+    /* مخفی کردن عناصر غیرضروری */
+    .no-print,
+    #filter-card,
+    #quick-filters,
+    #login-overlay,
+    #columns-panel,
+    #reports-modal,
+    #help-modal,
+    #active-filters,
+    #search-chip-wrap,
+    #filtered-stats,
+    #header-actions,
+    #shift-click-hint {      /* ← این خط جدید */
+      display: none !important;
+    }
+    /* نمایش کارت‌ها و جدول */
+    body { background: #fff !important; padding: 0 !important; }
+    .container { max-width: 100% !important; }
+    .card { border: none !important; padding: 0 !important; margin-bottom: 8px !important; box-shadow: none !important; }
+    .page-title { font-size: 16pt !important; }
+    .page-subtitle { font-size: 9pt !important; }
+    .table-wrap {
+      max-height: none !important;
+      overflow: visible !important;
+      border: none !important;
+      border-radius: 0 !important;
+    }
+    #report-table { font-size: 8.5pt !important; width: 100% !important; }
+    #report-table th,
+    #report-table td {
+      white-space: normal !important;
+      overflow: visible !important;
+      text-overflow: clip !important;
+      padding: 4px 6px !important;
+      border: 1px solid #d1d5db !important;
+    }
+    #report-table th {
+      background: #f3f4f6 !important;
+      position: static !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    #report-table thead { display: table-header-group; }
+    #report-table tr { page-break-inside: avoid; }
+    /* ردیف‌های detail (expand) چاپ نشوند */
+    .detail-row { display: none !important; }
+    .expand-btn { display: none !important; }
+    /* رنگ وضعیت‌ها حفظ شود */
+    .status-ordered, .status-in-progress, .status-canceled,
+    .status-rejected, .status-lost, .status-hold {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    /* کارت عنوان صفحه */
+    .card:first-child {
+      border-bottom: 2px solid #2563eb !important;
+      padding-bottom: 6px !important;
+      margin-bottom: 12px !important;
+    }
+  }
+  /* Side Panel Styles */
+  .link-clickable { color: #2563eb; cursor: pointer; font-weight: 600; }
+  .link-clickable:hover { text-decoration: underline; }
+  .panel-grid { display: grid; grid-template-columns: 100px 1fr; gap: 8px; font-size: 0.8rem; margin-bottom: 16px; }
+  .panel-grid-label { color: #6b7280; font-weight: 600; }
+  .panel-grid-value { color: #1f2937; font-weight: 500; }
+  /* Stepper */
+  /* استایل پایه استپر */
+  .stepper-container { display: flex; align-items: center; justify-content: space-between; margin: 16px 0 24px; position: relative; }
+  .stepper-step { display: flex; flex-direction: column; align-items: center; flex: 1; z-index: 2; text-align: center; }
+  .stepper-icon { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; margin-bottom: 4px; }
+  .stepper-line { position: absolute; top: 12px; left: 8%; right: 8%; height: 2px; background: #e5e7eb; z-index: 1; }
+  .stepper-label { font-size: 0.65rem; font-weight: 600; }
+
+  /* مراحل طی‌شده: سبز */
+  .stepper-step.done .stepper-icon { background: #16a34a; color: #fff; }
+  .stepper-step.done .stepper-label { color: #16a34a; font-weight: 600; }
+
+  /* مرحله فعلی: مشکی (یا آبی تیره) */
+  .stepper-step.active .stepper-icon { background: #1f2937; color: #fff; }
+  .stepper-step.active .stepper-label { color: #1f2937; font-weight: 700; }
+
+  /* مراحل باقی‌مانده: خاکستری روشن */
+  .stepper-step.inactive .stepper-icon { background: #f3f4f6; color: #d1d5db; }
+  .stepper-step.inactive .stepper-label { color: #d1d5db; font-weight: 500; }
+
+  /* شکست خورده: قرمز */
+  .stepper-step.fail .stepper-icon { background: #dc2626; color: #fff; }
+  .stepper-step.fail .stepper-label { color: #dc2626; font-weight: bold; }
+  .panel-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; margin-top: 8px; }
+  .panel-table th, .panel-table td { padding: 6px; border-bottom: 1px solid #e5e7eb; text-align: left; }
+  .panel-table th { background: #f9fafb; color: #6b7280; font-size: 0.65rem; text-transform: uppercase; }
+</style>
+</head>
+<body>
+
+<div id="login-overlay" style="position:fixed;inset:0;background:#f7f8fa;display:flex;align-items:center;justify-content:center;z-index:9999;">
+  <div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:24px;width:320px;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,0.06);">
+    <div style="font-weight:700;font-size:1.1rem;margin-bottom:4px;">Sales Inquiry Report</div>
+    <div style="font-size:0.8rem;color:#6b7280;margin-bottom:18px;">Enter password to access data</div>
+
+    <input type="password" id="login-password" placeholder="Password"
+           style="width:100%;padding:9px 10px;border:1px solid #e5e7eb;border-radius:4px;font-size:0.9rem;font-family:inherit;outline:none;margin-bottom:8px;"
+           autocomplete="current-password">
+
+    <label style="display:flex;align-items:center;gap:6px;font-size:0.78rem;color:#374151;margin-bottom:12px;cursor:pointer;user-select:none;">
+      <input type="checkbox" id="login-show" style="cursor:pointer;">
+      Show password
+    </label>
+
+    <button id="login-btn"
+            style="width:100%;padding:9px;background:#2563eb;color:#fff;border:none;border-radius:4px;font-weight:600;font-size:0.85rem;cursor:pointer;">
+      Sign in
+    </button>
+
+    <div id="login-error" style="color:#dc2626;font-size:0.78rem;margin-top:10px;display:none;">
+      Incorrect password.
+    </div>
+  </div>
+</div>
+
+<div class="card" style="display:flex; justify-content:space-between; align-items:flex-end; gap:12px;">
+  <div style="flex:1;">
+    <div class="page-title">Sales Dashboard</div>
+    <div class="page-subtitle" id="page-subtitle">Loading data…</div>
+    <div id="print-filters-summary" style="display:none; margin-top:6px; padding-top:6px; border-top:1px dashed #d1d5db; font-size:0.75rem; color:#d7dce4; line-height:1.5;"></div>
+  </div>
+  <div id="header-actions" style="display:flex; gap:6px; align-items:center;">
+    <button class="btn btn-secondary" id="analytics-btn" style="background:#dfe2e4; color:#92400e; border:1px solid #dbd1d1;">📊 Analytics</button>
+    <button class="btn btn-secondary" id="help-btn" style="background:#e0f2fe; color:#0f5a83; border:1px solid #c1d9e4;">📖 Help</button>
+  </div>
+</div>
+
+  <div class="card no-print" id="filter-card">
+    <div class="filters-row">
+      <div class="filter-group"><select id="f-customer"><option value="">All Customers</option></select></div>
+      <div class="filter-group"><select id="f-product"><option value="">All Products</option></select></div>
+      <div class="filter-group"><select id="f-status"><option value="">All Statuses</option></select></div>
+      <div class="filter-group"><select id="f-currency"><option value="">All Currencies</option></select></div>
+      <div class="filter-group"><select id="f-payment-type"><option value="">All Types</option><option value="domestic">Domestic</option><option value="foreign">Foreign (Out)</option></select></div>
+      <div class="filter-group"><select id="f-terms"><option value="">All Terms</option></select></div>
+      <div class="filter-group filter-group-date hidden" id="order-date-group">
+        <span class="filter-group-label">Order Date</span>
+        <div class="date-range-inline">
+          <input type="date" id="f-order-from"><input type="date" id="f-order-to">
+        </div>
+      </div>
+      <div class="filter-group filter-group-search">
+        <input type="text" id="f-global-search" class="search-input" placeholder="Search anywhere…">
+      </div>
+    </div>
+    <div class="active-filters" id="active-filters"></div>
+    <div class="search-chip-wrap" id="search-chip-wrap"></div>
+  </div>
+
+  <div class="quick-filters no-print" id="quick-filters">
+    <span class="quick-title">Quick Filters</span>
+    <button class="quick-btn" data-preset="openOrders" title="Ordered & not fully paid">Open Orders</button>
+    <button class="quick-btn" data-preset="completedOrders" title="100% payment received">Completed Orders</button>
+    <button class="quick-btn" data-preset="overdueOrders" title="Ordered > 180 days ago & not fully shipped">Delayed Orders</button>
+    <button class="quick-btn" data-preset="awaitingShipment" title="Ordered & shipment not Complete">Awaiting Shipment</button>
+    <button class="quick-btn" data-preset="awaitingInvoice" title="Shipped (Complete/Partial) & invoice not sent">Awaiting Invoice</button>
+    <button class="quick-btn" data-preset="awaitingPayment" title="Invoice sent & payment < 100%">Awaiting Payment</button>
+    <div class="quick-actions">
+      <div style="position:relative;">
+        <button class="btn btn-secondary" id="columns-btn">Columns</button>
+        <div id="columns-panel" style="display:none;position:absolute;top:100%;right:0;margin-top:6px;background:#fff;border:1px solid var(--border);border-radius:6px;padding:10px;box-shadow:0 4px 16px rgba(0,0,0,0.1);z-index:300;min-width:200px;max-height:320px;overflow-y:auto;text-align:left;">
+          <!-- چک‌باکس‌ها توسط JS اضافه می‌شوند -->
+        </div>
+      </div>
+      <button class="btn btn-secondary" onclick="App.resetFilters()">Reset</button>
+      <button class="btn btn-primary" onclick="App.printDashboard()">Print</button>
+    </div>
+  </div>
+  <!-- KPI Row 1 (fixed) -->
+  <div id="kpi-row-1" class="kpi-grid">
+    <div class="kpi-card" data-kpi="totalRecords" title="All rows matching current filters">
+      <div class="kpi-value" id="kpi-total-records">0</div>
+      <div class="kpi-label">Total Records</div>
+    </div>
+    <div class="kpi-card" data-kpi="totalOrders" id="kpi-card-totalOrders" title="Rows with Status = Ordered">
+      <div class="kpi-value" id="kpi-total-orders">0</div>
+      <div class="kpi-label">Total Orders</div>
+    </div>
+    <div class="kpi-card" data-kpi="completed" id="kpi-card-completed" title="Orders with 100% payment received">
+      <div class="kpi-value" id="kpi-completed">0</div>
+      <div class="kpi-label">Completed</div>
+    </div>
+    <div class="kpi-card" data-kpi="open" id="kpi-card-open" title="Ordered but not fully paid yet">
+      <div class="kpi-value" id="kpi-open">0</div>
+      <div class="kpi-label">Open</div>
+    </div>
+    <div class="kpi-card" data-kpi="success" id="kpi-card-success" title="Orders won ÷ offers with commercial offer sent">
+      <div class="kpi-value" id="kpi-success">0.0%</div>
+      <div class="kpi-label">Success %</div>
+      <div class="kpi-sub">Offer win rate</div>
+    </div>
+  </div>
+  <!-- KPI Row for Open Orders (hidden by default) -->
+  <div id="kpi-row-open" class="kpi-grid" style="display:none; grid-template-columns: repeat(4, 1fr);">
+    <div class="kpi-card" data-kpi="openTotal" title="Ordered & not fully paid">
+      <div class="kpi-value" id="kpi-open-total">0</div>
+      <div class="kpi-label">Open Orders</div>
+      <div class="kpi-breakdown" id="kpi-bd-openTotal"></div>
+    </div>
+    <div class="kpi-card" data-kpi="awaitingShip" title="Open & not shipped yet">
+      <div class="kpi-value" id="kpi-open-awaiting-ship">0</div>
+      <div class="kpi-label">Awaiting Shipment</div>
+      <div class="kpi-breakdown" id="kpi-bd-awaitingShip"></div>
+    </div>
+    <div class="kpi-card" data-kpi="awaitingInv" title="Open & shipped but not invoiced">
+      <div class="kpi-value" id="kpi-open-awaiting-inv">0</div>
+      <div class="kpi-label">Awaiting Invoice</div>
+      <div class="kpi-breakdown" id="kpi-bd-awaitingInv"></div>
+    </div>
+    <div class="kpi-card" data-kpi="awaitingPay" title="Open & invoiced but not fully paid">
+      <div class="kpi-value" id="kpi-open-awaiting-pay">0</div>
+      <div class="kpi-label">Awaiting Payment</div>
+      <div class="kpi-breakdown" id="kpi-bd-awaitingPay"></div>
+    </div>
+  </div>
+  <div id="kpi-basis" style="font-size:0.65rem; color:#9ca3af; margin:-4px 0 8px 2px;">Basis: PO Date</div>
+  <div class="card">
+    <div class="table-wrap">
+      <table id="report-table">
+        <colgroup>
+          <col style="width: 48px;">
+          <col style="width: 14%;">
+          <col style="width: 8%;">
+          <col style="width: 8%;">
+          <col style="width: 8%;">
+          <col style="width: 8%;">
+          <col style="width: 10%;">
+          <col style="width: 8%;">
+          <col style="width: 8%;">
+          <col style="width: 7%;">
+          <col style="width: 5%;">
+          <col style="width: 6%;">
+          <col style="width: 8%;">
+          <col style="width: 7%;">
+          <col style="width: 6%;">
+          <col style="width: 6%;">
+          <col style="width: 7%;">
+        </colgroup>
+        <thead></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div id="shift-click-hint" style="font-size:0.72rem; color:#6b7280; margin-top:8px; padding:6px 4px; border-top:1px dashed #e5e7eb;">
+      💡 Tip: <b>Shift + Click</b> on a customer name to filter the table by that customer. A simple click opens the customer panel.
+    </div>
+  </div>
+</div>
+
+<!-- Modal for Reports -->
+<div id="reports-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+  <div id="reports-modal-box" style="background:#fff; border-radius:8px; width:90%; max-width:1100px; height:85vh; display:flex; flex-direction:column; box-shadow:0 10px 25px rgba(0,0,0,0.2); transition: all 0.2s ease;">
+    
+    <!-- Header -->
+    <div style="padding:10px 16px; border-bottom:1px solid #e5e7eb; display:flex; justify-content:space-between; align-items:center; background:#f9fafb; border-radius:8px 8px 0 0;">
+      
+      <!-- سمت چپ: دکمه بازگشت و عنوان -->
+      <div style="display:flex; align-items:center; gap:12px;">
+        <button id="back-to-dashboard" class="btn btn-secondary" style="padding:4px 10px; font-size:0.75rem; background:#fff; border:1px solid #d1d5db; display:flex; align-items:center; gap:4px;">
+          <span style="font-size:1rem;">⬅</span> Dashboard
+        </button>
+        <div style="font-weight:700; font-size:1.1rem; color:#1f2937;">📈 Sales Analytics</div>
+      </div>
+      
+      <!-- سمت راست: دکمه‌های تمام صفحه و بستن -->
+      <div style="display:flex; gap:8px; align-items:center;">
+        <button id="expand-reports" style="background:none; border:none; font-size:1.3rem; cursor:pointer; color:#6b7280; line-height:1; margin-right:4px;" title="Maximize / Restore">⛶</button>
+        <button id="close-reports" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#6b7280; line-height:1;">&times;</button>
+      </div>
+    </div>
+
+    <!-- Body (Split into Sidebar and Content) -->
+    <div style="display:flex; flex:1; overflow:hidden;">
+      
+      <!-- ================= سایدبار (منو و فیلترها) ================= -->
+      <div id="reports-sidebar" style="width:260px; min-width:200px; max-width:450px; border-right:1px solid #e5e7eb; background:#f8fafc; display:flex; flex-direction:column;">
+        
+        <!-- منوی انتخاب گزارش -->
+        <div style="padding:12px; border-bottom:1px solid #e5e7eb; overflow-y:auto;">
+          <div style="font-size:0.7rem; font-weight:700; color:#6b7280; text-transform:uppercase; margin-bottom:8px;">1. Select Report</div>
+          
+          <details open style="margin-bottom:8px;">
+            <summary style="font-size:0.7rem; font-weight:700; color:#6b7280; text-transform:uppercase; cursor:pointer; outline:none; margin-bottom:4px;">▼ Sales & Orders</summary>
+            <div style="padding-left:4px; margin-top:4px;">
+              <button class="report-btn active" data-report="allOrdered" style="width:100%; text-align:left; padding:6px 8px; border:none; background:#e0e7ff; color:#3730a3; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">All Ordered</button>
+              <button class="report-btn" data-report="delayedOrders" style="width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#4b5563; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">Delayed Orders</button>
+              <button class="report-btn" data-report="completedOrders" style="width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#4b5563; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">Completed Orders</button>
+              <button class="report-btn" data-report="openOrders" style="width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#4b5563; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">Open Orders</button>
+              <button class="report-btn" data-report="awaitingShipment" style="width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#4b5563; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">Awaiting Shipment</button>
+              <button class="report-btn" data-report="awaitingInvoice" style="width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#4b5563; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">Awaiting Invoice</button>
+              <button class="report-btn" data-report="awaitingPayment" style="width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#4b5563; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">Awaiting Payment</button>
+              <button class="report-btn" data-report="ordersByCustomer" style="width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#4b5563; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">Orders by Customer</button>
+              <button class="report-btn" data-report="ordersByProduct" style="width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#4b5563; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">Orders by Product</button>
+            </div>
+          </details>
+
+          <details style="margin-bottom:8px;">
+            <summary style="font-size:0.7rem; font-weight:700; color:#6b7280; text-transform:uppercase; cursor:pointer; outline:none; margin-bottom:4px;">▶ Commercial & Currency</summary>
+            <div style="padding-left:4px; margin-top:4px;">
+              <button class="report-btn" data-report="paymentSummary" style="width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#4b5563; border-radius:4px; margin-bottom:2px; font-size:0.75rem; font-weight:600; cursor:pointer;">Payment Summary</button>
+              <button class="report-btn" data-report="customerSales" style="width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#4b5563; border-radius:4px; font-size:0.75rem; font-weight:600; cursor:pointer;">Customer Sales Summary</button>
+            </div>
+          </details>
+        </div>
+        
+        <!-- فیلترها -->
+        <div style="padding:12px; border-top:1px solid #e5e7eb; background:#fff; flex: 1; overflow-y: auto;">
+          <div style="font-size:0.7rem; font-weight:700; color:#6b7280; text-transform:uppercase; margin-bottom:8px;">2. Filters</div>
+          
+          <label style="font-size:0.75rem; font-weight:600; color:#374151;">Customer</label>
+          <select id="rep-f-customer" style="width:100%; margin-bottom:8px; padding:4px; border:1px solid #d1d5db; border-radius:4px; font-size:0.8rem;"><option value="">All</option></select>
+
+          <label style="font-size:0.75rem; font-weight:600; color:#374151;">Currency</label>
+          <select id="rep-f-currency" style="width:100%; margin-bottom:8px; padding:4px; border:1px solid #d1d5db; border-radius:4px; font-size:0.8rem;">
+            <option value="">All</option>
+            <option value="usd">USD</option>
+            <option value="eur">EUR</option>
+            <option value="rial">Rial</option>
+            <option value="aed">AED</option>
+          </select>
+
+          <label style="font-size:0.75rem; font-weight:600; color:#374151;">Region (Dom/For)</label>
+          <select id="rep-f-region" style="width:100%; margin-bottom:8px; padding:4px; border:1px solid #d1d5db; border-radius:4px; font-size:0.8rem;">
+            <option value="">All</option>
+            <option value="domestic">Domestic Only</option>
+            <option value="foreign">Foreign Only (Out)</option>
+          </select>
+
+          <label style="font-size:0.75rem; font-weight:600; color:#374151;">Terms of Delivery</label>
+          <select id="rep-f-terms" style="width:100%; margin-bottom:12px; padding:4px; border:1px solid #d1d5db; border-radius:4px; font-size:0.8rem;"><option value="">All</option></select>
+          <label style="font-size:0.75rem; font-weight:600; color:#374151;">Date Filter</label>
+          <div style="display: flex; gap: 4px; margin-bottom: 8px;">
+            <select id="rep-f-date-col" style="flex: 1; min-width: 0; padding: 4px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.7rem;">
+              <option value="">No Date</option>
+              <option value="Date Of Inquiry Customer">INQ Date</option>
+              <option value="Date-Ordered">PO Date</option>
+              <option value="date sent">Ship Date</option>
+              <option value="sent invoice">Invoice Date</option>
+            </select>
+            <input type="date" id="rep-f-date-from" style="flex: 1; min-width: 0; padding: 3px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.7rem;" title="From Date">
+            <input type="date" id="rep-f-date-to" style="flex: 1; min-width: 0; padding: 3px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.7rem;" title="To Date">
+          </div>
+          <button id="btn-apply-rep-filters" style="width:100%; padding:6px; background:#2563eb; color:#fff; border:none; border-radius:4px; font-weight:600; cursor:pointer; margin-bottom:6px;">Apply Filters</button>
+          <button id="reset-reports" style="width:100%; padding:6px; background:#f3f4f6; color:#374151; border:1px solid #d1d5db; border-radius:4px; font-weight:600; cursor:pointer;">Reset Filters</button>
+        </div>
+      </div>
+
+      <!-- ================= دسته‌گیر (Resizer) ================= -->
+      <div id="sidebar-resizer" style="width: 5px; cursor: col-resize; background: transparent; transition: background 0.2s; z-index: 100; flex-shrink: 0;"></div>
+
+      <!-- ================= محتوای اصلی (جدول) ================= -->
+      <!-- Content Area -->
+      <!-- Content Area -->
+      <div id="report-main-content" style="flex:1; display:flex; flex-direction:column; background:#fff; position: relative; overflow: hidden;">
+        
+        <!-- هدر جدول و دکمه ستون‌ها -->
+        <div style="padding:12px 16px; font-weight:700; font-size:1rem; color:#1f2937; border-bottom:1px solid #e5e7eb; background:#f9fafb; display: flex; justify-content: space-between; align-items: center;">
+          <span id="report-title">All Ordered</span>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <button id="rep-print-btn" class="btn btn-secondary" style="padding:4px 10px; font-size:0.75rem;">🖨️ Print</button>
+            <button id="rep-pdf-btn" class="btn btn-primary" style="padding:4px 10px; font-size:0.75rem;">📄 PDF</button>
+            <div style="position: relative;">
+              <button id="rep-cols-btn" class="col-settings-btn" style="position:static; box-shadow:none;">⚙️ Columns</button>
+              <div id="rep-cols-panel" class="col-settings-panel" style="right:0; top: 100%; margin-top: 4px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- کادر ثابت خلاصه تعداد رکوردها -->
+        <div id="report-summary-container" style="padding: 12px 16px 0 16px; background: #fff; flex-shrink: 0;">
+          <!-- محتوای Total Records توسط جاوااسکریپت اینجا قرار می‌گیرد -->
+        </div>
+
+        <!-- کادر اسکرول شونده جدول -->
+        <div id="report-content" style="flex:1; overflow-y:auto; overflow-x:auto; padding:0; height: calc(85vh - 160px); border: 1px solid #e5e7eb; border-radius: 6px; margin: 0 16px 16px 16px; background: #fff;">
+          <!-- Report Table -->
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>
+<!-- Help Modal -->
+<div id="help-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1100; align-items:center; justify-content:center;">
+  <div style="background:#fff; border-radius:8px; width:90%; max-width:900px; height:80vh; display:flex; flex-direction:column; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+    <div style="padding:10px 16px; border-bottom:1px solid #e5e7eb; display:flex; justify-content:space-between; align-items:center; background:#f9fafb; border-radius:8px 8px 0 0;">
+      <div style="font-weight:700; font-size:1.1rem; color:#1f2937;">📖 Help</div>
+      <button id="close-help" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#6b7280;">&times;</button>
+    </div>
+    <div style="display:flex; flex:1; overflow:hidden;">
+      <div style="width:200px; border-right:1px solid #e5e7eb; background:#f8fafc; display:flex; flex-direction:column;">
+        <div style="padding:10px 10px 6px 10px;">
+          <div style="position:relative;">
+            <input type="text" id="help-search" placeholder="🔍 Search help…"
+                  style="width:100%; padding:5px 24px 5px 8px; border:1px solid #d1d5db; border-radius:4px; font-size:0.78rem; outline:none; font-family:inherit; background:#fff;">
+            <button type="button" id="help-search-clear" title="Clear"
+                    style="display:none; position:absolute; right:4px; top:50%; transform:translateY(-50%);
+                          background:none; border:none; cursor:pointer; color:#6b7280; font-size:0.9rem;
+                          line-height:1; padding:2px 4px;">&times;</button>
+          </div>
+        </div>
+        <div id="help-nav" style="flex:1; padding:4px 10px 10px 10px; overflow-y:auto;"></div>
+      </div>
+      <div id="help-body" style="flex:1; padding:16px 20px; overflow-y:auto; font-size:0.85rem; line-height:1.55;"></div>
+    </div>
+  </div>
+</div>
+<!-- Side Panel Overlay -->
+<div id="side-panel-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.3); z-index:2000;"></div>
+<div id="side-panel" style="position:fixed; top:0; right:-450px; width:450px; height:100vh; background:#fff; box-shadow:-4px 0 15px rgba(0,0,0,0.1); z-index:2001; transition:right 0.3s ease; display:flex; flex-direction:column;">
+  <div style="padding:14px 16px; border-bottom:1px solid #e5e7eb; display:flex; justify-content:space-between; align-items:center; background:#f9fafb;">
+    <div id="panel-title" style="font-weight:700; font-size:1.1rem; color:#1f2937;">Profile</div>
+    <button id="close-panel" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#6b7280;">&times;</button>
+  </div>
+  <div id="panel-body" style="padding:16px; overflow-y:auto; flex:1; font-size:0.85rem; color:#374151;"></div>
+</div>
+<!-- اسکریپت اصلی برنامه -->
+<script>
+const App = (function () {
+  const COLUMNS = [
+    { key: '__row__', label: '#' }, { key: 'Customer', label: 'Customer' },
+    { key: 'Product', label: 'Product' }, { key: 'Inquiry No', label: 'INQ' },
+    { key: 'Brand', label: 'Brand' }, { key: 'Date Of Inquiry Customer', label: 'INQ Date' },
+    { key: 'PI', label: 'PI' }, { key: 'Status', label: 'Status' },
+    { key: 'Date-Ordered', label: 'Status Date' }, { key: 'Price', label: 'Amount' },
+    { key: 'Price Unit', label: 'Currency' }, { key: 'Terms of Delivery', label: 'Term' },
+    { key: 'The order was sent', label: 'Shipment Status' }, { key: 'date sent', label: 'Ship Date' },
+    { key: 'sent invoice', label: 'Invoice Sent' }, { key: 'Payment Received', label: 'Payment' },
+    { key: 'Date Payment Received', label: 'Payment Date' }
+  ];
+  
+  const DEFAULT_HIDDEN = ['Brand', 'Terms of Delivery', 'Date Payment Received'];
+  const LS_KEY = 'esa_hidden_columns_v1';
+  
+  function loadHidden() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
+      if (Array.isArray(saved)) return new Set(saved);
+    } catch (e) {}
+    return new Set(DEFAULT_HIDDEN);
+  }
+
+  const state = { 
+    rows: [], 
+    filteredRows: [], 
+    sortKey: '', 
+    sortAsc: true, 
+    dateFilters: {}, 
+    quickPreset: '', 
+    orderFrom: '', 
+    orderTo: '',
+    hiddenColumns: loadHidden()
+  };
+
+  const dom = {
+    subtitle: () => document.getElementById('page-subtitle'), filteredStats: () => document.getElementById('filtered-stats'),
+    activeFilters: () => document.getElementById('active-filters'), searchChipWrap: () => document.getElementById('search-chip-wrap'),
+    tableHead: () => document.querySelector('#report-table thead'), tableBody: () => document.querySelector('#report-table tbody'),
+    filters: {
+      customer: () => document.getElementById('f-customer'), product: () => document.getElementById('f-product'),
+      status: () => document.getElementById('f-status'), currency: () => document.getElementById('f-currency'),
+      paymentType: () => document.getElementById('f-payment-type'), terms: () => document.getElementById('f-terms'),
+      globalSearch: () => document.getElementById('f-global-search'), orderFrom: () => document.getElementById('f-order-from'),
+      orderTo: () => document.getElementById('f-order-to')
+    }
+  };
+
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function formatDate(value) {
+    if (!value) return '';
+    let d = new Date(value); if (isNaN(d.getTime())) return String(value);
+    return `${MONTHS[d.getMonth()]}-${String(d.getFullYear()).slice(-2)}`;
+  }
+  function formatNumber(n) { if (!n) return ''; const num = parseFloat(String(n).replace(/,/g, '')); return isNaN(num) ? n : num.toLocaleString('en-US'); }
+  function formatPayment(v) { if (v === undefined || v === '') return ''; const num = parseFloat(v); return isNaN(num) ? v : Math.round(num * 100) + '%'; }
+  function formatOrderSent(v) { if (!v) return ''; const m = String(v).match(/\(([^)]+)\)/); return m ? m[1].trim() : String(v); }
+  function uniqueSorted(rows, key) { return [...new Set(rows.map(r => r[key]).filter(Boolean))].sort(); }
+  function getCleanCurrency(currency) { return currency ? currency.replace(' (Out)', '').trim() : ''; }
+  function isForeignCurrency(currency) { return currency && currency.includes('(Out)'); }
+
+  function init() {
+    if (!window.allRows) { dom.subtitle().textContent = 'Error: Data not loaded.'; return; }
+    
+    state.rows = window.allRows.map(r => {
+      let pi = ''; const piC = String(r['PI-C'] ?? '').trim(); const piT = String(r['PI-T'] ?? '').trim();
+      if (piC && piT) pi = piC + ' / ' + piT; else if (piC) pi = piC; else if (piT) pi = piT;
+      let rawInq = String(r['Inquiry No'] ?? '').replace(/\n/g, ' ');
+      let inqNo = rawInq; let brand = '';
+      if (rawInq.includes(' | ')) { const parts = rawInq.split(' | '); inqNo = parts[0].trim(); brand = parts.slice(1).join(' | ').trim(); }
+      
+      // ? استخراج مطمئن Price و Price Unit
+      let rawPrice = r['Price'];
+      let finalPrice = 0;
+      if (typeof rawPrice === 'number') {
+          finalPrice = rawPrice;
+      } else if (rawPrice) {
+          // حذف هر چیزی که عدد نیست
+          const cleanNum = String(rawPrice).replace(/[^\d.-]/g, '');
+          finalPrice = parseFloat(cleanNum) || 0;
+      }
+      
+      let finalUnit = r['Price Unit'] || '';
+      if (typeof finalUnit === 'string') finalUnit = finalUnit.trim();
+
+      return { ...r, PI: pi, 'Inquiry No': inqNo, Brand: brand, Price: finalPrice, 'Price Unit': finalUnit };
+    });
+
+    dom.subtitle().textContent = `Total records: ${state.rows.length} · Last updated: ${new Date().toLocaleString('en-US')}`;
+    populateDropdowns(); bindFilterEvents(); updateOrderDateVisibility(); applyFilters();
+  }
+
+  function populateDropdowns() {
+    uniqueSorted(state.rows, 'Customer').forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; dom.filters.customer().appendChild(o); });
+    uniqueSorted(state.rows, 'Product').forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; dom.filters.product().appendChild(o); });
+    const statusSet = new Set(uniqueSorted(state.rows, 'Status')); statusSet.add('Pending'); statusSet.add('In Progress');
+    Array.from(statusSet).sort().forEach(s => { const o = document.createElement('option'); o.value = s; o.textContent = s; dom.filters.status().appendChild(o); });
+    const currencySet = new Set(); state.rows.forEach(r => { const c = getCleanCurrency(r['Price Unit']); if (c) currencySet.add(c); });
+    Array.from(currencySet).sort().forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; dom.filters.currency().appendChild(o); });
+    uniqueSorted(state.rows, 'Terms of Delivery').forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; dom.filters.terms().appendChild(o); });
+  }
+
+  function bindFilterEvents() {
+    ['customer', 'product', 'status', 'currency', 'paymentType', 'terms'].forEach(id => { const el = dom.filters[id](); if (el) el.addEventListener('change', applyFilters); });
+    dom.filters.globalSearch().addEventListener('input', () => setTimeout(applyFilters, 300));
+    if (dom.filters.orderFrom()) dom.filters.orderFrom().addEventListener('change', (e) => { state.orderFrom = e.target.value; applyFilters(); });
+    if (dom.filters.orderTo()) dom.filters.orderTo().addEventListener('change', (e) => { state.orderTo = e.target.value; applyFilters(); });
+    document.querySelectorAll('.quick-btn').forEach(btn => btn.addEventListener('click', () => { state.quickPreset = btn.getAttribute('data-preset'); applyFilters(); }));
+    dom.filters.status().addEventListener('change', updateOrderDateVisibility);
+    
+    // Columns Button Logic
+    const colsBtn = document.getElementById('columns-btn');
+    const colsPanel = document.getElementById('columns-panel');
+    if (colsBtn && colsPanel) {
+      colsPanel.innerHTML = COLUMNS.filter(c => c.key !== '__row__').map(c => {
+        const checked = state.hiddenColumns.has(c.key) ? '' : 'checked';
+        return `<label><input type="checkbox" data-key="${c.key}" ${checked}> ${c.label}</label>`;
+      }).join('');
+      colsPanel.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        cb.addEventListener('change', () => {
+          if (cb.checked) state.hiddenColumns.delete(cb.getAttribute('data-key'));
+          else state.hiddenColumns.add(cb.getAttribute('data-key'));
+          localStorage.setItem(LS_KEY, JSON.stringify([...state.hiddenColumns]));
+          render();
+        });
+      });
+      colsBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        colsPanel.style.display = colsPanel.style.display === 'none' ? 'block' : 'none';
+      });
+      document.addEventListener('click', (e) => {
+        if (!colsPanel.contains(e.target) && e.target !== colsBtn) colsPanel.style.display = 'none';
+      });
+    }
+  }
+
+  function updateOrderDateVisibility() {
+    const group = document.getElementById('order-date-group');
+    if ((dom.filters.status().value || '').toLowerCase() === 'ordered') group.classList.remove('hidden');
+    else { group.classList.add('hidden'); if (dom.filters.orderFrom()) { dom.filters.orderFrom().value = ''; state.orderFrom = ''; } if (dom.filters.orderTo()) { dom.filters.orderTo().value = ''; state.orderTo = ''; } }
+  }
+
+  const DATE_FILTER_KEYS = ['Date Of Inquiry Customer', 'Date-Ordered', 'date sent', 'sent invoice', 'Date Payment Received'];
+  function openDatePopup(key, anchorEl) {
+    document.querySelectorAll('.date-popup').forEach(p => p.remove());
+    const existing = state.dateFilters[key] || { from: '', to: '' };
+    const pop = document.createElement('div'); pop.className = 'date-popup';
+    pop.innerHTML = `<label>From</label><input type="date" class="df-from" value="${existing.from}"><label>To</label><input type="date" class="df-to" value="${existing.to}"><div class="popup-actions"><button type="button" class="apply">Apply</button><button type="button" class="clear">Clear</button></div>`;
+    anchorEl.style.position = 'relative'; anchorEl.appendChild(pop);
+    pop.querySelector('.apply').addEventListener('click', (e) => { e.stopPropagation(); state.dateFilters[key] = { from: pop.querySelector('.df-from').value, to: pop.querySelector('.df-to').value }; pop.remove(); applyFilters(); });
+    pop.querySelector('.clear').addEventListener('click', (e) => { e.stopPropagation(); delete state.dateFilters[key]; pop.remove(); applyFilters(); });
+    pop.addEventListener('click', e => e.stopPropagation());
+    setTimeout(() => document.addEventListener('click', function h() { document.querySelectorAll('.date-popup').forEach(p => p.remove()); document.removeEventListener('click', h); }), 0);
+  }
+
+  function readFilters() {
+    return { customer: dom.filters.customer().value, product: dom.filters.product().value, status: dom.filters.status().value, currency: dom.filters.currency().value, paymentType: dom.filters.paymentType().value, terms: dom.filters.terms().value, globalSearch: dom.filters.globalSearch().value.trim().toLowerCase() };
+  }
+
+  function rowMatches(r, f) {
+      if (f.customer && r.Customer !== f.customer) return false;
+      if (f.product && r.Product !== f.product) return false;
+
+      if (f.status === 'In Progress') {
+        if (String(r['Actions Final sent Offer'] ?? '').trim() !== '') return false;
+        if (String(r.Status ?? '').trim() !== '') return false;
+      } else if (f.status && (r.Status || 'Pending') !== f.status) return false;
+
+      if (f.terms && r['Terms of Delivery'] !== f.terms) return false;
+      if (f.currency && getCleanCurrency(r['Price Unit']) !== f.currency) return false;
+      if (f.paymentType === 'domestic' && isForeignCurrency(r['Price Unit'])) return false;
+      if (f.paymentType === 'foreign' && !isForeignCurrency(r['Price Unit'])) return false;
+
+      if (state.orderFrom || state.orderTo) {
+        const raw = r['Date-Ordered'];
+        if (!raw) return false;
+
+        const d = new Date(raw);
+        if (isNaN(d.getTime())) return false;
+
+        const dDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+
+        if (state.orderFrom && dDay < new Date(state.orderFrom + 'T00:00:00')) return false;
+        if (state.orderTo && dDay > new Date(state.orderTo + 'T00:00:00')) return false;
+      }
+
+      // Order classification
+      if (state.quickPreset) {
+        const status = String(r.Status || '').trim().toLowerCase();
+
+        const payment = parseFloat(r['Payment Received']);
+        const hasPayment = !isNaN(payment);
+
+        const orderSent = String(r['The order was sent'] || '').trim().toLowerCase();
+        const isComplete = /\bcomplete\b/.test(orderSent);
+        const isCanceled = orderSent.includes('canceled by esa');
+        const isNoItems = /\bno items?\b/.test(orderSent);
+
+        const hasInvoice = String(r['sent invoice'] ?? '').trim() !== '';
+
+        const isOrdered = status === 'ordered';
+
+        const awaitingShipment =
+          isOrdered && !isComplete && !isCanceled && !isNoItems;
+
+        const awaitingInvoice =
+          isOrdered && isComplete && !hasInvoice;
+
+        const awaitingPayment =
+          isOrdered && isComplete && hasInvoice &&
+          (!hasPayment || payment < 1);
+
+        const completed =
+          isOrdered && isComplete && hasInvoice &&
+          hasPayment && payment >= 1;
+
+        switch (state.quickPreset) {
+          case 'openOrders':
+            if (!(awaitingShipment || awaitingInvoice || awaitingPayment)) return false;
+            break;
+
+          case 'completedOrders':
+            if (!completed) return false;
+            break;
+
+          case 'overdueOrders': {
+            if (!awaitingShipment) return false;
+
+            const raw = r['Date-Ordered'];
+            if (!raw) return false;
+
+            const d = new Date(raw);
+            if (isNaN(d.getTime())) return false;
+
+            if ((Date.now() - d.getTime()) / 86400000 < 180) return false;
+            break;
+          }
+
+          case 'awaitingShipment':
+            if (!awaitingShipment) return false;
+            break;
+
+          case 'awaitingInvoice':
+            if (!awaitingInvoice) return false;
+            break;
+
+          case 'awaitingPayment':
+            if (!awaitingPayment) return false;
+            break;
+        }
+      }
+
+      for (const key in state.dateFilters) {
+        const range = state.dateFilters[key];
+        if (!range) continue;
+
+        const from = range.from ? new Date(range.from + 'T00:00:00') : null;
+        const to = range.to ? new Date(range.to + 'T00:00:00') : null;
+
+        const raw = r[key];
+
+        if (!raw) {
+          if (from || to) return false;
+          continue;
+        }
+
+        const d = new Date(raw);
+
+        if (isNaN(d.getTime())) {
+          if (from || to) return false;
+          continue;
+        }
+
+        const dDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+
+        if (from && dDay < from) return false;
+        if (to && dDay > to) return false;
+      }
+
+      if (f.globalSearch) {
+        const haystack = Object.keys(r)
+          .map(k => String(r[k] ?? ''))
+          .join(' ')
+          .toLowerCase();
+
+        if (!haystack.includes(f.globalSearch)) return false;
+      }
+
+      return true;
+  }
+  function renderKPIRow1() {
+    const rows = state.filteredRows;
+    const totalRecords = rows.length;
+    const totalOrders = rows.filter(r => String(r.Status || '').toLowerCase() === 'ordered').length;
+    const completed = rows.filter(r => (parseFloat(r['Payment Received']) || 0) >= 1).length;
+    const open = rows.filter(r => {
+      const status = String(r.Status || '').toLowerCase();
+      const paid = parseFloat(r['Payment Received']) || 0;
+      return status === 'ordered' && paid < 1;
+    }).length;
+
+    // Success %: Ordered ÷ Offers with C
+    const offersWithC = new Set();
+    const orderedWithC = new Set();
+    rows.forEach(r => {
+      const af = String(r['Actions Final sent Offer'] || '');
+      if (!af.includes('C') || af.includes('c')) return;
+      const key = (r.Customer || '') + '|' + (r['Inquiry No'] || '');
+      offersWithC.add(key);
+      if (String(r.Status || '').toLowerCase() === 'ordered') orderedWithC.add(key);
+    });
+    const successRate = offersWithC.size ? ((orderedWithC.size / offersWithC.size) * 100).toFixed(1) : '0.0';
+
+    // پر کردن اعداد ردیف ۱
+    document.getElementById('kpi-total-records').textContent = totalRecords.toLocaleString('en-US');
+    document.getElementById('kpi-total-orders').textContent = totalOrders.toLocaleString('en-US');
+    document.getElementById('kpi-completed').textContent = completed.toLocaleString('en-US');
+    document.getElementById('kpi-open').textContent = open.toLocaleString('en-US');
+    document.getElementById('kpi-success').textContent = successRate + '%';
+
+    // Basis line — پیش‌فرض: اولین PO تا امروز
+    const fmt = (v) => {
+      if (!v) return '';
+      const d = new Date(v);
+      if (isNaN(d.getTime())) return '';
+      const M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      return M[d.getMonth()] + ' ' + d.getFullYear();
+    };
+    let from = fmt(state.orderFrom);
+    let to = fmt(state.orderTo);
+    if (!from && !to) {
+      let minTs = Infinity;
+      state.rows.forEach(r => {
+        const t = r['Date-Ordered'] ? new Date(r['Date-Ordered']).getTime() : NaN;
+        if (!isNaN(t) && t < minTs) minTs = t;
+      });
+      if (isFinite(minTs)) from = fmt(new Date(minTs).toISOString());
+      to = fmt(new Date().toISOString());
+    }
+    let basis = 'Basis: PO Date';
+    if (from || to) basis += ' · ' + (from || '…') + ' → ' + (to || '…');
+    document.getElementById('kpi-basis').textContent = basis;
+
+    // === تشخیص فیلتر فعال (شامل Quick Filter) ===
+    const f = readFilters();
+    const hasFilter = !!(
+      f.customer || f.product || f.status || f.currency ||
+      f.paymentType || f.terms || f.globalSearch ||
+      state.orderFrom || state.orderTo ||
+      state.quickPreset ||
+      Object.keys(state.dateFilters).length
+    );
+
+    const isOpenPreset = state.quickPreset === 'openOrders';
+    const row1 = document.getElementById('kpi-row-1');
+    const rowOpen = document.getElementById('kpi-row-open');
+
+    if (isOpenPreset) {
+      // حالت Open Orders: ردیف ۱ مخفی، ردیف Open فعال
+      if (row1) row1.style.display = 'none';
+      if (rowOpen) {
+        rowOpen.style.display = 'grid';
+        rowOpen.style.gridTemplateColumns = 'repeat(4, 1fr)';
+      }
+      renderKPIOpenOrders(rows);
+    } else {
+      // حالت عادی: ردیف Open مخفی، ردیف ۱ فعال
+      if (rowOpen) rowOpen.style.display = 'none';
+      if (row1) {
+        row1.style.display = 'grid';
+        if (hasFilter) {
+          // فیلتر فعال: فقط Total Records (بقیه مخفی + گرید 1fr)
+          row1.style.gridTemplateColumns = '1fr';
+          ['totalOrders', 'completed', 'open', 'success'].forEach(k => {
+            const el = document.getElementById('kpi-card-' + k);
+            if (el) el.style.display = 'none';
+          });
+        } else {
+          // بدون فیلتر: هر ۵ کارت
+          row1.style.gridTemplateColumns = 'repeat(5, 1fr)';
+          ['totalOrders', 'completed', 'open', 'success'].forEach(k => {
+            const el = document.getElementById('kpi-card-' + k);
+            if (el) el.style.display = '';
+          });
+        }
+      }
+    }
+  }
+  function renderKPIOpenOrders(rows) {
+    const isOpen = r => {
+      const s = String(r.Status || '').toLowerCase();
+      const p = parseFloat(r['Payment Received']) || 0;
+      return s === 'ordered' && p < 1;
+    };
+    const openRows = rows.filter(isOpen);
+
+    const shipRows = [], invRows = [], payRows = [];
+    openRows.forEach(r => {
+      const ship = String(r['The order was sent'] || '');
+      const hasInv = !!r['sent invoice'];
+      const isComplete = ship.includes('(Complete)');
+      const isPartial = ship.includes('(Partial)');
+      const paid = parseFloat(r['Payment Received']) || 0;
+
+      if (!isComplete && !isPartial) shipRows.push(r);
+      else if ((isComplete || isPartial) && !hasInv) invRows.push(r);
+      if (hasInv && paid < 1) payRows.push(r);
+    });
+
+    document.getElementById('kpi-open-total').textContent = openRows.length.toLocaleString('en-US');
+    document.getElementById('kpi-open-awaiting-ship').textContent = shipRows.length.toLocaleString('en-US');
+    document.getElementById('kpi-open-awaiting-inv').textContent = invRows.length.toLocaleString('en-US');
+    document.getElementById('kpi-open-awaiting-pay').textContent = payRows.length.toLocaleString('en-US');
+
+    renderKpiBreakdown('kpi-bd-openTotal', openRows);
+    renderKpiBreakdown('kpi-bd-awaitingShip', shipRows);
+    renderKpiBreakdown('kpi-bd-awaitingInv', invRows);
+    renderKpiBreakdown('kpi-bd-awaitingPay', payRows);
+  }
+  const PRODUCT_ABBR = {
+    'GC': 'GC',
+    'Main System': 'MainSys',
+    'Spare Part': 'S/P',
+    'Project': 'Proj',
+    'Accessory': 'Acc'
+  };
+
+  function renderKpiBreakdown(elId, rows) {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    const counts = {};
+    rows.forEach(r => {
+      const p = String(r.Product || '').trim();
+      const key = PRODUCT_ABBR[p] || p;
+      if (!key) return;
+      counts[key] = (counts[key] || 0) + 1;
+    });
+    const order = ['GC', 'MainSys', 'S/P', 'Proj', 'Acc'];
+    const items = order.filter(k => counts[k] > 0).map(k => {
+      return `<div class="bd-item"><div class="bd-label">${k}</div><div class="bd-value">${counts[k]}</div></div>`;
+    });
+    el.innerHTML = items.join('');
+  }
+  function applyFilters() {
+    const f = readFilters();
+    state.filteredRows = state.rows.filter(r => rowMatches(r, f));
+    renderActiveFilters(f);
+    renderKPIRow1();
+    const ps = document.getElementById('print-filters-summary');
+    if (ps) ps.innerHTML = buildPrintFiltersSummary();
+    render();
+  }
+
+  function clearOneFilter(key) {
+    const el = dom.filters[key] ? dom.filters[key]() : dom.filters.globalSearch();
+    if (el) { el.value = ''; if (el.tagName === 'SELECT') el.selectedIndex = 0; }
+    applyFilters();
+  }
+
+  function renderActiveFilters(f) {
+    const sWrap = dom.searchChipWrap(); sWrap.innerHTML = '';
+    if (f.globalSearch) {
+      const chip = document.createElement('span'); chip.className = 'search-chip'; chip.innerHTML = `<span class="chip-key">Search</span><span>${f.globalSearch}</span>`;
+      const x = document.createElement('button'); x.innerHTML = '&times;'; x.onclick = () => clearOneFilter('globalSearch'); chip.appendChild(x); sWrap.appendChild(chip);
+    }
+    const wrap = dom.activeFilters(); wrap.innerHTML = '';
+    const chipLabels = { customer: 'Customer', product: 'Product', status: 'Status', currency: 'Currency', paymentType: 'Payment Type', terms: 'Terms' };
+    Object.keys(chipLabels).forEach(k => {
+      if (f[k]) {
+        const chip = document.createElement('span'); chip.className = 'filter-chip'; chip.innerHTML = `<span class="chip-key">${chipLabels[k]}:</span> ${f[k]}`;
+        const x = document.createElement('button'); x.innerHTML = '&times;'; x.onclick = () => clearOneFilter(k); chip.appendChild(x); wrap.appendChild(chip);
+      }
+    });
+    const dateLabels = { 'Date Of Inquiry Customer': 'INQ Date', 'Date-Ordered': 'Order Date', 'date sent': 'Ship Date', 'sent invoice': 'Invoice', 'Date Payment Received': 'Payment Date' };
+    Object.keys(state.dateFilters).forEach(key => {
+      const range = state.dateFilters[key]; if (!range || (!range.from && !range.to)) return;
+      const chip = document.createElement('span'); chip.className = 'filter-chip'; chip.innerHTML = `<span class="chip-key">${dateLabels[key] || key}:</span> ${range.from || '…'} → ${range.to || '…'}`;
+      const x = document.createElement('button'); x.innerHTML = '&times;'; x.onclick = () => { delete state.dateFilters[key]; applyFilters(); }; chip.appendChild(x); wrap.appendChild(chip);
+    });
+    if (state.quickPreset) {
+      const presetLabels = { openOrders: 'Open Orders', completedOrders: 'Completed Orders', overdueOrders: 'Delayed Orders', awaitingShipment: 'Awaiting Shipment', awaitingInvoice: 'Awaiting Invoice', awaitingPayment: 'Awaiting Payment' };
+      const chip = document.createElement('span'); chip.className = 'filter-chip'; chip.style.cssText = 'background:#dbeafe;border-color:#93c5fd;color:#1e40af;';
+      chip.innerHTML = `<span class="chip-key" style="color:#3b82f6;">Preset:</span> ${presetLabels[state.quickPreset] || state.quickPreset}`;
+      const x = document.createElement('button'); x.innerHTML = '&times;'; x.onclick = () => { state.quickPreset = ''; applyFilters(); }; chip.appendChild(x); wrap.appendChild(chip);
+    }
+    if (state.orderFrom || state.orderTo) {
+      const chip = document.createElement('span'); chip.className = 'filter-chip'; chip.innerHTML = `<span class="chip-key">Order Date:</span> ${state.orderFrom || '…'} → ${state.orderTo || '…'}`;
+      const x = document.createElement('button'); x.innerHTML = '&times;'; x.onclick = () => { state.orderFrom = ''; state.orderTo = ''; if (dom.filters.orderFrom()) dom.filters.orderFrom().value = ''; if (dom.filters.orderTo()) dom.filters.orderTo().value = ''; applyFilters(); }; chip.appendChild(x); wrap.appendChild(chip);
+    }
+  }
+
+  function renderFilteredStats() {
+    const rows = state.filteredRows; const total = rows.length; const ordered = rows.filter(r => String(r.Status || '').toLowerCase() === 'ordered').length;
+    const uniqueWithC = new Set(); const uniqueOrderedWithC = new Set();
+    rows.forEach(r => {
+      const hasC = String(r['Actions Final sent Offer'] || '').includes('C') && !String(r['Actions Final sent Offer'] || '').includes('c');
+      if (!hasC) return;
+      const key = (r.Customer || '') + '|' + (r['Inquiry No'] || '');
+      uniqueWithC.add(key); if (String(r.Status || '').toLowerCase() === 'ordered') uniqueOrderedWithC.add(key);
+    });
+    const rate = uniqueWithC.size ? ((uniqueOrderedWithC.size / uniqueWithC.size) * 100).toFixed(1) : '0.0';
+    dom.filteredStats().innerHTML = `<span>Filtered: <b>${total}</b></span><span>Ordered: <b>${ordered}</b></span><span>Success: <b>${rate}%</b></span>`;
+  }
+  function buildPrintFiltersSummary() {
+    const f = readFilters();
+    const parts = [];
+    const labels = { customer: 'Customer', product: 'Product', status: 'Status', currency: 'Currency', paymentType: 'Payment Type', terms: 'Terms' };
+    Object.keys(labels).forEach(k => {
+      if (f[k]) {
+        let val = f[k];
+        if (k === 'paymentType') val = val === 'domestic' ? 'Domestic' : 'Foreign (Out)';
+        parts.push(`${labels[k]}: ${val}`);
+      }
+    });
+    if (f.globalSearch) parts.push(`Search: "${f.globalSearch}"`);
+    if (state.orderFrom || state.orderTo) {
+      parts.push(`Order Date: ${state.orderFrom || '…'} → ${state.orderTo || '…'}`);
+    }
+    const dateLabels = { 'Date Of Inquiry Customer': 'INQ Date', 'Date-Ordered': 'PO Date', 'date sent': 'Ship Date', 'sent invoice': 'Invoice Date', 'Date Payment Received': 'Payment Date' };
+    Object.keys(state.dateFilters).forEach(key => {
+      const r = state.dateFilters[key];
+      if (!r || (!r.from && !r.to)) return;
+      parts.push(`${dateLabels[key] || key}: ${r.from || '…'} → ${r.to || '…'}`);
+    });
+    if (state.quickPreset) {
+      const presetLabels = { openOrders: 'Open Orders', completedOrders: 'Completed Orders', overdueOrders: 'Delayed Orders', awaitingShipment: 'Awaiting Shipment', awaitingInvoice: 'Awaiting Invoice', awaitingPayment: 'Awaiting Payment' };
+      parts.push(`Quick Filter: ${presetLabels[state.quickPreset] || state.quickPreset}`);
+    }
+    const stats = `Filtered: <b>${state.filteredRows.length}</b> of ${state.rows.length}`;
+    if (!parts.length) return stats;
+    return `${stats}<br><b>Active Filters:</b> ${parts.join(' &nbsp;|&nbsp; ')}`;
+  }
+  function sortTable(key) {
+    if (state.sortKey === key) state.sortAsc = !state.sortAsc; else { state.sortKey = key; state.sortAsc = true; }
+    render();
+  }
+
+  function render() {
+    const rows = [...state.filteredRows].sort((a, b) => {
+      if (!state.sortKey) return 0;
+      const va = a[state.sortKey] ?? ''; const vb = b[state.sortKey] ?? '';
+
+      if (DATE_FILTER_KEYS.includes(state.sortKey)) {
+        const ta = va ? new Date(va).getTime() : NaN;
+        const tb = vb ? new Date(vb).getTime() : NaN;
+        if (isNaN(ta) && isNaN(tb)) return 0;
+        if (isNaN(ta)) return 1;
+        if (isNaN(tb)) return -1;
+        return state.sortAsc ? ta - tb : tb - ta;
+      }
+
+      const fa = parseFloat(va), fb = parseFloat(vb);
+      if (!isNaN(fa) && !isNaN(fb)) return state.sortAsc ? fa - fb : fb - fa;
+      return state.sortAsc ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
+    });
+
+    const visibleCols = COLUMNS.filter(c => c.key === '__row__' || !state.hiddenColumns.has(c.key));
+    const isOrderedFilter = (dom.filters.status().value || '').toLowerCase() === 'ordered' || state.quickPreset !== '';
+    
+    const tableEl = document.getElementById('report-table');
+    if (tableEl) {
+      if (tableEl.querySelector('colgroup')) tableEl.querySelector('colgroup').remove();
+      const colgroup = document.createElement('colgroup');
+      visibleCols.forEach(c => {
+        const col = document.createElement('col');
+        if (c.key === 'Inquiry No') col.style.maxWidth = '140px';
+        else if (c.key === 'Customer') col.style.maxWidth = '180px';
+        else if (c.key === 'PI') col.style.maxWidth = '120px';
+        else if (c.key === 'Product') col.style.maxWidth = '120px';
+        colgroup.appendChild(col);
+      });
+      tableEl.insertBefore(colgroup, tableEl.firstChild);
+    }
+    
+    dom.tableHead().innerHTML = '<tr>' + visibleCols.map(c => {
+      const icon = state.sortKey === c.key ? (state.sortAsc ? ' ▲' : ' ▼') : '';
+      const label = (c.key === 'Date-Ordered' && isOrderedFilter) ? 'PO Date' : c.label;
+      const isDateCol = DATE_FILTER_KEYS.includes(c.key);
+      const hasRange = state.dateFilters[c.key] && (state.dateFilters[c.key].from || state.dateFilters[c.key].to);
+      const btn = isDateCol ? `<span class="date-filter-btn${hasRange ? ' active' : ''}" data-key="${c.key}">▾</span>` : '';
+      return `<th onclick="App.sortTable('${c.key}')">${label}${icon}${btn}</th>`;
+    }).join('') + '</tr>';
+
+    dom.tableHead().querySelectorAll('.date-filter-btn').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); openDatePopup(btn.getAttribute('data-key'), btn.parentElement); }));
+
+    if (!rows.length) { dom.tableBody().innerHTML = `<tr><td colspan="${visibleCols.length}" class="empty-state">No records found.</td></tr>`; return; }
+
+    dom.tableBody().innerHTML = rows.map((r, idx) => {
+      const mainRow = '<tr class="main-row" data-idx="' + idx + '">' + visibleCols.map(c => {
+        if (c.key === '__row__') return `<td style="color:#9ca3af;text-align:right;white-space:nowrap;"><span class="expand-btn" data-idx="${idx}" style="display:inline-block;width:14px;cursor:pointer;color:#2563eb;user-select:none;">▶</span> ${idx + 1}</td>`;
+        let val = r[c.key] ?? '';
+        if (DATE_FILTER_KEYS.includes(c.key)) val = formatDate(val);
+        else if (c.key === 'The order was sent') val = formatOrderSent(val);
+        else if (c.key === 'Payment Received') val = formatPayment(val);
+        else if (c.key === 'Price') val = formatNumber(val);
+
+        if (c.key === 'Status') {
+          if (!val) {
+            const hasOffer = String(r['Actions Final sent Offer'] ?? '').trim() !== '';
+            val = hasOffer ? 'Pending' : 'In Progress';
+          }
+          const cls = String(val).toLowerCase().replace(/\s+/g, '-');
+          return `<td class="status-${cls}">${val}</td>`;
+        }
+        if (c.key === 'Customer') {
+          const safeInq = String(r['Inquiry No'] || '').replace(/'/g, "\\'");
+          const safeCust = String(val).replace(/'/g, "\\'");
+          return `<td title="${String(val).replace(/"/g, '&quot;')} — Shift+Click = filter by this customer"><span class="link-clickable" onclick="App.onCustomerClick(event, '${safeInq}', '${safeCust}')">${val}</span></td>`;
+        }
+        if (c.key === 'Inquiry No') {
+          return `<td title="${String(val).replace(/"/g, '&quot;')}"><span class="link-clickable" onclick="App.openInq('${String(r['Inquiry No']).replace(/'/g, "\\'")}')">${val}</span></td>`;
+        }
+        return `<td title="${String(val).replace(/"/g, '&quot;')}">${val}</td>`;
+      }).join('') + '</tr>';
+
+      const detailRow = '<tr class="detail-row" data-idx="' + idx + '" style="display:none;background:#f9fafb;">' +
+        '<td colspan="' + visibleCols.length + '" style="padding:8px 12px;">' +
+          '<div style="display:flex;flex-wrap:wrap;gap:20px;font-size:0.78rem;">' +
+            '<div><div style="font-size:0.65rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.03em;">Last Offer to Customer</div><div>' + (r['Actions Final sent Offer'] || '—') + '</div></div>' +
+            '<div><div style="font-size:0.65rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.03em;">Last Action Date</div><div>' + (r['Date AF'] ? formatDate(r['Date AF']) : '—') + '</div></div>' +
+          '</div>' +
+        '</td>' +
+      '</tr>';
+
+      return mainRow + detailRow;
+    }).join('');
+
+    dom.tableBody().querySelectorAll('.expand-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const idx = btn.getAttribute('data-idx');
+        const detail = dom.tableBody().querySelector('.detail-row[data-idx="' + idx + '"]');
+        dom.tableBody().querySelectorAll('.detail-row').forEach(d => {
+          if (d !== detail) { d.style.display = 'none'; }
+        });
+        dom.tableBody().querySelectorAll('.expand-btn').forEach(b => {
+          if (b !== btn) b.textContent = '▶';
+        });
+        if (detail.style.display === 'none') {
+          detail.style.display = '';
+          btn.textContent = '▼';
+        } else {
+          detail.style.display = 'none';
+          btn.textContent = '▶';
+        }
+      });
+    });
+
+    document.querySelectorAll('.quick-btn').forEach(btn => btn.classList.toggle('active', btn.getAttribute('data-preset') === state.quickPreset));
+    updateOrderDateVisibility();
+  }
+
+  function resetFilters() {
+    Object.values(dom.filters).forEach(fn => { const el = fn(); if (el) { el.value = ''; if (el.tagName === 'SELECT') el.selectedIndex = 0; } });
+    state.dateFilters = {}; state.quickPreset = ''; state.orderFrom = ''; state.orderTo = ''; state.sortKey = ''; state.sortAsc = true;
+    applyFilters();
+  }
+  
+  function getState() {
+      return state; 
+  }
+
+  function printDashboard() {
+    document.body.classList.remove('print-analytics');
+    window.print();
+  }
+  // --- SIDE PANEL & PROFILE LOGIC ---
+  function togglePanel(open) {
+    document.getElementById('side-panel-overlay').style.display = open ? 'block' : 'none';
+    document.getElementById('side-panel').style.right = open ? '0' : '-450px';
+  }
+  document.getElementById('close-panel').addEventListener('click', () => togglePanel(false));
+  document.getElementById('side-panel-overlay').addEventListener('click', () => togglePanel(false));
+
+  function getLatestRecord(inqNo) {
+    // پیدا کردن تمام رکوردهای مربوط به یک INQ و انتخاب جدیدترین بر اساس تاریخ سفارش یا استعلام
+    const matches = state.rows.filter(r => String(r['Inquiry No'] || '').includes(inqNo));
+    if (matches.length === 0) return null;
+    return matches.sort((a, b) => {
+      const dateA = new Date(a['Date-Ordered'] || a['Date Of Inquiry Customer'] || 0).getTime();
+      const dateB = new Date(b['Date-Ordered'] || b['Date Of Inquiry Customer'] || 0).getTime();
+      return dateB - dateA;
+    })[0];
+  }
+
+  function getWaitingStatus(row) {
+    const isOrdered = String(row.Status || '').toLowerCase() === 'ordered';
+    if (!isOrdered) return null;
+    const ship = String(row['The order was sent'] || '');
+    const hasShip = ship.includes('Complete') || ship.includes('Partial');
+    const hasInv = !!row['sent invoice'];
+    const isPaid = (parseFloat(row['Payment Received']) || 0) >= 1;
+    
+    if (!hasShip) return 'Awaiting Shipment';
+    if (!hasInv) return 'Awaiting Invoice';
+    if (!isPaid) return 'Awaiting Payment';
+    return 'Completed';
+  }
+
+  function getStepperHtml(row) {
+    const statusLower = String(row.Status || '').toLowerCase();
+    const isOrdered = statusLower === 'ordered';
+    const hasOffer = String(row['Actions Final sent Offer'] || '').trim() !== '';
+    const isFailed = ['canceled', 'lost', 'rejected', 'hold', 'regret letter'].includes(statusLower);
+    
+    const ship = String(row['The order was sent'] || '');
+    const hasShip = ship.includes('Complete') || ship.includes('Partial');
+    const hasInv = !!row['sent invoice'];
+    const isPaid = (parseFloat(row['Payment Received']) || 0) >= 1;
+
+    let statusLabel = 'Status';
+    if (isFailed) statusLabel = row.Status; 
+    else if (isOrdered) statusLabel = 'Ordered';
+
+    const labels = ['Inquiry', 'Offer Sent', statusLabel, 'Shipped', 'Invoiced', 'Paid'];
+    const icons = ['1', '2', '3', '4', '5', '6'];
+    
+    let currentIdx = 0; 
+    if (hasOffer) currentIdx = 1; 
+    if (isOrdered || isFailed) currentIdx = 2; 
+    if (isOrdered && hasShip) currentIdx = 3; 
+    if (isOrdered && hasInv) currentIdx = 4; 
+    // اگر کامل پرداخت شده، ایندکس به 6 می‌رود تا همه سبز شوند
+    if (isOrdered && isPaid) currentIdx = 6; 
+
+    let html = '<div class="stepper-container"><div class="stepper-line"></div>';
+    for(let i=0; i<6; i++) {
+      let cls = '';
+      
+      if (isFailed) {
+         if (i < 2) cls = 'done';
+         else if (i === 2) cls = 'fail';
+         else cls = 'inactive';
+      } else {
+         if (i < currentIdx) {
+             // اگر ایندکس 6 باشد یعنی همه مراحل قبلی Done هستند
+             cls = 'done';
+         } else if (i === currentIdx) {
+             cls = 'active';
+         } else {
+             cls = 'inactive';
+         }
+      }
+      
+      // استثنا برای مرحله Paid وقتی همه چیز تکمیل شده
+      if (i === 5 && isOrdered && isPaid) cls = 'paid-done';
+
+      let labelStyle = i === 2 && isFailed ? 'font-size:0.7rem; font-weight:bold;' : '';
+      html += `<div class="stepper-step ${cls}"><div class="stepper-icon">${icons[i]}</div><div class="stepper-label" style="${labelStyle}">${labels[i]}</div></div>`;
+    }
+    html += '</div>';
+    return html;
+  }
+  function renderPanelContent(title, bodyHtml) {
+    document.getElementById('panel-title').textContent = title;
+    document.getElementById('panel-body').innerHTML = bodyHtml;
+    togglePanel(true);
+  }
+
+  let sortCustCol = '';
+  let sortCustAsc = true;
+  let currentCustomerName = '';
+
+  function openCustomer(customerName) {
+    currentCustomerName = customerName;
+    const cRows = state.rows.filter(r => r.Customer === customerName);
+
+    // مرتب‌سازی
+    const sorted = [...cRows];
+    if (sortCustCol) {
+      sorted.sort((a, b) => {
+        let va, vb;
+        if (sortCustCol === 'inq') {
+          va = String(a['Inquiry No'] || '');
+          vb = String(b['Inquiry No'] || '');
+        } else if (sortCustCol === 'product') {
+          va = String(a.Product || '');
+          vb = String(b.Product || '');
+        } else if (sortCustCol === 'status') {
+          va = a.Status || (String(a['Actions Final sent Offer']||'').trim() ? 'Pending' : 'In Progress');
+          vb = b.Status || (String(b['Actions Final sent Offer']||'').trim() ? 'Pending' : 'In Progress');
+        } else {
+          return 0;
+        }
+        return sortCustAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+      });
+    }
+
+    let html = `<div style="margin-bottom:16px; font-size:0.9rem; color:#374151;">Total Inquiries: <b>${cRows.length}</b></div>`;
+    html += `<table class="panel-table"><thead><tr>`;
+
+    const iconInq = sortCustCol === 'inq' ? (sortCustAsc ? ' ▲' : ' ▼') : '';
+    const iconProd = sortCustCol === 'product' ? (sortCustAsc ? ' ▲' : ' ▼') : '';
+    const iconStat = sortCustCol === 'status' ? (sortCustAsc ? ' ▲' : ' ▼') : '';
+
+    html += `<th style="cursor:pointer; user-select:none;" onclick="App.sortCustomer('inq')">INQ${iconInq}</th>`;
+    html += `<th style="cursor:pointer; user-select:none;" onclick="App.sortCustomer('product')">Product${iconProd}</th>`;
+    html += `<th style="cursor:pointer; user-select:none;" onclick="App.sortCustomer('status')">Status${iconStat}</th>`;
+    html += `</tr></thead><tbody>`;
+
+    sorted.forEach(r => {
+      const inqNo = String(r['Inquiry No'] || '');
+      const status = r.Status || (String(r['Actions Final sent Offer']||'').trim() ? 'Pending' : 'In Progress');
+      const safeInq = inqNo.replace(/'/g, "\\'");
+      html += `<tr>
+        <td><span class="link-clickable" data-inq="${safeInq}" onclick="App.openInq(this.getAttribute('data-inq'))">${inqNo}</span></td>
+        <td>${r.Product || ''}</td>
+        <td>${status}</td>
+      </tr>`;
+    });
+    html += `</tbody></table>`;
+    renderPanelContent('Customer: ' + customerName, html);
+  }
+
+  function sortCustomer(col) {
+    if (sortCustCol === col) sortCustAsc = !sortCustAsc;
+    else { sortCustCol = col; sortCustAsc = true; }
+    if (currentCustomerName) openCustomer(currentCustomerName);
+  }
+  function onCustomerClick(ev, inqNo, customerName) {
+    if (ev && ev.shiftKey) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      filterByCustomer(customerName);
+    } else {
+      openCustomer(customerName);   // ← کلیک ساده = پنل مشتری
+    }
+  }
+  function filterByCustomer(name) {
+    if (!name) return;
+
+    // 1) ست کردن dropdown فیلتر Customer (id واقعی: f-customer)
+    const sel = document.getElementById('f-customer');
+    if (sel) {
+      let found = false;
+      for (const opt of sel.options) {
+        if (opt.value === name) { sel.value = name; found = true; break; }
+      }
+      if (!found) {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        sel.appendChild(opt);
+        sel.value = name;
+      }
+    }
+
+    // 2) اعمال فیلترها
+    applyFilters();
+
+    // 3) اسکرول به جدول
+    const tableCard = document.getElementById('report-table');
+    if (tableCard) tableCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // 4) بستن پنل اگر باز است
+    if (typeof togglePanel === 'function') togglePanel(false);
+  }
+  let sortOtherCol = '';
+  let sortOtherAsc = true;
+  function openInq(inqNo) {
+    const row = getLatestRecord(inqNo);
+    if (!row) return;
+    
+    let statusText = row.Status;
+    if (!statusText) statusText = String(row['Actions Final sent Offer']||'').trim() ? 'Pending' : 'In Progress';
+    
+    const isOrdered = String(row.Status || '').toLowerCase() === 'ordered';
+    const dateLabel = isOrdered ? 'PO Date' : 'Status Date';
+    const dateValue = isOrdered ? formatDate(row['Date-Ordered']) : formatDate(row['Date AF']);
+
+    const otherRows = state.rows.filter(r => r.Customer === row.Customer && String(r['Inquiry No'] || '') !== inqNo);
+
+    // مرتب‌سازی سوابق
+    if (sortOtherCol) {
+      otherRows.sort((a, b) => {
+        let va = sortOtherCol === 'inq' ? String(a['Inquiry No'] || '') : String(a.Status || '');
+        let vb = sortOtherCol === 'inq' ? String(b['Inquiry No'] || '') : String(b.Status || '');
+        return sortOtherAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+      });
+    }
+
+    // ساخت بدنه پنل (استپر و جدول جزئیات)
+    let html = getStepperHtml(row);
+    
+    html += `<div class="panel-grid">
+      <div class="panel-grid-label">Product</div><div class="panel-grid-value">${row.Product || '—'}</div>
+      <div class="panel-grid-label">INQ Date</div><div class="panel-grid-value">${formatDate(row['Date Of Inquiry Customer']) || '—'}</div>
+      <div class="panel-grid-label">PI</div><div class="panel-grid-value">${(row['PI-C'] || '') + (row['PI-T'] ? ' / ' + row['PI-T'] : '') || '—'}</div>
+      <div class="panel-grid-label">Action Final</div><div class="panel-grid-value">${row['Actions Final sent Offer'] || '—'}</div>
+      <div class="panel-grid-label">Action Date</div><div class="panel-grid-value">${formatDate(row['Date AF']) || '—'}</div>
+      <div class="panel-grid-label">Status</div><div class="panel-grid-value" style="font-weight:700;">${statusText}</div>
+      <div class="panel-grid-label">${dateLabel}</div><div class="panel-grid-value">${dateValue || '—'}</div>
+      <div class="panel-grid-label">Shipment</div><div class="panel-grid-value">${formatOrderSent(row['The order was sent']) || '—'}</div>
+      <div class="panel-grid-label">Invoice</div><div class="panel-grid-value">${formatDate(row['sent invoice']) || '—'}</div>
+      <div class="panel-grid-label">Payment</div><div class="panel-grid-value">${formatPayment(row['Payment Received']) || '0%'}</div>
+    </div>`;
+    
+    if (otherRows.length > 0) {
+      html += `<div style="font-weight:700; font-size:0.8rem; color:#6b7280; text-transform:uppercase; margin-top:20px; border-top:1px solid #e5e7eb; padding-top:12px;">Other Inquiries from this Customer</div>`;
+      
+      const iconInq = sortOtherCol === 'inq' ? (sortOtherAsc ? ' ▲' : ' ▼') : '';
+      const iconStat = sortOtherCol === 'status' ? (sortOtherAsc ? ' ▲' : ' ▼') : '';
+      
+      html += `<table class="panel-table"><thead><tr>
+        <th style="cursor:pointer;" onclick="App.sortOther('inq')">INQ${iconInq}</th>
+        <th style="cursor:pointer;" onclick="App.sortOther('status')">Status${iconStat}</th>
+        <th>Order Status</th>
+      </tr></thead><tbody>`;
+      
+      otherRows.forEach(r => {
+        const otherInq = String(r['Inquiry No'] || '');
+        let stat = r.Status;
+        if (!stat) stat = String(r['Actions Final sent Offer']||'').trim() ? 'Pending' : 'In Progress';
+        
+        let pipeline = '—';
+        const waitStatus = getWaitingStatus(r);
+        if (String(r.Status).toLowerCase() === 'ordered' && waitStatus) {
+          pipeline = waitStatus;
+        }
+        
+        html += `<tr>
+          <td><span class="link-clickable" onclick="App.openInq('${otherInq.replace(/'/g, "\\'")}')">${otherInq}</span></td>
+          <td>${stat}</td>
+          <td style="font-weight:600; color:#2563eb;">${pipeline !== '—' ? pipeline : ''}</td>
+        </tr>`;
+      });
+      html += `</tbody></table>`;
+    }
+    
+    // --- بخش جدید: تنظیم عنوان پنل و نمایش وضعیت Awaiting در هدر ---
+    const waitStatus = getWaitingStatus(row);
+    let headerBadge = '';
+    if (isOrdered && waitStatus) {
+      let color = '#2563eb'; // آبی برای Awaiting
+      if (waitStatus === 'Completed') color = '#16a34a'; // سبز
+      else if (waitStatus === 'Awaiting Payment') color = '#d97706'; // نارنجی
+      
+      headerBadge = `<div style="font-size:1rem; font-weight:800; color:${color}; margin-top:6px; text-transform:uppercase; letter-spacing:0.05em;">${waitStatus}</div>`;
+    }
+
+    const titleHtml = `
+      <div style="display:flex; flex-direction:column; line-height:1.2;">
+        <div>INQ: ${inqNo} <span style="font-weight:normal; color:#6b7280; font-size:0.9rem;">— ${row.Customer || 'Unknown'}</span></div>
+        ${headerBadge}
+      </div>
+    `;
+    
+    document.getElementById('panel-title').innerHTML = titleHtml;
+    document.getElementById('panel-body').innerHTML = html;
+    togglePanel(true);
+  }
+
+  function sortOther(col) {
+    if (sortOtherCol === col) sortOtherAsc = !sortOtherAsc;
+    else { sortOtherCol = col; sortOtherAsc = true; }
+    // بازخوانی مجدد با INQ فعلی
+    const title = document.getElementById('panel-title').textContent;
+    const inqMatch = title.match(/INQ: ([^ ]+)/);
+    if (inqMatch) openInq(inqMatch[1]);
+  }
+  return { init, sortTable, resetFilters, getState, printDashboard,
+         openInq, sortOther, onCustomerClick, filterByCustomer,
+         openCustomer, sortCustomer }; 
+})();
+</script>
+
+<!-- REPORTING MODULE -->
+<script>
+const Reports = (function() {
+    let currentReport = 'allOrdered'; 
+    let isExpanded = false;
+    let sortKey = '';
+    let sortAsc = true;
+    let currentRawData = [];
+    let hiddenCols = new Set(); 
+    
+    function loadHiddenCols() {
+        try {
+            const saved = JSON.parse(localStorage.getItem('rep_hidden_cols') || '{}');
+            if (saved[currentReport]) {
+                hiddenCols = new Set(saved[currentReport]);
+            } else {
+                hiddenCols = new Set();
+                if (REPORT_SCHEMAS[currentReport]) {
+                    REPORT_SCHEMAS[currentReport].cols.forEach(c => {
+                        if (c.defaultHidden) hiddenCols.add(c.key);
+                    });
+                }
+            }
+        } catch(e) { hiddenCols = new Set(); }
+    }
+    function saveHiddenCols() {
+        try {
+            const saved = JSON.parse(localStorage.getItem('rep_hidden_cols') || '{}');
+            saved[currentReport] = [...hiddenCols];
+            localStorage.setItem('rep_hidden_cols', JSON.stringify(saved));
+        } catch(e) {}
+    }
+
+    const REPORT_SCHEMAS = {
+        allOrdered: {
+            cols: [
+                { key: 'Customer', label: 'Customer', w: '15%' },
+                { key: 'Product', label: 'Product', w: '8%' },
+                { key: 'INQ', label: 'INQ', w: '10%' },
+                { key: 'INQ Date', label: 'INQ Date', w: '8%', isDate: true },
+                { key: 'PI', label: 'PI', w: '10%' },
+                { key: 'PO Date', label: 'PO Date', w: '8%', isDate: true },
+                { key: 'Shipment Status', label: 'Shipment', w: '10%' },
+                { key: 'Ship Date', label: 'Ship Date', w: '8%', isDate: true },
+                { key: 'Invoice Date', label: 'Invoice', w: '8%', isDate: true },
+                { key: 'Amount', label: 'Amount', w: '8%', isNum: true },
+                { key: 'Currency', label: 'Currency', w: '5%' },
+                { key: 'Terms', label: 'Terms', w: '5%' },
+                { key: 'Payment %', label: 'Paid %', w: '5%', isNum: true },
+                { key: 'Payment Date', label: 'Pay Date', w: '8%', isDate: true, defaultHidden: true }
+            ]
+        },
+        delayedOrders: {
+            cols: [
+                { key: 'Customer', label: 'Customer', w: '15%' },
+                { key: 'Product', label: 'Product', w: '8%' },
+                { key: 'INQ', label: 'INQ', w: '10%' },
+                { key: 'INQ Date', label: 'INQ Date', w: '8%', isDate: true },
+                { key: 'PI', label: 'PI', w: '10%' },
+                { key: 'PO Date', label: 'PO Date', w: '8%', isDate: true },
+                { key: 'Months Overdue', label: 'Months Late', w: '8%', isNum: true },
+                { key: 'Shipment Status', label: 'Shipment', w: '10%' },
+                { key: 'Amount', label: 'Amount', w: '8%', isNum: true },
+                { key: 'Currency', label: 'Currency', w: '5%' },
+                { key: 'Terms', label: 'Terms', w: '5%' },
+                { key: 'Payment %', label: 'Paid %', w: '5%', isNum: true }
+            ]
+        },
+        completedOrders: {
+            cols: [
+                { key: 'Customer', label: 'Customer', w: '15%' },
+                { key: 'Product', label: 'Product', w: '8%' },
+                { key: 'INQ', label: 'INQ', w: '10%' },
+                { key: 'INQ Date', label: 'INQ Date', w: '8%', isDate: true, defaultHidden: true },
+                { key: 'PI', label: 'PI', w: '10%' },
+                { key: 'PO Date', label: 'PO Date', w: '8%', isDate: true },
+                { key: 'Shipment Status', label: 'Shipment', w: '10%' },
+                { key: 'Ship Date', label: 'Ship Date', w: '8%', isDate: true },
+                { key: 'Invoice Date', label: 'Invoice', w: '8%', isDate: true },
+                { key: 'Amount', label: 'Amount', w: '8%', isNum: true },
+                { key: 'Currency', label: 'Currency', w: '5%' },
+                { key: 'Terms', label: 'Terms', w: '5%' },
+                { key: 'Payment %', label: 'Paid %', w: '5%', isNum: true },
+                { key: 'Payment Date', label: 'Pay Date', w: '8%', isDate: true }
+            ]
+        },
+        openOrders: {
+            cols: [
+                { key: 'Customer', label: 'Customer', w: '15%' },
+                { key: 'Product', label: 'Product', w: '8%' },
+                { key: 'INQ', label: 'INQ', w: '10%' },
+                { key: 'INQ Date', label: 'INQ Date', w: '8%', isDate: true },
+                { key: 'PI', label: 'PI', w: '10%' },
+                { key: 'PO Date', label: 'PO Date', w: '8%', isDate: true },
+                { key: 'Amount', label: 'Amount', w: '8%', isNum: true },
+                { key: 'Currency', label: 'Currency', w: '5%' },
+                { key: 'Terms', label: 'Terms', w: '5%' },
+                { key: 'Payment %', label: 'Paid %', w: '8%', isNum: true },
+                { key: 'Shipment Status', label: 'Shipment', w: '10%', defaultHidden: true },
+                { key: 'Ship Date', label: 'Ship Date', w: '8%', isDate: true, defaultHidden: true },
+                { key: 'Invoice Date', label: 'Invoice', w: '8%', isDate: true, defaultHidden: true },
+                { key: 'Payment Date', label: 'Pay Date', w: '8%', isDate: true, defaultHidden: true }
+            ]
+        },
+        awaitingShipment: {
+            cols: [
+                { key: 'Customer', label: 'Customer', w: '15%' },
+                { key: 'Product', label: 'Product', w: '8%' },
+                { key: 'INQ', label: 'INQ', w: '10%' },
+                { key: 'INQ Date', label: 'INQ Date', w: '8%', isDate: true, defaultHidden: true },
+                { key: 'PI', label: 'PI', w: '10%' },
+                { key: 'PO Date', label: 'PO Date', w: '8%', isDate: true },
+                { key: 'Shipment Status', label: 'Shipment', w: '10%' },
+                { key: 'Amount', label: 'Amount', w: '8%', isNum: true },
+                { key: 'Currency', label: 'Currency', w: '5%' },
+                { key: 'Terms', label: 'Terms', w: '5%' },
+                { key: 'Payment %', label: 'Paid %', w: '5%', isNum: true },
+                { key: 'Ship Date', label: 'Ship Date', w: '8%', isDate: true, defaultHidden: true }
+            ]
+        },
+        awaitingInvoice: {
+            cols: [
+                { key: 'Customer', label: 'Customer', w: '15%' },
+                { key: 'Product', label: 'Product', w: '8%' },
+                { key: 'INQ', label: 'INQ', w: '10%' },
+                { key: 'INQ Date', label: 'INQ Date', w: '8%', isDate: true, defaultHidden: true },
+                { key: 'PI', label: 'PI', w: '10%' },
+                { key: 'PO Date', label: 'PO Date', w: '8%', isDate: true },
+                { key: 'Shipment Status', label: 'Shipment', w: '10%' },
+                { key: 'Ship Date', label: 'Ship Date', w: '8%', isDate: true },
+                { key: 'Amount', label: 'Amount', w: '8%', isNum: true },
+                { key: 'Currency', label: 'Currency', w: '5%' },
+                { key: 'Terms', label: 'Terms', w: '5%' },
+                { key: 'Payment %', label: 'Paid %', w: '8%', isNum: true },
+                { key: 'Invoice Date', label: 'Invoice', w: '8%', isDate: true, defaultHidden: true },
+                { key: 'Payment Date', label: 'Pay Date', w: '8%', isDate: true, defaultHidden: true }
+            ]
+        },
+        awaitingPayment: {
+            cols: [
+                { key: 'Customer', label: 'Customer', w: '15%' },
+                { key: 'Product', label: 'Product', w: '8%' },
+                { key: 'INQ', label: 'INQ', w: '10%' },
+                { key: 'INQ Date', label: 'INQ Date', w: '8%', isDate: true },
+                { key: 'PO Date', label: 'PO Date', w: '8%', isDate: true },
+                { key: 'Invoice Date', label: 'Invoice', w: '8%', isDate: true },
+                { key: 'Amount', label: 'Amount', w: '8%', isNum: true },
+                { key: 'Currency', label: 'Currency', w: '5%' },
+                { key: 'Terms', label: 'Terms', w: '5%' },
+                { key: 'Payment %', label: 'Paid %', w: '8%', isNum: true },
+                { key: 'PI', label: 'PI', w: '10%', defaultHidden: true },
+                { key: 'Shipment Status', label: 'Shipment', w: '10%', defaultHidden: true },
+                { key: 'Ship Date', label: 'Ship Date', w: '8%', isDate: true, defaultHidden: true },
+                { key: 'Payment Date', label: 'Pay Date', w: '8%', isDate: true, defaultHidden: true }
+            ]
+        },
+        ordersByCustomer: {
+            cols: [
+                { key: 'Customer', label: 'Customer', w: '25%' },
+                { key: 'Orders', label: 'Orders', w: '10%', isNum: true },
+                { key: 'GC', label: 'GC', w: '5%', isNum: true },
+                { key: 'MainSys', label: 'MainSys', w: '8%', isNum: true },
+                { key: 'S/P', label: 'S/P', w: '5%', isNum: true },
+                { key: 'Proj', label: 'Proj', w: '5%', isNum: true },
+                { key: 'USD', label: 'USD', w: '10%', isNum: true },
+                { key: 'EUR', label: 'EUR', w: '10%', isNum: true },
+                { key: 'Rial', label: 'Rial', w: '12%', isNum: true },
+                { key: 'AED', label: 'AED', w: '10%', isNum: true }
+            ]
+        },
+        ordersByProduct: {
+            cols: [
+                { key: 'Product', label: 'Product', w: '30%' },
+                { key: 'Orders', label: 'Orders', w: '10%', isNum: true },
+                { key: 'USD', label: 'USD', w: '15%', isNum: true },
+                { key: 'EUR', label: 'EUR', w: '15%', isNum: true },
+                { key: 'Rial', label: 'Rial', w: '15%', isNum: true },
+                { key: 'AED', label: 'AED', w: '15%', isNum: true }
+            ]
+        },
+        paymentSummary: {
+            cols: [
+                { key: 'Currency', label: 'Currency', w: '20%' },
+                { key: 'Total Orders', label: 'Total Orders', w: '20%', isNum: true },
+                { key: 'Total Amount', label: 'Total Amount', w: '20%', isNum: true },
+                { key: 'Paid Amount', label: 'Paid Amount', w: '20%', isNum: true },
+                { key: 'Unpaid Amount', label: 'Unpaid Amount', w: '20%', isNum: true }
+            ]
+        },
+        customerSales: {
+            cols: [
+                { key: 'Customer', label: 'Customer', w: '30%' },
+                { key: 'Currency', label: 'Currency', w: '10%' },
+                { key: 'Orders', label: 'Orders', w: '10%', isNum: true },
+                { key: 'Total Sales', label: 'Total Sales', w: '20%', isNum: true },
+                { key: 'Paid', label: 'Paid', w: '15%', isNum: true },
+                { key: 'Unpaid', label: 'Unpaid', w: '15%', isNum: true }
+            ]
+        }
+    };
+
+    function parsePrice(val) {
+        if (val === null || val === undefined || val === '') return 0;
+        if (typeof val === 'number') return isNaN(val) ? 0 : val;
+        // حذف کاما، فاصله، و هر کاراکتر غیرعددی به جز نقطه و منفی
+        const cleanNum = String(val).replace(/[^\d.-]/g, '').trim();
+        if (cleanNum === '' || cleanNum === '-' || cleanNum === '.') return 0;
+        const num = parseFloat(cleanNum);
+        return isNaN(num) ? 0 : num;
+    }
+
+    function getCurrency(row) {
+        let cur = String(row['Price Unit'] || '').trim();
+        const isOut = cur.includes('(Out)') || cur.includes('(out)');
+        // حذف (Out) با هر شکل و فاصله
+        cur = cur.replace(/\(out\)/gi, '').trim().toUpperCase();
+        return { name: cur, isOut: isOut };
+    }
+
+    function fmtNum(n) {
+        return n.toLocaleString('en-US', { maximumFractionDigits: 0 });
+    }
+
+    function prepareData(type, rows) {
+        const fCust = document.getElementById('rep-f-customer').value;
+        const fCur = document.getElementById('rep-f-currency').value;
+        const fReg = document.getElementById('rep-f-region').value;
+        const fTerms = document.getElementById('rep-f-terms').value;
+        
+        // ? خواندن فیلتر تاریخ جدید
+        const fDateCol = document.getElementById('rep-f-date-col').value;
+        const fDateFrom = document.getElementById('rep-f-date-from').value;
+        const fDateTo = document.getElementById('rep-f-date-to').value;
+
+        let filtered = rows.filter(r => {
+            if (fCust && r.Customer.toLowerCase() !== fCust.toLowerCase()) return false;
+            const curObj = getCurrency(r);
+            if (fCur && curObj.name !== fCur.toUpperCase()) return false;
+            if (fReg === 'domestic' && curObj.isOut) return false;
+            if (fReg === 'foreign' && !curObj.isOut) return false;
+            if (fTerms && String(r['Terms of Delivery'] || '').trim().toLowerCase() !== fTerms.trim().toLowerCase()) return false;
+
+            // ? اعمال فیلتر تاریخ جدید
+            if (fDateCol && (fDateFrom || fDateTo)) {
+                const rawDate = r[fDateCol];
+                if (!rawDate) return false; // این خط فقط زمانی که فیلتر تاریخ فعال است، رکورد بدون تاریخ را حذف می‌کند.
+                
+                const d = new Date(rawDate);
+                if (isNaN(d.getTime())) return false; // تاریخ نامعتبر
+
+                const dDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+                if (fDateFrom && dDay < new Date(fDateFrom + 'T00:00:00')) return false;
+                if (fDateTo && dDay > new Date(fDateTo + 'T00:00:00')) return false;
+            }
+            
+            return true;
+        });
+        // ... بقیه کدها
+
+        let data = [];
+        let title = "";
+        let subtitle = ""; // ? اضافه کردن این خط
+        let totalRowData = null;
+        const getTime = (d) => d ? new Date(d).getTime() : 0;
+        const getPrice = (p) => parseFloat(String(p).replace(/,/g, '')) || 0;
+
+        const extractRow = (r) => {
+            return {
+                'Customer': r.Customer || '',
+                'Product': r.Product || '',
+                'INQ': String(r['Inquiry No'] || '').split('\n')[0],
+                'PI': (r['PI-C'] || '') + (r['PI-T'] ? ' / ' + r['PI-T'] : ''),
+                'INQ Date': r['Date Of Inquiry Customer'] ? new Date(r['Date Of Inquiry Customer']).toLocaleDateString('en-GB', {month:'short', year:'numeric'}) : '',
+                _rawINQDate: getTime(r['Date Of Inquiry Customer']),
+                'PO Date': r['Date-Ordered'] ? new Date(r['Date-Ordered']).toLocaleDateString('en-GB', {month:'short', year:'numeric'}) : '',
+                'Shipment Status': (() => {
+                    const s = String(r['The order was sent'] || '');
+                    const m = s.match(/\(([^)]+)\)/); // پیدا کردن محتوای داخل پرانتز
+                    return m ? m[1].trim() : s;       // اگر پرانتز بود، فقط داخلش را برگردان
+                })(),
+                'Ship Date': r['date sent'] ? new Date(r['date sent']).toLocaleDateString('en-GB', {month:'short', year:'numeric'}) : '',
+                'Invoice Date': r['sent invoice'] ? new Date(r['sent invoice']).toLocaleDateString('en-GB', {month:'short', year:'numeric'}) : '',
+                'Amount': getPrice(r.Price),
+                'Currency': r['Price Unit'] || '',
+                'Terms': r['Terms of Delivery'] || '',
+                'Payment %': Math.round((parseFloat(r['Payment Received']) || 0) * 100),
+                'Payment Date': r['Date Payment Received'] ? new Date(r['Date Payment Received']).toLocaleDateString('en-GB', {month:'short', year:'numeric'}) : '',
+                _rawPODate: getTime(r['Date-Ordered']),
+                _rawShipDate: getTime(r['date sent']),
+                _rawInvDate: getTime(r['sent invoice']),
+                _rawPayDate: getTime(r['Date Payment Received']),
+                _rawPrice: getPrice(r.Price)
+            };
+        };
+
+        if (type === 'allOrdered') {
+            title = "All Ordered (Regardless of Payment/Shipping)";
+            filtered.filter(r => String(r.Status || '').toLowerCase() === 'ordered').forEach(r => { data.push(extractRow(r)); });
+        } 
+        else if (type === 'delayedOrders') {
+            title = "Delayed Orders (> 180 days, not shipped)";
+            subtitle = "Calculated based on PO Date (older than 180 days & not fully shipped)";
+            const cutoff = Date.now() - (180 * 86400000);
+            
+            filtered.filter(r => {
+                const status = String(r.Status || '').toLowerCase();
+                const ship = String(r['The order was sent'] || '');
+                const d = getTime(r['Date-Ordered']);
+                
+                // ? دقیقاً مطابق منطق VBA
+                if (status !== 'ordered') return false;
+                if (ship.includes('Canceled by ESA')) return false;
+                if (ship.includes('(Complete)')) return false;
+                if (!d || d >= cutoff) return false; // اگر تاریخ خالی یا جدیدتر از 180 روز بود
+                
+                return true;
+            }).forEach(r => {
+                let row = extractRow(r);
+                // ? نمایش ماه‌های تاخیر دقیقاً مثل اکسل (مثلاً 6 Month)
+                const months = Math.floor((Date.now() - getTime(r['Date-Ordered'])) / (30 * 86400000));
+                row['Months Overdue'] = months + ' Mon'; 
+                data.push(row);
+            });
+        }
+        else if (type === 'completedOrders') {
+            title = "Completed Orders (100% Paid)";
+            filtered.filter(r => (parseFloat(r['Payment Received']) || 0) >= 1).forEach(r => { data.push(extractRow(r)); });
+        }
+        else if (type === 'openOrders') {
+            title = "Open Orders (Ordered & Unpaid)";
+            filtered.filter(r => String(r.Status || '').toLowerCase() === 'ordered' && (parseFloat(r['Payment Received']) || 0) < 1).forEach(r => { data.push(extractRow(r)); });
+        }
+        else if (type === 'awaitingShipment') {
+            title = "Awaiting Shipment (Ordered, not fully shipped)";
+            filtered.filter(r => {
+                const status = String(r.Status || '').toLowerCase();
+                const ship = String(r['The order was sent'] || '');
+                
+                // ? دقیقاً مطابق منطق VBA (حذف Complete و Canceled)
+                return status === 'ordered' 
+                    && !ship.includes('(Complete)') 
+                    && !ship.includes('Canceled by ESA');
+            }).forEach(r => { data.push(extractRow(r)); });
+        }
+        else if (type === 'awaitingInvoice') {
+            title = "Awaiting Invoice (Shipped, but not invoiced)";
+            filtered.filter(r => {
+                const ship = String(r['The order was sent'] || '');
+                const inv = !!r['sent invoice'];
+                return (ship.includes('Complete') || ship.includes('Partial')) && !inv;
+            }).forEach(r => { data.push(extractRow(r)); });
+        }
+        else if (type === 'awaitingPayment') {
+            title = "Awaiting Payment (Invoice Sent, Not Fully Paid)";
+            filtered.filter(r => !!r['sent invoice'] && (parseFloat(r['Payment Received']) || 0) < 1).forEach(r => { data.push(extractRow(r)); });
+        }
+        else if (type === 'ordersByCustomer') {
+            title = "Orders by Customer (Grouped)";
+            let groups = {};
+            
+            filtered.filter(r => String(r.Status || '').toLowerCase() === 'ordered').forEach(r => {
+                const cust = r.Customer || 'Unknown';
+                const curObj = getCurrency(r);
+                const curRaw = curObj.name;
+                const price = parsePrice(r.Price);
+                
+                if (!groups[cust]) {
+                    groups[cust] = { 
+                        name: cust, Orders: 0, 
+                        GC: 0, MainSys: 0, S_P: 0, Proj: 0,
+                        USD: 0, EUR: 0, RIAL: 0, AED: 0
+                    };
+                }
+                
+                const g = groups[cust];
+                g.Orders += 1;
+                
+                const prod = String(r.Product || '').toLowerCase();
+                if (prod === 'gc') g.GC++;
+                else if (prod === 'main system') g.MainSys++;
+                else if (prod === 'spare part') g.S_P++;
+                else if (prod === 'project') g.Proj++;
+                
+                const curKey = String(curRaw || '').trim().toUpperCase();
+                
+                if (curKey === 'USD') g.USD += price;
+                else if (curKey === 'EUR') g.EUR += price;
+                else if (curKey === 'RIAL') g.RIAL += price;
+                else if (curKey === 'AED') g.AED += price;
+            });
+            
+            Object.values(groups).forEach(c => {
+                data.push({
+                    'Customer': c.name,
+                    'Orders': c.Orders,
+                    'GC': c.GC > 0 ? c.GC : '',
+                    'MainSys': c.MainSys > 0 ? c.MainSys : '',
+                    'S/P': c.S_P > 0 ? c.S_P : '',
+                    'Proj': c.Proj > 0 ? c.Proj : '',
+                    'USD': c.USD > 0 ? c.USD : '',       // عدد خام، نه فرمت‌شده
+                    'EUR': c.EUR > 0 ? c.EUR : '',
+                    'Rial': c.RIAL > 0 ? c.RIAL : '',
+                    'AED': c.AED > 0 ? c.AED : '',
+                    _rawOrders: c.Orders
+                });
+            });
+            // ? محاسبه Grand Totals
+            let totalOrders = 0, totalGC = 0, totalMainSys = 0, totalSP = 0, totalProj = 0;
+            let totalUSD = 0, totalEUR = 0, totalRIAL = 0, totalAED = 0;
+
+            Object.values(groups).forEach(c => {
+                totalOrders += c.Orders;
+                totalGC += c.GC;
+                totalMainSys += c.MainSys;
+                totalSP += c.S_P;
+                totalProj += c.Proj;
+                totalUSD += c.USD;
+                totalEUR += c.EUR;
+                totalRIAL += c.RIAL;
+                totalAED += c.AED;
+            });
+
+            // ? افزودن ردیف TOTAL
+            // ? ردیف TOTAL در data قرار نگیرد، جداگانه برگردانده شود
+            totalRowData = {
+                'Customer': 'TOTAL',
+                'Orders': totalOrders,
+                'GC': totalGC > 0 ? totalGC : '',
+                'MainSys': totalMainSys > 0 ? totalMainSys : '',
+                'S/P': totalSP > 0 ? totalSP : '',
+                'Proj': totalProj > 0 ? totalProj : '',
+                'USD': totalUSD > 0 ? totalUSD : '',
+                'EUR': totalEUR > 0 ? totalEUR : '',
+                'Rial': totalRIAL > 0 ? totalRIAL : '',
+                'AED': totalAED > 0 ? totalAED : '',
+                _isTotal: true
+            };
+        }
+        return { data, title, subtitle, schema: REPORT_SCHEMAS[type], totalRow: (typeof totalRowData !== 'undefined' ? totalRowData : null) };
+    }
+    function getActiveFiltersText() {
+        const filters = [];
+        const cust = document.getElementById('rep-f-customer').value;
+        const cur = document.getElementById('rep-f-currency').value;
+        const reg = document.getElementById('rep-f-region').value;
+        const terms = document.getElementById('rep-f-terms').value;
+        const dCol = document.getElementById('rep-f-date-col').value;
+        const dFrom = document.getElementById('rep-f-date-from').value;
+        const dTo = document.getElementById('rep-f-date-to').value;
+
+        // تابع کمکی برای تبدیل تاریخ به DDMMMYY
+        const fmt = (dStr) => {
+            if (!dStr) return '';
+            const d = new Date(dStr);
+            if (isNaN(d.getTime())) return dStr;
+            const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            return String(d.getDate()).padStart(2, '0') + months[d.getMonth()] + String(d.getFullYear()).slice(-2);
+        };
+
+        if (cust) filters.push(`Customer: ${cust}`);
+        if (cur) filters.push(`Currency: ${cur.toUpperCase()}`);
+        if (reg === 'domestic') filters.push(`Region: Domestic`);
+        if (reg === 'foreign') filters.push(`Region: Foreign (Out)`);
+        if (terms) filters.push(`Terms: ${terms}`);
+        
+        if (dCol && (dFrom || dTo)) {
+            let dateStr = `Date (${dCol === 'Date-Ordered' ? 'PO Date' : dCol === 'Date Of Inquiry Customer' ? 'INQ Date' : dCol}): `;
+            if (dFrom && dTo) dateStr += `${fmt(dFrom)} to ${fmt(dTo)}`;
+            else if (dFrom) dateStr += `From ${fmt(dFrom)}`;
+            else if (dTo) dateStr += `Up to ${fmt(dTo)}`;
+            filters.push(dateStr);
+        }
+        
+        if (filters.length === 0) return '';
+        
+        // استایل پررنگ‌تر برای نمایش در جدول
+        return `<div style="font-size: 0.75rem; color: #1f2937; margin-top: 4px; line-height: 1.4;"><b style="color:#2563eb;">Applied Filters:</b> ${filters.join(' &nbsp;|&nbsp; ')}</div>`;
+    }
+    function renderTable() {
+        // ==========================================
+        // ? ۱. اعتبارسنجی فیلتر تاریخ (در ابتدای تابع)
+        // ==========================================
+        const dateColInput = document.getElementById('rep-f-date-col');
+        const dateFromInput = document.getElementById('rep-f-date-from');
+        const dateToInput = document.getElementById('rep-f-date-to');
+        
+        // ریست کردن رنگ‌ها
+        dateColInput.style.borderColor = '#d1d5db';
+        dateFromInput.style.borderColor = '#d1d5db';
+        dateToInput.style.borderColor = '#d1d5db';
+
+        // اگر تاریخ وارد شده ولی نوع ستون انتخاب نشده
+        if ((dateFromInput.value || dateToInput.value) && !dateColInput.value) {
+            dateColInput.style.borderColor = '#dc2626';
+            dateColInput.style.outline = '1px solid #dc2626';
+            alert('Please select the Date Column type (e.g., PO Date) when using the date range filter.');
+            return; // توقف رندر
+        }
+
+        // ==========================================
+        // ? ۲. آماده‌سازی داده‌ها و عنوان
+        // ==========================================
+        const { data, title, subtitle, schema, totalRow } = prepareData(currentReport, App.getState().filteredRows);
+        const titleEl = document.getElementById('report-title');
+        const activeFiltersHtml = getActiveFiltersText();
+        
+        let titleContent = '';
+        if (subtitle) {
+            titleContent = `<div>${title}</div><div style="font-size:0.7rem; font-weight:normal; color:#6b7280; margin-top:2px;">${subtitle}</div>`;
+        } else {
+            titleContent = title;
+        }
+        
+        if (activeFiltersHtml) {
+            titleEl.innerHTML = titleContent + activeFiltersHtml;
+        } else {
+            titleEl.innerHTML = titleContent;
+        }
+
+        // ==========================================
+        // ? ۳. سورت کردن داده‌ها
+        // ==========================================
+        let sortedData = [...data];
+        if (sortKey) {
+            const colDef = schema.cols.find(c => c.key === sortKey);
+            sortedData.sort((a, b) => {
+                let va = a[sortKey], vb = b[sortKey];
+                
+                if (colDef && colDef.isDate) {
+                    let ta = 0, tb = 0;
+                    if (sortKey === 'PO Date') { ta = a._rawPODate || 0; tb = b._rawPODate || 0; }
+                    else if (sortKey === 'Ship Date') { ta = a._rawShipDate || 0; tb = b._rawShipDate || 0; }
+                    else if (sortKey === 'Invoice Date') { ta = a._rawInvDate || 0; tb = b._rawInvDate || 0; }
+                    else if (sortKey === 'Payment Date') { ta = a._rawPayDate || 0; tb = b._rawPayDate || 0; }
+                    else if (sortKey === 'INQ Date') { ta = a._rawINQDate || 0; tb = b._rawINQDate || 0; }
+                    else { 
+                        ta = new Date(va).getTime() || 0; 
+                        tb = new Date(vb).getTime() || 0; 
+                    }
+                    return sortAsc ? ta - tb : tb - ta;
+                }
+                
+                if (colDef && colDef.isNum) {
+                    const na = (a._rawPrice !== undefined && sortKey === 'Amount') ? a._rawPrice : (parseFloat(String(va).replace(/,/g, '')) || 0);
+                    const nb = (b._rawPrice !== undefined && sortKey === 'Amount') ? b._rawPrice : (parseFloat(String(vb).replace(/,/g, '')) || 0);
+                    return sortAsc ? na - nb : nb - na;
+                }
+                
+                const sa = String(va).toUpperCase();
+                const sb = String(vb).toUpperCase();
+                if (sa < sb) return sortAsc ? -1 : 1;
+                if (sa > sb) return sortAsc ? 1 : -1;
+                return 0;
+            });
+        }
+
+        // ==========================================
+        // ? ۴. مرتب‌سازی ستون‌ها (مطابق شیت مادر)
+        // ==========================================
+        const MASTER_ORDER = [
+            'Customer', 'Orders', 'GC', 'MainSys', 'S/P', 'Proj', 'USD', 'EUR', 'Rial', 'AED'
+        ];
+
+        const sortedCols = [...schema.cols].sort((a, b) => {
+            let idxA = MASTER_ORDER.indexOf(a.key);
+            let idxB = MASTER_ORDER.indexOf(b.key);
+            if (idxA === -1) idxA = 999;
+            if (idxB === -1) idxB = 999;
+            return idxA - idxB;
+        });
+
+        const visibleCols = sortedCols.filter(c => !hiddenCols.has(c.key));
+
+        // ? ساخت هدر
+        let theadHtml = '<tr><th style="width: 40px; text-align: center;">#</th>';
+        visibleCols.forEach(c => {
+            const icon = sortKey === c.key ? (sortAsc ? ' ▲' : ' ▼') : '';
+            theadHtml += `<th data-key="${c.key}" style="text-align:${c.isNum ? 'right' : 'left'}; white-space: nowrap;">${c.label}${icon}</th>`;
+        });
+        theadHtml += '</tr>';
+
+        // ? ساخت بدنه با فرمت‌دهی دقیق
+        let tbodyHtml = '';
+        if (sortedData.length === 0) {
+            tbodyHtml = `<tr><td colspan="${visibleCols.length + 1}" style="text-align:center; padding:20px; color:#6b7280;">No data found.</td></tr>`;
+        } else {
+            sortedData.forEach((row, index) => {
+                tbodyHtml += '<tr>';
+                tbodyHtml += `<td style="text-align:center; color:#9ca3af;">${index + 1}</td>`;
+                visibleCols.forEach(c => {
+                    let val = row[c.key];
+                    
+                    // ? فرمت کردن مبالغ
+                    if (['USD', 'EUR', 'Rial', 'AED'].includes(c.key)) {
+                        // هم عدد و هم رشته را بپذیر
+                        const num = typeof val === 'number' ? val : parseFloat(String(val).replace(/,/g, ''));
+                        if (!isNaN(num) && num > 0) {
+                            val = num.toLocaleString('en-US', { maximumFractionDigits: 0 });
+                        } else {
+                            val = '';
+                        }
+                    }
+                    if (c.key === 'Amount') {
+                        const num = typeof val === 'number' ? val : parseFloat(String(val).replace(/,/g, ''));
+                        if (!isNaN(num) && num > 0) {
+                            val = num.toLocaleString('en-US', { maximumFractionDigits: 0 });
+                        }
+                    }                    
+                    tbodyHtml += `<td style="text-align:${c.isNum ? 'right' : 'left'};" title="${val}">${val}</td>`;
+                });
+                tbodyHtml += '</tr>';
+            });
+        }
+
+        // ? استفاده از colgroup با عرض‌های ثابت و متناسب
+        let colgroupHtml = '<colgroup><col style="width: 44px;">';
+        visibleCols.forEach(c => {
+            let w = c.w || 'auto';
+            if (c.key === 'Customer') w = '200px';
+            else if (c.key === 'Orders') w = '70px';
+            else if (['GC','MainSys','S/P','Proj'].includes(c.key)) w = '70px';
+            else if (['USD','EUR','Rial','AED'].includes(c.key)) w = '120px';
+            colgroupHtml += `<col style="width:${w}">`;
+        });
+        colgroupHtml += '</colgroup>';
+
+        // 1. تزریق کادر خلاصه
+        document.getElementById('report-summary-container').innerHTML = `
+            <div class="report-summary" style="margin-bottom: 12px;">
+                Total Records: <b>${data.filter(r => !r._isTotal).length}</b>
+            </div>
+        `;
+
+        // 2. تزریق جدول
+        let tfootHtml = '';
+        if (totalRow) {
+            tfootHtml = '<tfoot><tr>';
+            tfootHtml += `<td style="text-align:center;color:#6b7280;">—</td>`;
+            visibleCols.forEach(c => {
+                let val = totalRow[c.key];
+                if (['USD','EUR','Rial','AED'].includes(c.key)) {
+                    const num = typeof val === 'number' ? val : parseFloat(String(val).replace(/,/g,''));
+                    val = (!isNaN(num) && num > 0) ? num.toLocaleString('en-US',{maximumFractionDigits:0}) : '';
+                } else if (val === 0 || val === undefined || val === null) {
+                    val = '';
+                }
+                tfootHtml += `<td style="text-align:${c.isNum?'right':'left'};">${val}</td>`;
+            });
+            tfootHtml += '</tr></tfoot>';
+        }
+
+        const tableHtml = `
+            <table class="report-table">
+                ${colgroupHtml}
+                <thead>${theadHtml}</thead>
+                <tbody>${tbodyHtml}</tbody>
+                ${tfootHtml}
+            </table>
+        `;
+        document.getElementById('report-content').innerHTML = tableHtml;
+        // ? ردیف TOTAL چسبیده به پایین باکس نمایش
+        document.querySelectorAll('#report-content th').forEach(th => {
+            th.addEventListener('click', () => {
+                const key = th.getAttribute('data-key');
+                if (sortKey === key) sortAsc = !sortAsc;
+                else { sortKey = key; sortAsc = true; }
+                renderTable();
+            });
+        });
+
+        updateColsPanel(schema);
+    }    function updateColsPanel(schema) {
+        const panel = document.getElementById('rep-cols-panel');
+        const btn = document.getElementById('rep-cols-btn');
+        
+        if (!schema || schema.cols.length === 0) {
+            btn.style.display = 'none';
+            return;
+        }
+        btn.style.display = 'flex';
+
+        // ? مرجع ترتیب ستون‌ها دقیقاً مطابق شیت مادر
+        const MASTER_ORDER = [
+            'Customer', 'Orders', 'GC', 'MainSys', 'S/P', 'Proj', 'USD', 'EUR', 'Rial', 'AED'
+        ];
+
+        // مرتب‌سازی ستون‌های فعلی بر اساس ترتیب مرجع
+        const sortedCols = [...schema.cols].sort((a, b) => {
+            let idxA = MASTER_ORDER.indexOf(a.key);
+            let idxB = MASTER_ORDER.indexOf(b.key);
+            
+            // اگر ستونی در مرجع نبود، به آخر لیست می‌رود
+            if (idxA === -1) idxA = 999;
+            if (idxB === -1) idxB = 999;
+            
+            return idxA - idxB;
+        });
+
+        panel.innerHTML = sortedCols.map(c => {
+            const checked = hiddenCols.has(c.key) ? '' : 'checked';
+            return `<label><input type="checkbox" data-key="${c.key}" ${checked}> ${c.label}</label>`;
+        }).join('');
+
+        panel.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+            cb.addEventListener('change', () => {
+                if (cb.checked) hiddenCols.delete(cb.getAttribute('data-key'));
+                else hiddenCols.add(cb.getAttribute('data-key'));
+                saveHiddenCols();
+                renderTable(); 
+            });
+        });
+    }
+
+    function init() {
+        const modal = document.getElementById('reports-modal');
+        const modalBox = document.getElementById('reports-modal-box');
+        const btnOpen = document.getElementById('analytics-btn');
+        const btnClose = document.getElementById('close-reports');
+        const btnApply = document.getElementById('btn-apply-rep-filters');
+        const btnReset = document.getElementById('reset-reports');
+        const btnExpand = document.getElementById('expand-reports');
+        const btnCols = document.getElementById('rep-cols-btn');
+        const panelCols = document.getElementById('rep-cols-panel');
+        const btns = document.querySelectorAll('.report-btn');
+
+        btnOpen.addEventListener('click', () => {
+            modal.style.display = 'flex';
+            populateFilters();
+            loadHiddenCols();
+            sortKey = ''; sortAsc = true; 
+            renderTable();
+        });
+        // دکمه بازگشت به داشبورد
+        document.getElementById('back-to-dashboard').addEventListener('click', () => {
+            modal.style.display = 'none';
+            if (isExpanded) btnExpand.click(); // اگر تمام صفحه بود، به حالت عادی برگردد
+        });
+        btnClose.addEventListener('click', () => {
+            modal.style.display = 'none';
+            if (isExpanded) btnExpand.click(); 
+        });
+
+        btns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                btns.forEach(b => { b.style.background = 'transparent'; b.style.color = '#4b5563'; });
+                btn.style.background = '#e0e7ff'; btn.style.color = '#3730a3';
+                currentReport = btn.getAttribute('data-report');
+                loadHiddenCols();
+                sortKey = ''; sortAsc = true; 
+                renderTable();
+            });
+        });
+
+        btnApply.addEventListener('click', renderTable);
+
+        btnReset.addEventListener('click', () => {
+            document.getElementById('rep-f-customer').value = '';
+            document.getElementById('rep-f-currency').value = '';
+            document.getElementById('rep-f-region').value = '';
+            document.getElementById('rep-f-terms').value = '';
+            
+            // ? پاک کردن فیلتر تاریخ
+            document.getElementById('rep-f-date-col').value = '';
+            document.getElementById('rep-f-date-from').value = '';
+            document.getElementById('rep-f-date-to').value = '';
+            
+            renderTable();
+        });
+
+        btnExpand.addEventListener('click', () => {
+            isExpanded = !isExpanded;
+            
+            const contentBox = document.getElementById('report-content');
+            const mainContent = document.getElementById('report-main-content');
+            const titleBox = document.getElementById('report-title').parentElement;
+            const summaryBox = document.getElementById('report-summary-container');
+
+            if (isExpanded) {
+                // حالت تمام صفحه (Maximize)
+                modalBox.style.width = '100vw'; 
+                modalBox.style.maxWidth = '100vw';
+                modalBox.style.height = '100vh'; 
+                modalBox.style.borderRadius = '0';
+                
+                // ? استفاده از موقعیت دهی مطلق برای قفل کردن جدول
+                mainContent.style.position = 'relative';
+                contentBox.style.position = 'absolute';
+                contentBox.style.top = (titleBox.offsetHeight + summaryBox.offsetHeight) + 'px';
+                contentBox.style.bottom = '16px'; // فاصله از پایین
+                contentBox.style.left = '16px';
+                contentBox.style.right = '16px';
+                contentBox.style.flex = 'none'; // غیرفعال کردن flex
+                
+                btnExpand.textContent = '🗗'; 
+                btnExpand.title = 'Restore';
+            } else {
+                // حالت عادی
+                modalBox.style.width = '90%'; 
+                modalBox.style.maxWidth = '1100px';
+                modalBox.style.height = '85vh'; 
+                modalBox.style.borderRadius = '8px';
+                
+                // ? برگشت به حالت اولیه
+                contentBox.style.position = 'static';
+                contentBox.style.top = '';
+                contentBox.style.bottom = '';
+                contentBox.style.left = '';
+                contentBox.style.right = '';
+                contentBox.style.flex = '1';
+                
+                btnExpand.textContent = '⛶'; 
+                btnExpand.title = 'Maximize';
+            }
+        });
+
+        btnCols.addEventListener('click', (e) => {
+            e.stopPropagation();
+            panelCols.style.display = panelCols.style.display === 'block' ? 'none' : 'block';
+        });
+        document.addEventListener('click', (e) => {
+            if (!panelCols.contains(e.target) && e.target !== btnCols) panelCols.style.display = 'none';
+        });
+        // ? منطق تغییر عرض سایدبار با کشیدن ماوس
+        const resizer = document.getElementById('sidebar-resizer');
+        const sidebar = document.getElementById('reports-sidebar');
+        let isResizing = false;
+
+        resizer.addEventListener('mousedown', (e) => {
+            isResizing = true;
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none'; // جلوگیری از انتخاب متن هنگام کشیدن
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+            const modalBox = document.getElementById('reports-modal-box').getBoundingClientRect();
+            let newWidth = e.clientX - modalBox.left;
+            
+            // محدودیت‌های حداقل و حداکثر عرض سایدبار
+            if (newWidth < 200) newWidth = 200;
+            if (newWidth > 450) newWidth = 450;
+            
+            sidebar.style.width = newWidth + 'px';
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isResizing) {
+                isResizing = false;
+                document.body.style.cursor = '';
+                document.body.style.userSelect = '';
+            }
+        });
+        // ? منطق چاپ و خروجی PDF تمیز
+        function printReport() {
+            document.body.classList.add('print-analytics');
+            // ... بقیه کد
+            // استخراج عنوان اصلی (بدون زیرنویس)
+            const title = titleEl.innerText.split('\n')[0]; 
+            const summary = document.getElementById('report-summary-container').innerHTML;
+            const table = document.querySelector('#report-content table').outerHTML;
+            
+            // گرفتن فیلترهای فعال
+            const filtersHtml = getActiveFiltersText();
+            
+            // ساخت نام فایل کوتاه و گویا
+            const reportNames = {
+                'allOrdered': 'All_Ordered',
+                'delayedOrders': 'Delayed_Orders',
+                'completedOrders': 'Completed_Orders',
+                'openOrders': 'Open_Orders',
+                'awaitingShipment': 'Awaiting_Shipment',
+                'awaitingInvoice': 'Awaiting_Invoice',
+                'awaitingPayment': 'Awaiting_Payment',
+                'ordersByCustomer': 'Orders_By_Customer',
+                'ordersByProduct': 'Orders_By_Product',
+                'paymentSummary': 'Payment_Summary',
+                'customerSales': 'Customer_Sales'
+            };
+            
+            const shortName = reportNames[currentReport] || 'Report';
+            const d = new Date();
+            const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            const dateStr = String(d.getDate()).padStart(2, '0') + months[d.getMonth()] + String(d.getFullYear()).slice(-2);
+            const fileName = `${shortName}_${dateStr}`;
+
+            // باز کردن پنجره چاپ
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html dir="ltr">
+                <head>
+                    <title>${fileName}</title>
+                    <style>
+                        /* تنظیمات کاغذ A4 افقی */
+                        @page { size: A4 landscape; margin: 10mm; }
+                        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 9pt; color: #1f2937; margin: 0; padding: 0; }
+                        #report-content { position: relative; }
+                        #report-content > div:last-child { margin-top: -1px; }
+                        /* استایل هدر گزارش */
+                        .print-header { text-align: center; margin-bottom: 15px; border-bottom: 2px solid #2563eb; padding-bottom: 10px; }
+                        .print-header h1 { font-size: 16pt; margin: 0 0 5px 0; color: #1e3a8a; }
+                        .print-header p { font-size: 9pt; margin: 0; color: #6b7280; }
+                        
+                        /* استایل فیلترها */
+                        .print-filters { font-size: 9pt; font-weight: bold; color: #4b5563; margin-bottom: 15px; text-align: left; background: #f8fafc; padding: 8px; border-radius: 4px; border: 1px solid #e2e8f0; }
+                        .print-filters div { font-size: 9pt !important; color: #1f2937 !important; }
+
+                        /* استایل خلاصه */
+                        .print-summary { margin-bottom: 15px; font-size: 10pt; font-weight: bold; background: #f3f4f6; padding: 8px; border-radius: 4px; }
+                        
+                        /* استایل جدول */
+                        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                        th, td { border: 1px solid #d1d5db; padding: 6px 8px; text-align: left; }
+                        th { background-color: #e5e7eb; font-weight: bold; font-size: 8pt; text-transform: uppercase; color: #374151; }
+                        td { font-size: 8.5pt; }
+                        tr:nth-child(even) { background-color: #f9fafb; }
+                    </style>
+                </head>
+                <body>
+                    <div class="print-header">
+                        <h1>${title}</h1>
+                        <p>Generated on: ${new Date().toLocaleString('en-GB')}</p>
+                    </div>
+                    
+                    <!-- درج فیلترها -->
+                    ${filtersHtml ? `<div class="print-filters">${filtersHtml}</div>` : ''}
+                    
+                    <!-- درج خلاصه تعداد رکوردها -->
+                    <div class="print-summary">
+                        ${summary}
+                    </div>
+                    
+                    <!-- درج جدول -->
+                    ${table}
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            printWindow.focus();
+            // صبر کوتاه برای لود شدن استایل‌ها و سپس چاپ
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 500);
+        }
+
+        document.getElementById('rep-print-btn').addEventListener('click', printReport);
+        document.getElementById('rep-pdf-btn').addEventListener('click', printReport);
+    }
+
+    function populateFilters() {
+        const rows = App.getState().rows;
+        const custSelect = document.getElementById('rep-f-customer');
+        const termsSelect = document.getElementById('rep-f-terms');
+        if (custSelect.options.length > 1) return; 
+
+        const customers = [...new Set(rows.map(r => r.Customer).filter(Boolean))].sort();
+        const terms = [...new Set(rows.map(r => r['Terms of Delivery']).filter(Boolean))].sort();
+
+        customers.forEach(c => custSelect.add(new Option(c, c)));
+        terms.forEach(t => termsSelect.add(new Option(t, t)));
+    }
+
+    return { init };
+})();
+</script>
+
+<!-- اسکریپت رمزگشایی -->
+<script>
+async function tryDecrypt(password) {
+  const resp = await fetch('./data.enc.json?v=' + Date.now());
+  if (!resp.ok) throw new Error('data not found');
+  const enc = await resp.json();
+  const b64 = (s) => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']
+  );
+  const key = await crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt: b64(enc.salt), iterations: 300000, hash: 'SHA-256' },
+    keyMaterial, { name: 'AES-GCM', length: 256 }, false, ['decrypt']
+  );
+
+  const cipherText = b64(enc.data), tag = b64(enc.tag);
+  const combined = new Uint8Array(cipherText.length + tag.length);
+  combined.set(cipherText); combined.set(tag, cipherText.length);
+
+  const decrypted = await crypto.subtle.decrypt(
+    { name: 'AES-GCM', iv: b64(enc.iv) }, key, combined
+  );
+  return JSON.parse(new TextDecoder().decode(decrypted));
+}
+
+async function initApp() {
+  const overlay = document.getElementById('login-overlay');
+  const input = document.getElementById('login-password');
+  const btn = document.getElementById('login-btn');
+  const err = document.getElementById('login-error');
+  const show = document.getElementById('login-show');
+
+  show.addEventListener('change', () => {
+    input.type = show.checked ? 'text' : 'password';
+    input.focus();
+  });
+
+  let _visitStart = Date.now();
+  let _activeMs = 0;
+  let _lastVisible = Date.now();
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      _activeMs += Date.now() - _lastVisible;
+    } else {
+      _lastVisible = Date.now();
+    }
+  });
+
+  function trackVisit() {
+    try {
+      const url = 'https://script.google.com/macros/s/AKfycbzh-iCLFFVIhg3naERMvCav6cX02Apyfk2RICwnmZT4MqEMfl2BoCbap5fBm8zxz5Gi/exec';
+      const send = () => {
+        const now = document.visibilityState === 'visible' ? Date.now() - _lastVisible : 0;
+        const duration = Math.round((_activeMs + now) / 1000);
+        const payload = JSON.stringify({
+          userLabel: 'manager',
+          time: new Date().toISOString(),
+          durationSeconds: duration,
+          host: location.host
+        });
+        navigator.sendBeacon(url, new Blob([payload], { type: 'text/plain' }));
+      };
+      window.addEventListener('pagehide', send);
+      window.addEventListener('beforeunload', send);
+    } catch (e) { /* هرگز برنامه را متوقف نکن */ }
+  }
+  async function attempt() {
+    err.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = 'Checking...';
+    try {
+      window.allRows = await tryDecrypt(input.value);
+      overlay.remove();
+      
+      // برنامه مستقیماً اجرا می‌شود
+      App.init();
+      trackVisit();
+      Reports.init();
+      
+    } catch (e) {
+      console.error('login error:', e);
+      err.style.display = 'block';
+      err.textContent = 'Incorrect password.';
+      btn.disabled = false;
+      btn.textContent = 'Sign in';
+      input.select();
+    }
+  }
+
+  btn.addEventListener('click', attempt);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') attempt(); });
+  input.focus();
+}
+
+window.addEventListener('DOMContentLoaded', initApp);
+</script>
+<script>
+const Help = (function () {
+  const SECTIONS = [
+    {
+      id: 'quickstart', title: '1. Quick Start',
+      html: `
+        <h3>Layout</h3>
+        <ul>
+          <li><b>Top card</b> — filters (Customer, Product, Status, Currency, Payment Type, Terms, Global Search). Applied live.</li>
+          <li><b>Middle</b> — main results table. Click headers to sort; click ▾ to filter by date.</li>
+          <li><b>Top-right of header card</b> — 📊 Analytics / 📖 Help buttons.</li>
+          <li><b>Bottom bar</b> — Quick Filters (preset filters) + Columns / Reset / Print.</li>
+        </ul>
+        <h3>Typical flow</h3>
+        <ol>
+          <li>Pick a Customer (or leave "All").</li>
+          <li>Use a Quick Filter (e.g., <b>Open Orders</b>).</li>
+          <li>Open 📊 Analytics (top-right) for aggregated views.</li>
+        </ol>
+        <p><i>All calculations happen in your browser. The source is the master Excel file.</i></p>`
+    },
+    {
+      id: 'columns', title: '2. Table Columns',
+      html: `
+        <table style="width:100%; border-collapse:collapse;">
+          <tr><th style="text-align:left; padding:6px; border-bottom:1px solid #e5e7eb;">Column</th><th style="text-align:left; padding:6px; border-bottom:1px solid #e5e7eb;">Meaning</th></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Customer</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Inquiring company.</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Product</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">GC · Main System · Spare Part · Project · Accessory.</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>INQ</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Inquiry number. Brand info shown only when enabled.</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>INQ Date</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Date the customer issued the inquiry.</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>PI</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Proforma Invoice (PI-C = commercial, PI-T = technical).</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Status</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Ordered · Canceled · Rejected · Lost · Hold · Regret Letter · empty (= Pending / In Progress).</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>PO Date</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Purchase order date (= Date-Ordered).</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Amount</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Total price of the order (before payment).</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Currency</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">USD · EUR · Rial · AED. Suffix <b>(Out)</b> = paid to a foreign account.</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Terms</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Delivery terms: DDP · CPT · CFR.</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Shipment</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">(Not sent) · (Partial) · (Complete) · (Canceled by ESA).</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Ship Date</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Date goods were dispatched.</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Invoice</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Date invoice was issued. Empty = not invoiced yet.</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Paid %</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Payment received (0% … 100%).</td></tr>
+          <tr><td style="padding:6px;"><b>Pay Date</b></td><td style="padding:6px;">Date payment was received.</td></tr>
+        </table>`
+    },
+    {
+      id: 'filters', title: '3. Filters',
+      html: `
+        <ul>
+          <li><b>Customer</b> — exact customer name.</li>
+          <li><b>Product</b> — GC / Main System / Spare Part / Project / Accessory.</li>
+          <li><b>Status</b> — Ordered, Canceled, Rejected, Lost, Hold, Regret Letter, or special presets <i>Pending</i> (Status empty, offer sent) and <i>In Progress</i> (no offer yet).</li>
+          <li><b>Currency</b> — matches base currency, ignores <b>(Out)</b>.</li>
+          <li><b>Payment Type</b> — <i>Domestic</i> (no <b>(Out)</b>) / <i>Foreign</i> (only <b>(Out)</b>).</li>
+          <li><b>Terms</b> — DDP / CPT / CFR.</li>
+          <li><b>Order Date</b> — appears only when Status = Ordered.</li>
+          <li><b>Search</b> — free text across all columns.</li>
+        </ul>
+        <p><i>All filters combine with AND.</i></p>`
+    },
+    {
+      id: 'quick', title: '4. Quick Filters',
+      html: `
+        <table style="width:100%; border-collapse:collapse;">
+          <tr><th style="text-align:left; padding:6px; border-bottom:1px solid #e5e7eb;">Preset</th><th style="text-align:left; padding:6px; border-bottom:1px solid #e5e7eb;">Logic</th></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Open Orders</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Status = Ordered AND Payment &lt; 100%.</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Completed Orders</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Payment = 100%.</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Delayed Orders</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Ordered &gt; 180 days ago AND not fully shipped.</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Awaiting Shipment</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Ordered AND shipment not Complete.</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Awaiting Invoice</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Shipped (Complete or Partial) AND invoice not sent.</td></tr>
+          <tr><td style="padding:6px;"><b>Awaiting Payment</b></td><td style="padding:6px;">Invoice sent AND Payment &lt; 100%.</td></tr>
+        </table>`
+    },
+    {
+      id: 'reports', title: '5. Reports',
+      html: `
+        <ul>
+          <li><b>All Ordered</b> — every Status = Ordered row.</li>
+          <li><b>Delayed Orders</b> — Ordered &gt; 180 days, not shipped.</li>
+          <li><b>Completed Orders</b> — fully paid.</li>
+          <li><b>Open Orders</b> — Ordered &amp; unpaid.</li>
+          <li><b>Awaiting Shipment / Invoice / Payment</b> — pipeline stages.</li>
+          <li><b>Orders by Customer</b> — grouped by customer, broken down by product and currency. A <b>TOTAL</b> row stays pinned at the bottom.</li>
+          <li><b>Orders by Product</b> — grouped by product (planned).</li>
+          <li><b>Payment Summary</b> — Paid vs. Unpaid per currency.</li>
+          <li><b>Customer Sales Summary</b> — Total / Paid / Unpaid per customer per currency.</li>
+        </ul>
+        <p><i>Each analytic view has its own date filter and column toggles (⚙️ Columns).</i></p>`
+    },
+    {
+      id: 'glossary', title: '6. Glossary',
+      html: `
+        <table style="width:100%; border-collapse:collapse;">
+          <tr><th style="text-align:left; padding:6px; border-bottom:1px solid #e5e7eb;">Term</th><th style="text-align:left; padding:6px; border-bottom:1px solid #e5e7eb;">Meaning</th></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>(Out)</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Foreign-currency payment (foreign bank account).</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>BG</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Bank Guarantee (value or date as recorded).</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Cover Bid</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Formal submission on behalf of a partner company. Tracked in Notes.</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Canceled by ESA</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Order canceled by Ervin Shimi Azma. Excluded from amount totals in most reports.</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Pending</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Status empty, but at least one offer was sent.</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>In Progress</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Status empty and no offer yet.</td></tr>
+          <tr><td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>Success %</b></td><td style="padding:6px; border-bottom:1px solid #f1f5f9;">Ordered / (Offers with commercial offer sent). Shown in the status bar.</td></tr>
+          <tr><td style="padding:6px;"><b>TOTAL</b></td><td style="padding:6px;">Aggregate of the grouped report. Not counted in "Total Records".</td></tr>
+        </table>`
+    },
+    {
+      id: 'tips', title: '7. Tips for Managers',
+      html: `
+        <ul>
+          <li>Use <b>Columns</b> to hide noisy fields and <b>Print</b> to export what you see. Open <b>📊 Analytics</b> (top-right) for grouped and pipeline views.</li>
+          <li>Click a column header to sort; click ▾ to filter by a date range.</li>
+          <li><b>Canceled by ESA</b> rows are kept in the table for transparency but excluded from monetary totals.</li>
+          <li>Filter by <b>Currency</b> alone to compare USD / EUR / Rial / AED performance side by side.</li>
+          <li>In grouped reports, the pinned <b>TOTAL</b> row always reflects the current filters.</li>
+        </ul>`
+    }
+  ];
+
+  function init() {
+    const modal = document.getElementById('help-modal');
+    const nav = document.getElementById('help-nav');
+    const body = document.getElementById('help-body');
+    const btn = document.getElementById('help-btn');
+    const close = document.getElementById('close-help');
+    if (!modal || !btn) return;
+
+    nav.innerHTML = SECTIONS.map(s =>
+      `<button data-id="${s.id}" style="display:block; width:100%; text-align:left; padding:6px 8px; border:none; background:transparent; color:#374151; border-radius:4px; font-size:0.8rem; cursor:pointer; margin-bottom:2px;">${s.title}</button>`
+    ).join('');
+    const searchInput = document.getElementById('help-search');
+    const searchClear = document.getElementById('help-search-clear');
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+    function highlight(text, q) {
+      if (!q) return text;
+      // روی HTML اعمال نکن — فقط روی متن خالص سایدبار امن است؛ برای بدنه از highlightHtml استفاده می‌شود
+      const safe = escapeHtml(text);
+      const re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+      return safe.replace(re, '<mark style="background:#fde68a; color:inherit; padding:0 1px; border-radius:2px;">$1</mark>');
+    }
+    function highlightHtml(html, q) {
+      if (!q) return html;
+      const re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+      // فقط متن بین تگ‌ها را هایلایت کن
+      return html.replace(/>([^<]+)</g, (m, txt) =>
+        '>' + txt.replace(re, '<mark style="background:#fde68a; color:inherit; padding:0 1px; border-radius:2px;">$1</mark>') + '<'
+      );
+    }
+
+    function filterNav(query) {
+      const q = query.trim();
+      const ql = q.toLowerCase();
+      let firstMatch = null;
+      nav.querySelectorAll('button[data-id]').forEach(b => {
+        const id = b.getAttribute('data-id');
+        const sec = SECTIONS.find(s => s.id === id);
+        if (!sec) return;
+        const hay = (sec.title + ' ' + sec.html).toLowerCase();
+        const match = !ql || hay.includes(ql);
+        b.style.display = match ? 'block' : 'none';
+        // هایلایت در عنوان سایدبار
+        b.innerHTML = ql ? highlight(sec.title, q) : sec.title;
+        if (match && !firstMatch) firstMatch = b;
+      });
+      // دکمه ×
+      searchClear.style.display = q ? 'block' : 'none';
+      // اگر بخش فعال فیلتر شد، اولین نتیجه را فعال کن
+      let activeId = null;
+      nav.querySelectorAll('button[data-id]').forEach(b => {
+        if (b.style.background === 'rgb(224, 231, 255)' || b.style.background === '#e0e7ff') activeId = b.getAttribute('data-id');
+      });
+      const activeBtn = activeId ? nav.querySelector(`button[data-id="${activeId}"]`) : null;
+      if (ql && (!activeBtn || activeBtn.style.display === 'none') && firstMatch) {
+        show(firstMatch.getAttribute('data-id'));
+      } else if (ql && activeBtn && activeBtn.style.display !== 'none') {
+        const sec = SECTIONS.find(s => s.id === activeId);
+        if (sec) body.innerHTML = `<h2 style="margin:0 0 10px; font-size:1.05rem; color:#1e3a8a;">${highlight(sec.title, q)}</h2>${highlightHtml(sec.html, q)}`;
+      }
+    }
+
+    searchInput.addEventListener('input', () => filterNav(searchInput.value));
+    searchClear.addEventListener('click', () => {
+      searchInput.value = '';
+      filterNav('');
+      searchInput.focus();
+    });
+    function show(id) {
+      const sec = SECTIONS.find(s => s.id === id) || SECTIONS[0];
+      const q = searchInput ? searchInput.value.trim() : '';
+      body.innerHTML = `<h2 style="margin:0 0 10px; font-size:1.05rem; color:#1e3a8a;">${highlight(sec.title, q)}</h2>${highlightHtml(sec.html, q)}`;
+      nav.querySelectorAll('button').forEach(b => {
+        const active = b.getAttribute('data-id') === sec.id;
+        b.style.background = active ? '#e0e7ff' : 'transparent';
+        b.style.color = active ? '#3730a3' : '#374151';
+        b.style.fontWeight = active ? '700' : '500';
+      });
+    }
+
+    nav.addEventListener('click', e => {
+      const b = e.target.closest('button[data-id]');
+      if (b) show(b.getAttribute('data-id'));
+    });
+
+    btn.addEventListener('click', () => {
+      modal.style.display = 'flex';
+      searchInput.value = '';
+      searchClear.style.display = 'none';
+      // ریست هایلایت عنوان‌های سایدبار
+      nav.querySelectorAll('button[data-id]').forEach(b => {
+        const id = b.getAttribute('data-id');
+        const sec = SECTIONS.find(s => s.id === id);
+        if (sec) { b.style.display = 'block'; b.innerHTML = sec.title; }
+      });
+      show(SECTIONS[0].id);
+    });
+    close.addEventListener('click', () => { modal.style.display = 'none'; });
+    modal.addEventListener('click', e => { if (e.target === modal) modal.style.display = 'none'; });
+  }
+
+  return { init };
+})();
+document.addEventListener('DOMContentLoaded', () => Help.init());
+</script>
+
+</body>
+</html>
