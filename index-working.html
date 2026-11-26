@@ -300,6 +300,31 @@
   .panel-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; margin-top: 8px; }
   .panel-table th, .panel-table td { padding: 6px; border-bottom: 1px solid #e5e7eb; text-align: left; }
   .panel-table th { background: #f9fafb; color: #6b7280; font-size: 0.65rem; text-transform: uppercase; }
+  /* Tehran Clock */
+  .tehran-clock {
+    text-align: right;
+    line-height: 1.35;
+    white-space: nowrap;
+    padding: 2px 4px 4px;
+  }
+
+  .tehran-clock-time {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #1f2937;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tehran-clock-gregorian {
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  .tehran-clock-jalali {
+    font-size: 0.68rem;
+    color: #6b7280;
+  }
 </style>
 </head>
 <body>
@@ -335,9 +360,19 @@
     <div class="page-subtitle" id="page-subtitle">Loading data…</div>
     <div id="print-filters-summary" style="display:none; margin-top:6px; padding-top:6px; border-top:1px dashed #d1d5db; font-size:0.75rem; color:#d7dce4; line-height:1.5;"></div>
   </div>
-  <div id="header-actions" style="display:flex; gap:6px; align-items:center;">
-    <button class="btn btn-secondary" id="analytics-btn" style="background:#dfe2e4; color:#92400e; border:1px solid #dbd1d1;">📊 Analytics</button>
-    <button class="btn btn-secondary" id="help-btn" style="background:#e0f2fe; color:#0f5a83; border:1px solid #c1d9e4;">📖 Help</button>
+  <div id="header-actions" style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+
+    <div class="tehran-clock">
+      <div class="tehran-clock-time" id="tehran-clock-time">--:--:--</div>
+      <div class="tehran-clock-gregorian" id="tehran-clock-gregorian">Loading...</div>
+      <div class="tehran-clock-jalali" id="tehran-clock-jalali">در حال بارگذاری...</div>
+    </div>
+
+    <div style="display:flex; gap:6px; align-items:center;">
+      <button class="btn btn-secondary" id="analytics-btn" style="background:#dfe2e4; color:#92400e; border:1px solid #dbd1d1;">📊 Analytics</button>
+      <button class="btn btn-secondary" id="help-btn" style="background:#e0f2fe; color:#0f5a83; border:1px solid #c1d9e4;">📖 Help</button>
+    </div>
+
   </div>
 </div>
 
@@ -634,14 +669,14 @@
 const App = (function () {
   const COLUMNS = [
     { key: '__row__', label: '#' }, { key: 'Customer', label: 'Customer' },
-    { key: 'Product', label: 'Product' }, { key: 'Inquiry No', label: 'INQ' },
+    { key: 'Product', label: 'Product' }, { key: 'Inquiry No', label: 'Inquiry No' },
     { key: 'Brand', label: 'Brand' }, { key: 'Date Of Inquiry Customer', label: 'INQ Date' },
     { key: 'PI', label: 'PI' }, { key: 'Status', label: 'Status' },
-    { key: 'Date-Ordered', label: 'Status Date' }, { key: 'Price', label: 'Amount' },
+    { key: 'Date-Ordered', label: 'Status Date' }, { key: 'Price', label: 'PO Amount' },
     { key: 'Price Unit', label: 'Currency' }, { key: 'Terms of Delivery', label: 'Term' },
-    { key: 'The order was sent', label: 'Shipment Status' }, { key: 'date sent', label: 'Ship Date' },
-    { key: 'sent invoice', label: 'Invoice Sent' }, { key: 'Payment Received', label: 'Payment' },
-    { key: 'Date Payment Received', label: 'Payment Date' }
+    { key: 'The order was sent', label: 'Shipment Status' }, { key: 'date sent', label: 'Last Ship Date' },
+    { key: 'sent invoice', label: 'Last Invoice' }, { key: 'Payment Received', label: 'Paid %' },
+    { key: 'Date Payment Received', label: 'Last Pay Date' }
   ];
   
   const DEFAULT_HIDDEN = ['Brand', 'Terms of Delivery', 'Date Payment Received'];
@@ -791,6 +826,97 @@ const App = (function () {
     return { customer: dom.filters.customer().value, product: dom.filters.product().value, status: dom.filters.status().value, currency: dom.filters.currency().value, paymentType: dom.filters.paymentType().value, terms: dom.filters.terms().value, globalSearch: dom.filters.globalSearch().value.trim().toLowerCase() };
   }
 
+  // === Shared order classification helpers ===
+  function orderSentText(row) {
+    return String(row['The order was sent'] || '').trim().toLowerCase();
+  }
+
+  function isCanceledRow(row) {
+    return orderSentText(row).includes('canceled by esa');
+  }
+
+  function isNoItemsRow(row) {
+    return /\bno items?\b/.test(orderSentText(row));
+  }
+
+  function hasCompleteShipment(row) {
+    return /\bcomplete\b/.test(orderSentText(row));
+  }
+
+  function hasPartialShipment(row) {
+    return /\bpartial\b/.test(orderSentText(row));
+  }
+
+  function hasInvoice(row) {
+    return String(row['sent invoice'] ?? '').trim() !== '';
+  }
+
+  function paymentValue(row) {
+    return parseFloat(row['Payment Received']) || 0;
+  }
+
+  function isOpenOrderRow(row) {
+    return String(row.Status || '').trim().toLowerCase() === 'ordered'
+      && !isCompletedOrderRow(row)
+      && !isCanceledRow(row)
+      && !isNoItemsRow(row);
+  }
+
+  function parseOrderDate(value) {
+    if (value === null || value === undefined || String(value).trim() === '') {
+      return null;
+    }
+
+    const d = new Date(value);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  function isAwaitingInvoiceRow(row) {
+    if (isCanceledRow(row) || isNoItemsRow(row)) return false;
+
+    const complete = hasCompleteShipment(row);
+    const partial = hasPartialShipment(row);
+
+    if (!complete && !partial) return false;
+
+    if (!hasInvoice(row)) return true;
+
+    // Complete + invoice موجود = خارج از Awaiting Invoice
+    if (complete) return false;
+
+    // Partial + invoice موجود: تاریخ ارسال کالا و فاکتور مقایسه می‌شوند
+    const shipDate = parseOrderDate(row['date sent']);
+    const invoiceDate = parseOrderDate(row['sent invoice']);
+
+    // تاریخ خالی یا نامعتبر: داخل Awaiting Invoice
+    if (!shipDate || !invoiceDate) return true;
+
+    return shipDate > invoiceDate;
+  }
+
+  function isAwaitingShipmentRow(row) {
+    return String(row.Status || '').trim().toLowerCase() === 'ordered'
+      && !hasCompleteShipment(row)
+      && !isCanceledRow(row)
+      && !isNoItemsRow(row);
+  }
+
+  function isAwaitingPaymentRow(row) {
+    return isOpenOrderRow(row)
+      && paymentValue(row) < 1
+      && hasInvoice(row)
+      && !isAwaitingInvoiceRow(row);
+  }
+
+  function isCompletedOrderRow(row) {
+    return String(row.Status || '').trim().toLowerCase() === 'ordered'
+      && hasCompleteShipment(row)
+      && hasInvoice(row)
+      && paymentValue(row) >= 1
+      && !isCanceledRow(row)
+      && !isNoItemsRow(row);
+  }
+
   function rowMatches(r, f) {
       if (f.customer && r.Customer !== f.customer) return false;
       if (f.product && r.Product !== f.product) return false;
@@ -819,89 +945,48 @@ const App = (function () {
       }
 
       // Order classification
+      // Order classification
       if (state.quickPreset) {
         const status = String(r.Status || '').trim().toLowerCase();
-
-        const payment = parseFloat(r['Payment Received']);
-        const hasPayment = !isNaN(payment);
-
-        const orderSent = String(r['The order was sent'] || '').trim().toLowerCase();
-        const isComplete = /\bcomplete\b/.test(orderSent);
-        const isCanceled = orderSent.includes('canceled by esa');
-        const isNoItems = /\bno items?\b/.test(orderSent);
-
-        const hasInvoice = String(r['sent invoice'] ?? '').trim() !== '';
-
-        const isOrdered = status === 'ordered';
-
-        const awaitingShipment =
-          isOrdered && !isComplete && !isCanceled && !isNoItems;
-
-        const awaitingInvoice =
-          isOrdered && isComplete && !hasInvoice;
-
-        const awaitingPayment =
-          isOrdered && isComplete && hasInvoice &&
-          (!hasPayment || payment < 1);
-
-        const completed =
-          isOrdered && isComplete && hasInvoice &&
-          hasPayment && payment >= 1;
+        const orderSent = orderSentText(r);
 
         switch (state.quickPreset) {
           case 'openOrders':
-            if (!(awaitingShipment || awaitingInvoice || awaitingPayment)) return false;
+            if (!isOpenOrderRow(r)) return false;
             break;
 
           case 'completedOrders':
-            if (!completed) return false;
+            if (!isCompletedOrderRow(r)) return false;
             break;
 
           case 'overdueOrders': {
             if (status !== 'ordered') return false;
-
-            const orderSent = String(r['The order was sent'] || '').toLowerCase();
-
             if (
-              orderSent.includes('complete') ||
-              orderSent.includes('canceled by esa') ||
-              orderSent.includes('(no items)')
+              hasCompleteShipment(r) ||
+              isCanceledRow(r) ||
+              isNoItemsRow(r)
             ) return false;
 
-            const raw = r['Date-Ordered'];
-            if (!raw) return false;
-
-            const d = new Date(raw);
-            if (isNaN(d.getTime())) return false;
+            const d = parseOrderDate(r['Date-Ordered']);
+            if (!d) return false;
 
             const sixMonthsAgo = new Date();
             sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
             if (d >= sixMonthsAgo) return false;
-
             break;
           }
 
-          case 'awaitingShipment': {
-            if (status !== 'ordered') return false;
-
-            const orderSent = String(r['The order was sent'] || '').toLowerCase();
-
-            if (
-              orderSent.includes('complete') ||
-              orderSent.includes('canceled by esa') ||
-              orderSent.includes('(no items)')
-            ) return false;
-
+          case 'awaitingShipment':
+            if (!isAwaitingShipmentRow(r)) return false;
             break;
-          }
 
           case 'awaitingInvoice':
-            if (!awaitingInvoice) return false;
+            if (!isAwaitingInvoiceRow(r)) return false;
             break;
 
           case 'awaitingPayment':
-            if (!awaitingPayment) return false;
+            if (!isAwaitingPaymentRow(r)) return false;
             break;
         }
       }
@@ -948,12 +1033,8 @@ const App = (function () {
     const rows = state.filteredRows;
     const totalRecords = rows.length;
     const totalOrders = rows.filter(r => String(r.Status || '').toLowerCase() === 'ordered').length;
-    const completed = rows.filter(r => (parseFloat(r['Payment Received']) || 0) >= 1).length;
-    const open = rows.filter(r => {
-      const status = String(r.Status || '').toLowerCase();
-      const paid = parseFloat(r['Payment Received']) || 0;
-      return status === 'ordered' && paid < 1;
-    }).length;
+    const completed = rows.filter(isCompletedOrderRow).length;
+    const open = rows.filter(isOpenOrderRow).length;
 
     // Success %: Ordered ÷ Offers with C
     const offersWithC = new Set();
@@ -1043,30 +1124,23 @@ const App = (function () {
     }
   }
   function renderKPIOpenOrders(rows) {
-    const isOpen = r => {
-      const s = String(r.Status || '').toLowerCase();
-      const p = parseFloat(r['Payment Received']) || 0;
-      return s === 'ordered' && p < 1;
-    };
-    const openRows = rows.filter(isOpen);
+    const openRows = rows.filter(isOpenOrderRow);
 
-    const shipRows = [], invRows = [], payRows = [];
-    openRows.forEach(r => {
-      const ship = String(r['The order was sent'] || '');
-      const hasInv = !!r['sent invoice'];
-      const isComplete = ship.includes('(Complete)');
-      const isPartial = ship.includes('(Partial)');
-      const paid = parseFloat(r['Payment Received']) || 0;
+    const shipRows = openRows.filter(isAwaitingShipmentRow);
+    const invRows = openRows.filter(isAwaitingInvoiceRow);
+    const payRows = openRows.filter(isAwaitingPaymentRow);
 
-      if (!isComplete && !isPartial) shipRows.push(r);
-      else if ((isComplete || isPartial) && !hasInv) invRows.push(r);
-      if (hasInv && paid < 1) payRows.push(r);
-    });
+    document.getElementById('kpi-open-total').textContent =
+      openRows.length.toLocaleString('en-US');
 
-    document.getElementById('kpi-open-total').textContent = openRows.length.toLocaleString('en-US');
-    document.getElementById('kpi-open-awaiting-ship').textContent = shipRows.length.toLocaleString('en-US');
-    document.getElementById('kpi-open-awaiting-inv').textContent = invRows.length.toLocaleString('en-US');
-    document.getElementById('kpi-open-awaiting-pay').textContent = payRows.length.toLocaleString('en-US');
+    document.getElementById('kpi-open-awaiting-ship').textContent =
+      shipRows.length.toLocaleString('en-US');
+
+    document.getElementById('kpi-open-awaiting-inv').textContent =
+      invRows.length.toLocaleString('en-US');
+
+    document.getElementById('kpi-open-awaiting-pay').textContent =
+      payRows.length.toLocaleString('en-US');
 
     renderKpiBreakdown('kpi-bd-openTotal', openRows);
     renderKpiBreakdown('kpi-bd-awaitingShip', shipRows);
@@ -1339,8 +1413,50 @@ const App = (function () {
     })[0];
   }
 
+  function isAwaitingInvoiceRow(row) {
+      const ship = String(row['The order was sent'] || '').trim().toLowerCase();
+
+      // Exclude canceled and no-items
+      if (ship.includes('canceled by esa')) return false;
+      if (/\bno items?\b/.test(ship)) return false;
+
+      const isPartial = ship.includes('(partial)');
+      const isComplete = ship.includes('(complete)');
+
+      if (!isPartial && !isComplete) return false;
+
+      const invoiceRaw = row['sent invoice'];
+      const shipRaw = row['date sent'];
+
+      const hasInvoice = String(invoiceRaw ?? '').trim() !== '';
+
+      // No invoice date
+      if (!hasInvoice) return true;
+
+      // Complete shipment with invoice
+      if (isComplete) return false;
+
+      // Partial shipment: compare shipment and invoice dates
+      const shipDate = shipRaw ? new Date(shipRaw) : null;
+      const invoiceDate = new Date(invoiceRaw);
+
+      const validShipDate = shipDate && !isNaN(shipDate.getTime());
+      const validInvoiceDate = !isNaN(invoiceDate.getTime());
+
+      // Missing or invalid dates
+      if (!validShipDate || !validInvoiceDate) return true;
+
+      // New shipment after last invoice
+      return shipDate > invoiceDate;
+  }
+
   function getWaitingStatus(row) {
     const isOrdered = String(row.Status || '').toLowerCase() === 'ordered';
+
+    if (isAwaitingInvoiceRow(row)) {
+        return 'Awaiting Invoice';
+    }
+
     if (!isOrdered) return null;
     const ship = String(row['The order was sent'] || '');
     const hasShip = ship.includes('Complete') || ship.includes('Partial');
@@ -1361,7 +1477,8 @@ const App = (function () {
     
     const ship = String(row['The order was sent'] || '');
     const hasShip = ship.includes('Complete') || ship.includes('Partial');
-    const hasInv = !!row['sent invoice'];
+    const awaitingInvoice = isAwaitingInvoiceRow(row);
+    const hasInv = !!row['sent invoice'] && !awaitingInvoice;
     const isPaid = (parseFloat(row['Payment Received']) || 0) >= 1;
 
     let statusLabel = 'Status';
@@ -1374,8 +1491,10 @@ const App = (function () {
     let currentIdx = 0; 
     if (hasOffer) currentIdx = 1; 
     if (isOrdered || isFailed) currentIdx = 2; 
-    if (isOrdered && hasShip) currentIdx = 3; 
-    if (isOrdered && hasInv) currentIdx = 4; 
+    if (isOrdered && hasShip) currentIdx = 3;
+    if (isOrdered && hasInv) currentIdx = 4;
+
+    if (awaitingInvoice) currentIdx = 4;
     // اگر کامل پرداخت شده، ایندکس به 6 می‌رود تا همه سبز شوند
     if (isOrdered && isPaid) currentIdx = 6; 
 
@@ -1570,8 +1689,8 @@ const App = (function () {
         
         let pipeline = '—';
         const waitStatus = getWaitingStatus(r);
-        if (String(r.Status).toLowerCase() === 'ordered' && waitStatus) {
-          pipeline = waitStatus;
+        if (waitStatus) {
+            pipeline = waitStatus;
         }
         
         html += `<tr>
@@ -1586,7 +1705,7 @@ const App = (function () {
     // --- بخش جدید: تنظیم عنوان پنل و نمایش وضعیت Awaiting در هدر ---
     const waitStatus = getWaitingStatus(row);
     let headerBadge = '';
-    if (isOrdered && waitStatus) {
+    if (waitStatus) {
       let color = '#2563eb'; // آبی برای Awaiting
       if (waitStatus === 'Completed') color = '#16a34a'; // سبز
       else if (waitStatus === 'Awaiting Payment') color = '#d97706'; // نارنجی
@@ -1945,36 +2064,34 @@ const Reports = (function() {
             });
         }
         else if (type === 'completedOrders') {
-            title = "Completed Orders (100% Paid)";
-            filtered.filter(r => (parseFloat(r['Payment Received']) || 0) >= 1).forEach(r => { data.push(extractRow(r)); });
+            title = "Completed Orders (100% Paid, Fully Shipped & Invoiced)";
+            filtered.filter(isCompletedOrderRow).forEach(r => {
+                data.push(extractRow(r));
+            });
         }
         else if (type === 'openOrders') {
-            title = "Open Orders (Ordered & Unpaid)";
-            filtered.filter(r => String(r.Status || '').toLowerCase() === 'ordered' && (parseFloat(r['Payment Received']) || 0) < 1).forEach(r => { data.push(extractRow(r)); });
+            title = "Open Orders (Ordered & Unpaid, Excluding Canceled/No Items)";
+            filtered.filter(isOpenOrderRow).forEach(r => {
+                data.push(extractRow(r));
+            });
         }
         else if (type === 'awaitingShipment') {
-            title = "Awaiting Shipment (Ordered, not fully shipped)";
-            filtered.filter(r => {
-                const status = String(r.Status || '').toLowerCase();
-                const ship = String(r['The order was sent'] || '');
-                
-                // ? دقیقاً مطابق منطق VBA (حذف Complete و Canceled)
-                return status === 'ordered' 
-                    && !ship.includes('(Complete)') 
-                    && !ship.includes('Canceled by ESA');
-            }).forEach(r => { data.push(extractRow(r)); });
+            title = "Awaiting Shipment (Ordered, Unpaid, Not Shipped)";
+            filtered.filter(isAwaitingShipmentRow).forEach(r => {
+                data.push(extractRow(r));
+            });
         }
         else if (type === 'awaitingInvoice') {
-            title = "Awaiting Invoice (Shipped, but not invoiced)";
-            filtered.filter(r => {
-                const ship = String(r['The order was sent'] || '');
-                const inv = !!r['sent invoice'];
-                return (ship.includes('Complete') || ship.includes('Partial')) && !inv;
-            }).forEach(r => { data.push(extractRow(r)); });
+            title = "Awaiting Invoice (Shipped, but not invoiced or shipment newer than invoice)";
+            filtered.filter(isAwaitingInvoiceRow).forEach(r => {
+                data.push(extractRow(r));
+            });
         }
         else if (type === 'awaitingPayment') {
             title = "Awaiting Payment (Invoice Sent, Not Fully Paid)";
-            filtered.filter(r => !!r['sent invoice'] && (parseFloat(r['Payment Received']) || 0) < 1).forEach(r => { data.push(extractRow(r)); });
+            filtered.filter(isAwaitingPaymentRow).forEach(r => {
+                data.push(extractRow(r));
+            });
         }
         else if (type === 'ordersByCustomer') {
             title = "Orders by Customer (Grouped)";
@@ -2907,6 +3024,72 @@ const Help = (function () {
 })();
 document.addEventListener('DOMContentLoaded', () => Help.init());
 </script>
+<script>
+(function () {
+  const timeEl = document.getElementById('tehran-clock-time');
+  const gregorianEl = document.getElementById('tehran-clock-gregorian');
+  const jalaliEl = document.getElementById('tehran-clock-jalali');
 
+  if (!timeEl || !gregorianEl || !jalaliEl) return;
+
+  const timeFormat = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Asia/Tehran',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  });
+
+  const gregorianFormat = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Asia/Tehran',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+
+  const jalaliFormat = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
+    timeZone: 'Asia/Tehran',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+
+  const persianDayWords = [
+    'یکم', 'دوم', 'سوم', 'چهارم', 'پنجم',
+    'ششم', 'هفتم', 'هشتم', 'نهم', 'دهم',
+    'یازدهم', 'دوازدهم', 'سیزدهم', 'چهاردهم', 'پانزدهم',
+    'شانزدهم', 'هفدهم', 'هجدهم', 'نوزدهم', 'بیستم',
+    'بیست‌ویکم', 'بیست‌ودوم', 'بیست‌وسوم', 'بیست‌وچهارم',
+    'بیست‌وپنجم', 'بیست‌وششم', 'بیست‌وهفتم',
+    'بیست‌وهشتم', 'بیست‌ونهم', 'سی‌ام', 'سی‌ویکم'
+  ];
+
+  const jalaliPartsFormat = new Intl.DateTimeFormat('en-US-u-ca-persian', {
+    timeZone: 'Asia/Tehran',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+
+  function updateTehranClock() {
+    const now = new Date();
+
+    timeEl.textContent = timeFormat.format(now);
+    gregorianEl.textContent = gregorianFormat.format(now);
+    const parts = jalaliPartsFormat.formatToParts(now);
+    const day = Number(parts.find(p => p.type === 'day').value);
+    const month = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
+      timeZone: 'Asia/Tehran',
+      month: 'long'
+    }).format(now);
+    const year = parts.find(p => p.type === 'year').value;
+
+    jalaliEl.textContent = `${persianDayWords[day - 1]} ${month} ${year}`;
+  }
+
+  updateTehranClock();
+  setInterval(updateTehranClock, 1000);
+})();
+</script>
 </body>
 </html>
